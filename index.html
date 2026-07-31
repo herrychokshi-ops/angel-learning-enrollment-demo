@@ -4,55 +4,72 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Angel Learning Center — Online Enrollment</title>
+  <link rel="icon" href="assets/icon.png" />
+  <link rel="apple-touch-icon" href="assets/icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="bg-glow" aria-hidden="true"></div>
+  <div class="demo-banner" data-i18n="demoBanner">
+    Interactive mockup · not live data <span data-i18n="demoBannerHint">· for demonstration only</span>
+  </div>
 
   <header class="topbar">
     <a href="#home" class="brand" data-nav="home">
-      <span class="brand-mark">A</span>
+      <img class="brand-logo" src="assets/logo.png" alt="Angel Learning Center" />
       <span class="brand-text">
         <strong>Angel Learning Center</strong>
-        <small>Parent Portal · Demo</small>
+        <small data-i18n="portalLabel">Parent Portal · Demo</small>
       </span>
     </a>
     <nav class="top-nav">
-      <a href="#home" data-nav="home">Home</a>
-      <a href="#packet" data-nav="packet">Forms</a>
-      <button type="button" class="btn btn-ghost" id="resetDemo">Reset demo</button>
+      <a href="#home" data-nav="home" data-i18n="navHome">Home</a>
+      <a href="#packet" data-nav="packet" data-i18n="navForms">Forms</a>
+      <a href="#staff" data-nav="staff" data-i18n="navStaff">Staff view</a>
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button type="button" id="langEn" class="active">EN</button>
+        <button type="button" id="langEs">ES</button>
+      </div>
+      <button type="button" class="btn btn-ghost" id="resetDemo" data-i18n="resetDemo">Reset demo</button>
     </nav>
   </header>
 
+  <div class="contact-strip">
+    <span>178 Basswood Drive, Savannah, GA 31407</span>
+    <a href="tel:9126003899">(912) 600-3899</a>
+    <span data-i18n="hours">Mon–Fri 6:30 AM – 5:30 PM</span>
+  </div>
+
   <main>
-    <!-- HOME -->
     <section id="view-home" class="view is-active">
       <div class="hero">
-        <p class="hero-kicker">Enrollment packet · 2026–2027</p>
+        <p class="hero-kicker" data-i18n="heroKicker">Enrollment packet · 2026–2027</p>
         <h1 class="hero-brand">Angel Learning Center</h1>
-        <p class="hero-lead">Complete every required form online — enrollment, tuition, transportation, emergency contacts, and CACFP meal benefits — in one guided flow.</p>
+        <p class="hero-lead" data-i18n="heroLead">Complete every required form online — enrollment, tuition, transportation, emergency contacts, and CACFP meal benefits — in one guided flow.</p>
         <div class="hero-cta">
-          <a href="#packet" class="btn btn-primary" data-nav="packet">Start enrollment packet</a>
-          <a href="#enrollment" class="btn btn-secondary" data-nav="enrollment">Jump to a form</a>
+          <a href="#packet" class="btn btn-primary" data-nav="packet" data-i18n="ctaStart">Start enrollment packet</a>
+          <button type="button" class="btn btn-green" id="loadSample" data-i18n="ctaSample">Load sample child</button>
+          <a href="#enrollment" class="btn btn-secondary" data-nav="enrollment" data-i18n="ctaJump">Jump to a form</a>
         </div>
       </div>
 
       <section class="section packet-overview">
-        <h2>What parents complete online</h2>
-        <p class="section-lead">Replaces paper PDFs and Word docs with a single, mobile-friendly experience.</p>
+        <h2 data-i18n="overviewTitle">What parents complete online</h2>
+        <p class="section-lead" data-i18n="overviewLead">Replaces paper PDFs and Word docs with a single, mobile-friendly experience.</p>
         <ul class="form-list" id="formList"></ul>
       </section>
     </section>
 
-    <!-- PACKET DASHBOARD -->
     <section id="view-packet" class="view">
       <div class="page-head">
-        <p class="eyebrow">Your packet</p>
-        <h2>Enrollment checklist</h2>
-        <p class="section-lead">Progress saves in this browser for the demo. Click any form to fill it out.</p>
+        <p class="eyebrow" data-i18n="packetEyebrow">Your packet</p>
+        <h2 data-i18n="packetTitle">Enrollment checklist</h2>
+        <p class="section-lead" data-i18n="packetLead">Progress saves in this browser for the demo. Click any form to fill it out.</p>
+        <div class="hero-cta" style="margin-bottom:1rem">
+          <button type="button" class="btn btn-green" id="loadSamplePacket" data-i18n="ctaSample">Load sample child</button>
+        </div>
         <div class="progress-wrap">
           <div class="progress-bar"><span id="progressFill"></span></div>
           <p class="progress-label"><span id="progressText">0 of 5 complete</span></p>
@@ -61,214 +78,192 @@
       <ul class="form-list" id="packetList"></ul>
     </section>
 
-    <!-- ENROLLMENT -->
     <section id="view-enrollment" class="view">
       <form class="form-shell" data-form="enrollment" novalidate>
         <div class="page-head">
-          <a href="#packet" class="back" data-nav="packet">← Back to packet</a>
-          <p class="eyebrow">Form 1 of 5</p>
-          <h2>Enrollment Form</h2>
-          <p class="section-lead">Child, parent/guardian, emergency contacts, and care schedule.</p>
+          <a href="#packet" class="back" data-nav="packet" data-i18n="backPacket">← Back to packet</a>
+          <p class="eyebrow" data-i18n="form1">Form 1 of 5</p>
+          <h2 data-i18n="enrollmentTitle">Enrollment Form</h2>
+          <p class="section-lead" data-i18n="enrollmentLead">Child, parent/guardian, emergency contacts, and care schedule.</p>
         </div>
 
         <fieldset>
-          <legend>Child information</legend>
+          <legend data-i18n="childInfo">Child information</legend>
           <div class="grid-3">
-            <label>First name <input name="childFirst" required /></label>
+            <label><span data-i18n="firstName">First name</span> <input name="childFirst" required /></label>
             <label>M.I. <input name="childMI" maxlength="1" /></label>
-            <label>Last name <input name="childLast" required /></label>
+            <label><span data-i18n="lastName">Last name</span> <input name="childLast" required /></label>
           </div>
           <div class="grid-3">
-            <label>Preferred name <input name="childPreferred" /></label>
-            <label>Grade / class <input name="childGrade" /></label>
-            <label>Start date <input type="date" name="startDate" /></label>
+            <label><span data-i18n="preferredName">Preferred name</span> <input name="childPreferred" /></label>
+            <label><span data-i18n="gradeClass">Grade / class</span> <input name="childGrade" /></label>
+            <label><span data-i18n="startDate">Start date</span> <input type="date" name="startDate" /></label>
           </div>
           <div class="grid-3">
-            <label>Date of birth <input type="date" name="childDob" required /></label>
-            <label>Gender
+            <label><span data-i18n="dob">Date of birth</span> <input type="date" name="childDob" required /></label>
+            <label><span data-i18n="gender">Gender</span>
               <select name="childGender">
                 <option value="">Select</option>
                 <option>Male</option>
                 <option>Female</option>
               </select>
             </label>
-            <label>Child SSN <input name="childSsn" inputmode="numeric" placeholder="XXX-XX-XXXX" autocomplete="off" /></label>
+            <label><span data-i18n="childSsn">Child SSN</span> <input name="childSsn" autocomplete="off" /></label>
           </div>
-          <label>Home address <input name="childAddress" /></label>
+          <label><span data-i18n="address">Home address</span> <input name="childAddress" /></label>
           <div class="grid-2">
-            <label>City <input name="childCity" /></label>
+            <label><span data-i18n="city">City</span> <input name="childCity" /></label>
             <label>ZIP <input name="childZip" /></label>
           </div>
-          <label>Medical conditions, medications, or special attention
+          <label><span data-i18n="medicalNotes">Medical conditions, medications, or special attention</span>
             <textarea name="medicalNotes" rows="3"></textarea>
           </label>
         </fieldset>
 
         <fieldset>
-          <legend>Mother / guardian</legend>
+          <legend data-i18n="motherGuardian">Mother / guardian</legend>
           <div class="grid-3">
-            <label>First name <input name="momFirst" /></label>
+            <label><span data-i18n="firstName">First name</span> <input name="momFirst" /></label>
             <label>M.I. <input name="momMI" maxlength="1" /></label>
-            <label>Last name <input name="momLast" /></label>
+            <label><span data-i18n="lastName">Last name</span> <input name="momLast" /></label>
           </div>
           <div class="grid-2">
-            <label>Cell phone <input type="tel" name="momCell" /></label>
-            <label>Email <input type="email" name="momEmail" /></label>
+            <label><span data-i18n="cellPhone">Cell phone</span> <input type="tel" name="momCell" /></label>
+            <label><span data-i18n="email">Email</span> <input type="email" name="momEmail" /></label>
           </div>
           <div class="grid-2">
-            <label>Employer <input name="momEmployer" /></label>
-            <label>Occupation <input name="momOccupation" /></label>
+            <label><span data-i18n="employer">Employer</span> <input name="momEmployer" /></label>
+            <label><span data-i18n="occupation">Occupation</span> <input name="momOccupation" /></label>
           </div>
-          <div class="grid-2">
-            <label>Work phone <input type="tel" name="momWorkPhone" /></label>
-            <label>Work hours <input name="momWorkHours" /></label>
-          </div>
-          <label class="check"><input type="checkbox" name="momCustodial" /> Custodial parent</label>
+          <label class="check"><input type="checkbox" name="momCustodial" /> <span data-i18n="custodial">Custodial parent</span></label>
         </fieldset>
 
         <fieldset>
-          <legend>Father / guardian</legend>
+          <legend data-i18n="fatherGuardian">Father / guardian</legend>
           <div class="grid-3">
-            <label>First name <input name="dadFirst" /></label>
+            <label><span data-i18n="firstName">First name</span> <input name="dadFirst" /></label>
             <label>M.I. <input name="dadMI" maxlength="1" /></label>
-            <label>Last name <input name="dadLast" /></label>
+            <label><span data-i18n="lastName">Last name</span> <input name="dadLast" /></label>
           </div>
           <div class="grid-2">
-            <label>Cell phone <input type="tel" name="dadCell" /></label>
-            <label>Email <input type="email" name="dadEmail" /></label>
+            <label><span data-i18n="cellPhone">Cell phone</span> <input type="tel" name="dadCell" /></label>
+            <label><span data-i18n="email">Email</span> <input type="email" name="dadEmail" /></label>
           </div>
-          <div class="grid-2">
-            <label>Employer <input name="dadEmployer" /></label>
-            <label>Occupation <input name="dadOccupation" /></label>
-          </div>
-          <label class="check"><input type="checkbox" name="dadCustodial" /> Custodial parent</label>
+          <label class="check"><input type="checkbox" name="dadCustodial" /> <span data-i18n="custodial">Custodial parent</span></label>
         </fieldset>
 
         <fieldset>
-          <legend>Emergency contacts <span class="hint">(authorized for pickup — ID required)</span></legend>
+          <legend><span data-i18n="emergencyContacts">Emergency contacts</span> <span class="hint" data-i18n="pickupHint">(authorized for pickup — ID required)</span></legend>
           <div class="repeat-block">
-            <p class="subhead">Contact 1</p>
-            <label>Full name <input name="ec1Name" /></label>
+            <p class="subhead" data-i18n="contact1">Contact 1</p>
+            <label><span data-i18n="fullName">Full name</span> <input name="ec1Name" /></label>
             <div class="grid-3">
               <label>Home <input type="tel" name="ec1Home" /></label>
               <label>Work <input type="tel" name="ec1Work" /></label>
               <label>Cell <input type="tel" name="ec1Cell" /></label>
             </div>
-            <label>Relationship <input name="ec1Rel" /></label>
-          </div>
-          <div class="repeat-block">
-            <p class="subhead">Contact 2</p>
-            <label>Full name <input name="ec2Name" /></label>
-            <div class="grid-3">
-              <label>Home <input type="tel" name="ec2Home" /></label>
-              <label>Work <input type="tel" name="ec2Work" /></label>
-              <label>Cell <input type="tel" name="ec2Cell" /></label>
-            </div>
-            <label>Relationship <input name="ec2Rel" /></label>
+            <label><span data-i18n="relationship">Relationship</span> <input name="ec1Rel" /></label>
           </div>
         </fieldset>
 
         <fieldset>
-          <legend>Care schedule</legend>
+          <legend data-i18n="careSchedule">Care schedule</legend>
           <div class="grid-2">
-            <label>Primary hours from <input type="time" name="careFrom" /></label>
-            <label>To <input type="time" name="careTo" /></label>
+            <label><span data-i18n="hoursFrom">Primary hours from</span> <input type="time" name="careFrom" /></label>
+            <label><span data-i18n="hoursTo">To</span> <input type="time" name="careTo" /></label>
           </div>
-          <p class="hint">Cannot exceed 10 hours per day.</p>
-          <div class="chip-group" role="group" aria-label="Meals served">
+          <p class="hint" data-i18n="tenHourHint">Cannot exceed 10 hours per day.</p>
+          <div class="chip-group">
             <label class="chip"><input type="checkbox" name="mealBreakfast" /> Breakfast</label>
             <label class="chip"><input type="checkbox" name="mealLunch" /> Lunch</label>
             <label class="chip"><input type="checkbox" name="mealSnack" /> PM Snack</label>
           </div>
-          <label>Current tuition amount <input name="tuitionAmount" placeholder="$" /></label>
+          <label><span data-i18n="tuitionAmount">Current tuition amount</span> <input name="tuitionAmount" placeholder="$" /></label>
         </fieldset>
 
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary">Save &amp; mark complete</button>
-          <a href="#financial" class="btn btn-secondary" data-nav="financial">Next: Tuition agreement →</a>
+          <button type="submit" class="btn btn-primary" data-i18n="saveComplete">Save &amp; mark complete</button>
+          <a href="#financial" class="btn btn-secondary" data-nav="financial" data-i18n="nextFinancial">Next: Tuition agreement →</a>
         </div>
       </form>
     </section>
 
-    <!-- FINANCIAL -->
     <section id="view-financial" class="view">
       <form class="form-shell" data-form="financial" novalidate>
         <div class="page-head">
-          <a href="#packet" class="back" data-nav="packet">← Back to packet</a>
-          <p class="eyebrow">Form 2 of 5</p>
-          <h2>Financial Responsibility &amp; Tuition Agreement</h2>
-          <p class="section-lead">Acknowledge responsibility for tuition, fees, and payment terms.</p>
+          <a href="#packet" class="back" data-nav="packet" data-i18n="backPacket">← Back to packet</a>
+          <p class="eyebrow" data-i18n="form2">Form 2 of 5</p>
+          <h2 data-i18n="financialTitle">Financial Responsibility &amp; Tuition Agreement</h2>
+          <p class="section-lead" data-i18n="financialLead">Acknowledge responsibility for tuition, fees, and payment terms.</p>
         </div>
 
         <fieldset>
-          <legend>Responsible party</legend>
-          <label>Full legal name <input name="rpName" required /></label>
+          <legend data-i18n="responsibleParty">Responsible party</legend>
+          <label><span data-i18n="legalName">Full legal name</span> <input name="rpName" required /></label>
           <div class="grid-3">
-            <label>Date of birth <input type="date" name="rpDob" /></label>
-            <label>Driver’s license / State ID <input name="rpDl" /></label>
-            <label>State <input name="rpState" maxlength="2" /></label>
+            <label><span data-i18n="dob">Date of birth</span> <input type="date" name="rpDob" /></label>
+            <label><span data-i18n="dl">Driver’s license / State ID</span> <input name="rpDl" /></label>
+            <label><span data-i18n="state">State</span> <input name="rpState" maxlength="2" /></label>
           </div>
-          <label>Home address <input name="rpAddress" /></label>
+          <label><span data-i18n="address">Home address</span> <input name="rpAddress" /></label>
           <div class="grid-2">
-            <label>City / State / ZIP <input name="rpCityStateZip" /></label>
+            <label><span data-i18n="cityStateZip">City / State / ZIP</span> <input name="rpCityStateZip" /></label>
             <label>SSN <input name="rpSsn" autocomplete="off" /></label>
           </div>
           <div class="grid-2">
-            <label>Phone <input type="tel" name="rpPhone" /></label>
-            <label>Email <input type="email" name="rpEmail" /></label>
+            <label><span data-i18n="phone">Phone</span> <input type="tel" name="rpPhone" /></label>
+            <label><span data-i18n="email">Email</span> <input type="email" name="rpEmail" /></label>
           </div>
-          <label>Employer <input name="rpEmployer" /></label>
+          <label><span data-i18n="employer">Employer</span> <input name="rpEmployer" /></label>
         </fieldset>
 
         <fieldset>
-          <legend>Child</legend>
+          <legend data-i18n="child">Child</legend>
           <div class="grid-2">
-            <label>Child’s name <input name="finChildName" required /></label>
-            <label>Enrollment date <input type="date" name="finEnrollDate" /></label>
+            <label><span data-i18n="childName">Child’s name</span> <input name="finChildName" required /></label>
+            <label><span data-i18n="enrollDate">Enrollment date</span> <input type="date" name="finEnrollDate" /></label>
           </div>
         </fieldset>
 
         <fieldset class="agreement-box">
-          <legend>Agreement</legend>
+          <legend data-i18n="agreement">Agreement</legend>
           <div class="scroll-terms">
-            <p>I acknowledge that I am legally and financially responsible for payment of all tuition, registration fees, late fees, returned payment fees, activity fees, and any other charges incurred for my child’s enrollment at Angel Learning Center. Tuition is due regardless of attendance unless otherwise provided in the Center’s written policies.</p>
-            <p><strong>Failure to pay</strong> may result in late/returned payment fees, suspension or termination of services, refusal of future enrollment, referral to collections, and civil action in a Georgia court, including recovery of filing fees and post-judgment interest.</p>
-            <p>I agree to keep my contact and employer information current and notify the Center within five (5) business days of any changes.</p>
+            <p data-i18n="finTerms1">I acknowledge that I am legally and financially responsible for payment of all tuition, registration fees, late fees, returned payment fees, activity fees, and any other charges incurred for my child’s enrollment at Angel Learning Center. Tuition is due regardless of attendance unless otherwise provided in the Center’s written policies.</p>
+            <p data-i18n="finTerms2">Failure to pay may result in late/returned payment fees, suspension or termination of services, refusal of future enrollment, referral to collections, and civil action in a Georgia court.</p>
           </div>
-          <label class="check"><input type="checkbox" name="finAgree" required /> I have read this agreement and voluntarily agree to be personally responsible for all amounts owed.</label>
+          <label class="check"><input type="checkbox" name="finAgree" required /> <span data-i18n="finAgree">I have read this agreement and voluntarily agree to be personally responsible for all amounts owed.</span></label>
           <div class="grid-2">
-            <label>Printed name <input name="finPrintName" required /></label>
-            <label>Date <input type="date" name="finSignDate" /></label>
+            <label><span data-i18n="printedName">Printed name</span> <input name="finPrintName" required /></label>
+            <label><span data-i18n="date">Date</span> <input type="date" name="finSignDate" /></label>
           </div>
-          <label>E-signature <input name="finSignature" class="signature" placeholder="Type full legal name to sign" required /></label>
+          <label><span data-i18n="esign">E-signature</span> <input name="finSignature" class="signature" placeholder="Type full legal name to sign" required /></label>
         </fieldset>
 
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary">Save &amp; mark complete</button>
-          <a href="#transport" class="btn btn-secondary" data-nav="transport">Next: Transportation →</a>
+          <button type="submit" class="btn btn-primary" data-i18n="saveComplete">Save &amp; mark complete</button>
+          <a href="#transport" class="btn btn-secondary" data-nav="transport" data-i18n="nextTransport">Next: Transportation →</a>
         </div>
       </form>
     </section>
 
-    <!-- TRANSPORTATION -->
     <section id="view-transport" class="view">
       <form class="form-shell" data-form="transport" novalidate>
         <div class="page-head">
-          <a href="#packet" class="back" data-nav="packet">← Back to packet</a>
-          <p class="eyebrow">Form 3 of 5</p>
-          <h2>Transportation Agreement</h2>
-          <p class="section-lead">Authorize Angel Learning Center staff to transport your child from school.</p>
+          <a href="#packet" class="back" data-nav="packet" data-i18n="backPacket">← Back to packet</a>
+          <p class="eyebrow" data-i18n="form3">Form 3 of 5</p>
+          <h2 data-i18n="transportTitle">Transportation Agreement</h2>
+          <p class="section-lead" data-i18n="transportLead">Authorize Angel Learning Center staff to transport your child from school.</p>
         </div>
 
         <fieldset>
-          <legend>Child &amp; route</legend>
-          <label>Name of child <input name="trChild" required /></label>
+          <legend data-i18n="childRoute">Child &amp; route</legend>
+          <label><span data-i18n="childName">Name of child</span> <input name="trChild" required /></label>
           <div class="route-options">
             <label class="radio-card">
               <input type="radio" name="trSchoolChoice" value="godley" />
               <span>
                 <strong>Godley Station School</strong>
-                <small>Pickup time</small>
+                <small data-i18n="pickupTime">Pickup time</small>
                 <input type="time" name="trGodleyTime" />
               </span>
             </label>
@@ -276,21 +271,21 @@
               <input type="radio" name="trSchoolChoice" value="newhampstead" />
               <span>
                 <strong>New Hampstead Elementary</strong>
-                <small>Pickup time</small>
+                <small data-i18n="pickupTime">Pickup time</small>
                 <input type="time" name="trNewHampTime" />
               </span>
             </label>
             <label class="radio-card">
               <input type="radio" name="trSchoolChoice" value="other" />
               <span>
-                <strong>Other school</strong>
+                <strong data-i18n="otherSchool">Other school</strong>
                 <input name="trOtherSchool" placeholder="School name" />
                 <input type="time" name="trOtherTime" />
               </span>
             </label>
           </div>
-          <label>Arrive at Angel Learning Center <input type="time" name="trArriveTime" /></label>
-          <p class="subhead">Transport days</p>
+          <label><span data-i18n="arriveAlc">Arrive at Angel Learning Center</span> <input type="time" name="trArriveTime" /></label>
+          <p class="subhead" data-i18n="transportDays">Transport days</p>
           <div class="chip-group">
             <label class="chip"><input type="checkbox" name="trMon" /> Monday</label>
             <label class="chip"><input type="checkbox" name="trTue" /> Tuesday</label>
@@ -298,159 +293,134 @@
             <label class="chip"><input type="checkbox" name="trThu" /> Thursday</label>
             <label class="chip"><input type="checkbox" name="trFri" /> Friday</label>
           </div>
-          <label class="check"><input type="checkbox" name="trStaffAuth" required /> Angel Learning staff is authorized to transport my child.</label>
-          <label class="check"><input type="checkbox" name="trNotify" /> I understand I must notify the center in advance if I personally transport my child.</label>
+          <label class="check"><input type="checkbox" name="trStaffAuth" required /> <span data-i18n="staffAuth">Angel Learning staff is authorized to transport my child.</span></label>
           <div class="grid-2">
-            <label>School name (distance note) <input name="trSchoolDistanceName" /></label>
-            <label>Approx. miles from center <input name="trMiles" inputmode="decimal" /></label>
+            <label><span data-i18n="schoolDistance">School name (distance note)</span> <input name="trSchoolDistanceName" /></label>
+            <label><span data-i18n="miles">Approx. miles from center</span> <input name="trMiles" /></label>
           </div>
         </fieldset>
 
         <fieldset>
-          <legend>Signature</legend>
+          <legend data-i18n="signature">Signature</legend>
           <div class="grid-2">
-            <label>Parent / guardian signature <input name="trSignature" class="signature" placeholder="Type full name" required /></label>
-            <label>Date <input type="date" name="trDate" /></label>
+            <label><span data-i18n="parentSignature">Parent / guardian signature</span> <input name="trSignature" class="signature" required /></label>
+            <label><span data-i18n="date">Date</span> <input type="date" name="trDate" /></label>
           </div>
         </fieldset>
 
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary">Save &amp; mark complete</button>
-          <a href="#emergency" class="btn btn-secondary" data-nav="emergency">Next: Emergency form →</a>
+          <button type="submit" class="btn btn-primary" data-i18n="saveComplete">Save &amp; mark complete</button>
+          <a href="#emergency" class="btn btn-secondary" data-nav="emergency" data-i18n="nextEmergency">Next: Emergency form →</a>
         </div>
       </form>
     </section>
 
-    <!-- EMERGENCY / VEHICLE -->
     <section id="view-emergency" class="view">
       <form class="form-shell" data-form="emergency" novalidate>
         <div class="page-head">
-          <a href="#packet" class="back" data-nav="packet">← Back to packet</a>
-          <p class="eyebrow">Form 4 of 5</p>
-          <h2>Vehicle Emergency Medical Information</h2>
-          <p class="section-lead">Contacts, doctor, allergies, and emergency medical authorization.</p>
+          <a href="#packet" class="back" data-nav="packet" data-i18n="backPacket">← Back to packet</a>
+          <p class="eyebrow" data-i18n="form4">Form 4 of 5</p>
+          <h2 data-i18n="emergencyTitle">Vehicle Emergency Medical Information</h2>
+          <p class="section-lead" data-i18n="emergencyLead">Contacts, doctor, allergies, and emergency medical authorization.</p>
         </div>
 
         <fieldset>
-          <legend>Child</legend>
+          <legend data-i18n="child">Child</legend>
           <div class="grid-2">
-            <label>Child’s name <input name="emChild" required /></label>
-            <label>Date of birth <input type="date" name="emDob" /></label>
+            <label><span data-i18n="childName">Child’s name</span> <input name="emChild" required /></label>
+            <label><span data-i18n="dob">Date of birth</span> <input type="date" name="emDob" /></label>
           </div>
-          <label>Address <input name="emAddress" /></label>
+          <label><span data-i18n="address">Address</span> <input name="emAddress" /></label>
         </fieldset>
 
         <fieldset>
-          <legend>Parents</legend>
+          <legend data-i18n="parents">Parents</legend>
           <div class="grid-2">
-            <label>Father’s name <input name="emFather" /></label>
-            <label>Mother’s name <input name="emMother" /></label>
+            <label><span data-i18n="fatherName">Father’s name</span> <input name="emFather" /></label>
+            <label><span data-i18n="motherName">Mother’s name</span> <input name="emMother" /></label>
           </div>
           <div class="grid-2">
-            <label>Father home / work <input name="emFatherPhones" placeholder="Home · Work" /></label>
-            <label>Mother home / work <input name="emMotherPhones" placeholder="Home · Work" /></label>
+            <label><span data-i18n="fatherPhones">Father home / work</span> <input name="emFatherPhones" /></label>
+            <label><span data-i18n="motherPhones">Mother home / work</span> <input name="emMotherPhones" /></label>
           </div>
         </fieldset>
 
         <fieldset>
-          <legend>Emergency &amp; medical</legend>
+          <legend data-i18n="emergencyMedical">Emergency &amp; medical</legend>
           <div class="grid-2">
-            <label>Emergency contact (if parents unreachable) <input name="emAltName" /></label>
-            <label>Phone <input type="tel" name="emAltPhone" /></label>
+            <label><span data-i18n="altContact">Emergency contact (if parents unreachable)</span> <input name="emAltName" /></label>
+            <label><span data-i18n="phone">Phone</span> <input type="tel" name="emAltPhone" /></label>
           </div>
           <div class="grid-2">
-            <label>Child’s doctor <input name="emDoctor" /></label>
-            <label>Doctor phone <input type="tel" name="emDoctorPhone" /></label>
+            <label><span data-i18n="doctor">Child’s doctor</span> <input name="emDoctor" /></label>
+            <label><span data-i18n="doctorPhone">Doctor phone</span> <input type="tel" name="emDoctorPhone" /></label>
           </div>
-          <label>Medical facility the center uses
+          <label><span data-i18n="facility">Medical facility the center uses</span>
             <input name="emFacility" value="St. Joseph Hospital Emergency Room, 11705 Mercy Blvd., 912-819-4100" />
           </label>
-          <label>Child’s allergies <textarea name="emAllergies" rows="2"></textarea></label>
-          <label>Current prescribed medication <textarea name="emMeds" rows="2"></textarea></label>
-          <label>Special needs and conditions <textarea name="emSpecial" rows="2"></textarea></label>
+          <label><span data-i18n="allergies">Child’s allergies</span> <textarea name="emAllergies" rows="2"></textarea></label>
+          <label><span data-i18n="meds">Current prescribed medication</span> <textarea name="emMeds" rows="2"></textarea></label>
+          <label><span data-i18n="specialNeeds">Special needs and conditions</span> <textarea name="emSpecial" rows="2"></textarea></label>
         </fieldset>
 
         <fieldset class="agreement-box">
-          <legend>Authorization</legend>
-          <p>In the event of an emergency involving my child, and if Angel Learning Center cannot get in touch with me, I hereby authorize any needed emergency medical care. I further agree to be fully responsible for all medical expenses incurred during treatment.</p>
+          <legend data-i18n="authorization">Authorization</legend>
+          <p data-i18n="emAuthText">In the event of an emergency involving my child, and if Angel Learning Center cannot get in touch with me, I hereby authorize any needed emergency medical care. I further agree to be fully responsible for all medical expenses incurred during treatment.</p>
           <div class="grid-2">
-            <label>Child’s name <input name="emAuthChild" required /></label>
-            <label>Date <input type="date" name="emDate" /></label>
+            <label><span data-i18n="childName">Child’s name</span> <input name="emAuthChild" required /></label>
+            <label><span data-i18n="date">Date</span> <input type="date" name="emDate" /></label>
           </div>
-          <label>Parent / guardian signature <input name="emSignature" class="signature" placeholder="Type full name" required /></label>
+          <label><span data-i18n="parentSignature">Parent / guardian signature</span> <input name="emSignature" class="signature" required /></label>
         </fieldset>
 
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary">Save &amp; mark complete</button>
-          <a href="#ies" class="btn btn-secondary" data-nav="ies">Next: Meal benefits →</a>
+          <button type="submit" class="btn btn-primary" data-i18n="saveComplete">Save &amp; mark complete</button>
+          <a href="#ies" class="btn btn-secondary" data-nav="ies" data-i18n="nextIes">Next: Meal benefits →</a>
         </div>
       </form>
     </section>
 
-    <!-- IES / CACFP -->
     <section id="view-ies" class="view">
       <form class="form-shell" data-form="ies" novalidate>
         <div class="page-head">
-          <a href="#packet" class="back" data-nav="packet">← Back to packet</a>
-          <p class="eyebrow">Form 5 of 5 · CACFP 2026–2027</p>
-          <h2>Meal Benefit Income Eligibility Statement</h2>
-          <p class="section-lead">Required yearly for the Child and Adult Care Food Program. One form covers all children at this center.</p>
+          <a href="#packet" class="back" data-nav="packet" data-i18n="backPacket">← Back to packet</a>
+          <p class="eyebrow" data-i18n="form5">Form 5 of 5 · CACFP 2026–2027</p>
+          <h2 data-i18n="iesTitle">Meal Benefit Income Eligibility Statement</h2>
+          <p class="section-lead" data-i18n="iesLead">Required yearly for the Child and Adult Care Food Program. One form covers all children at this center.</p>
         </div>
 
         <fieldset>
-          <legend>Part I — Children enrolled</legend>
+          <legend data-i18n="iesPart1">Part I — Children enrolled</legend>
           <div class="repeat-block">
             <div class="grid-2">
-              <label>Child name (Last, First, M.I.) <input name="iesChild1" required /></label>
-              <label>Date of birth <input type="date" name="iesDob1" /></label>
+              <label><span data-i18n="childNameLastFirst">Child name (Last, First, M.I.)</span> <input name="iesChild1" required /></label>
+              <label><span data-i18n="dob">Date of birth</span> <input type="date" name="iesDob1" /></label>
             </div>
-            <label>SNAP / TANF / FDPIR case # (if any) <input name="iesCase1" /></label>
-            <div class="chip-group">
-              <label class="chip"><input type="checkbox" name="iesHeadStart1" /> Head Start</label>
-              <label class="chip"><input type="checkbox" name="iesFoster1" /> Foster</label>
-              <label class="chip"><input type="checkbox" name="iesMigrant1" /> Migrant</label>
-              <label class="chip"><input type="checkbox" name="iesHomeless1" /> Homeless</label>
-            </div>
-          </div>
-          <div class="repeat-block">
-            <div class="grid-2">
-              <label>Additional child (optional) <input name="iesChild2" /></label>
-              <label>Date of birth <input type="date" name="iesDob2" /></label>
-            </div>
-            <label>Case number <input name="iesCase2" /></label>
+            <label><span data-i18n="caseNumber">SNAP / TANF / FDPIR case # (if any)</span> <input name="iesCase1" /></label>
           </div>
         </fieldset>
 
         <fieldset>
-          <legend>Part II — Household income <span class="hint">(skip if categorically eligible via case # above)</span></legend>
-          <label>Total child income / how often
-            <input name="iesChildIncome" placeholder="$0 / monthly" />
-          </label>
+          <legend data-i18n="iesPart2">Part II — Household income</legend>
+          <label><span data-i18n="childIncome">Total child income / how often</span> <input name="iesChildIncome" placeholder="$0 / monthly" /></label>
           <div class="income-row">
-            <label>Household member <input name="iesAdult1" placeholder="First and last name" /></label>
-            <label>Earnings from work <input name="iesEarn1" placeholder="$ / how often" /></label>
-            <label>Other income <input name="iesOther1" placeholder="Support, SS, etc." /></label>
-          </div>
-          <div class="income-row">
-            <label>Household member <input name="iesAdult2" /></label>
-            <label>Earnings from work <input name="iesEarn2" /></label>
-            <label>Other income <input name="iesOther2" /></label>
+            <label><span data-i18n="hhMember">Household member</span> <input name="iesAdult1" /></label>
+            <label><span data-i18n="earnings">Earnings from work</span> <input name="iesEarn1" /></label>
+            <label><span data-i18n="otherIncome">Other income</span> <input name="iesOther1" /></label>
           </div>
           <div class="grid-2">
-            <label>Total household members <input type="number" name="iesHhSize" min="1" /></label>
-            <label>Last 4 of SSN <input name="iesSsn4" maxlength="4" inputmode="numeric" /></label>
+            <label><span data-i18n="hhSize">Total household members</span> <input type="number" name="iesHhSize" min="1" /></label>
+            <label><span data-i18n="ssn4">Last 4 of SSN</span> <input name="iesSsn4" maxlength="4" /></label>
           </div>
-          <label class="check"><input type="checkbox" name="iesNoSsn" /> I do not have a Social Security Number</label>
         </fieldset>
 
         <fieldset>
-          <legend>Part III — Enrollment / meals</legend>
+          <legend data-i18n="iesPart3">Part III — Enrollment / meals</legend>
           <div class="grid-2">
-            <label>Normally in care from <input type="time" name="iesCareFrom" /></label>
-            <label>To <input type="time" name="iesCareTo" /></label>
+            <label><span data-i18n="careFrom">Normally in care from</span> <input type="time" name="iesCareFrom" /></label>
+            <label><span data-i18n="hoursTo">To</span> <input type="time" name="iesCareTo" /></label>
           </div>
-          <label class="check"><input type="checkbox" name="iesBeforeAfterOnly" /> Before/after school care only</label>
-          <p class="subhead">Days</p>
+          <p class="subhead" data-i18n="days">Days</p>
           <div class="chip-group">
             <label class="chip"><input type="checkbox" name="iesMon" /> Mon</label>
             <label class="chip"><input type="checkbox" name="iesTue" /> Tue</label>
@@ -458,70 +428,76 @@
             <label class="chip"><input type="checkbox" name="iesThu" /> Thu</label>
             <label class="chip"><input type="checkbox" name="iesFri" /> Fri</label>
           </div>
-          <p class="subhead">Meals normally received</p>
+          <p class="subhead" data-i18n="mealsReceived">Meals normally received</p>
           <div class="chip-group">
             <label class="chip"><input type="checkbox" name="iesMealB" /> Breakfast</label>
             <label class="chip"><input type="checkbox" name="iesMealL" /> Lunch</label>
             <label class="chip"><input type="checkbox" name="iesMealP" /> PM Snack</label>
-            <label class="chip"><input type="checkbox" name="iesMealS" /> Supper</label>
           </div>
         </fieldset>
 
         <fieldset>
-          <legend>Part IV — Certification</legend>
-          <p class="hint">I certify that all information is true and all income is reported. CACFP officials may verify this information.</p>
+          <legend data-i18n="iesPart4">Part IV — Certification</legend>
+          <p class="hint" data-i18n="iesCert">I certify that all information is true and all income is reported. CACFP officials may verify this information.</p>
           <div class="grid-2">
-            <label>Printed name <input name="iesPrint" required /></label>
-            <label>Date <input type="date" name="iesDate" /></label>
+            <label><span data-i18n="printedName">Printed name</span> <input name="iesPrint" required /></label>
+            <label><span data-i18n="date">Date</span> <input type="date" name="iesDate" /></label>
           </div>
-          <label>Signature <input name="iesSignature" class="signature" placeholder="Type full name" required /></label>
-          <label>Address <input name="iesAddress" /></label>
+          <label><span data-i18n="signature">Signature</span> <input name="iesSignature" class="signature" required /></label>
+          <label><span data-i18n="address">Address</span> <input name="iesAddress" /></label>
           <div class="grid-3">
-            <label>City <input name="iesCity" /></label>
-            <label>State <input name="iesState" maxlength="2" /></label>
+            <label><span data-i18n="city">City</span> <input name="iesCity" /></label>
+            <label><span data-i18n="state">State</span> <input name="iesState" maxlength="2" /></label>
             <label>ZIP <input name="iesZip" /></label>
           </div>
-          <label>Phone <input type="tel" name="iesPhone" /></label>
-        </fieldset>
-
-        <fieldset>
-          <legend>Part V — Ethnicity / race <span class="hint">(optional · USDA compliance only)</span></legend>
-          <div class="chip-group">
-            <label class="chip"><input type="radio" name="iesEthnicity" value="hispanic" /> Hispanic / Latino</label>
-            <label class="chip"><input type="radio" name="iesEthnicity" value="not" /> Not Hispanic / Latino</label>
-          </div>
-          <div class="chip-group">
-            <label class="chip"><input type="checkbox" name="iesRaceW" /> White</label>
-            <label class="chip"><input type="checkbox" name="iesRaceB" /> Black or African American</label>
-            <label class="chip"><input type="checkbox" name="iesRaceA" /> Asian</label>
-            <label class="chip"><input type="checkbox" name="iesRaceAI" /> American Indian / Alaskan Native</label>
-            <label class="chip"><input type="checkbox" name="iesRacePI" /> Hawaiian / Pacific Islander</label>
-            <label class="chip"><input type="checkbox" name="iesRaceM" /> Multiracial</label>
-          </div>
+          <label><span data-i18n="phone">Phone</span> <input type="tel" name="iesPhone" /></label>
         </fieldset>
 
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary">Save &amp; mark complete</button>
-          <a href="#done" class="btn btn-secondary" data-nav="done">Finish packet →</a>
+          <button type="submit" class="btn btn-primary" data-i18n="saveComplete">Save &amp; mark complete</button>
+          <a href="#done" class="btn btn-secondary" data-nav="done" data-i18n="finishPacket">Finish packet →</a>
         </div>
       </form>
     </section>
 
-    <!-- DONE -->
     <section id="view-done" class="view">
       <div class="done-panel">
-        <p class="eyebrow">Demo complete</p>
-        <h2>Packet ready for submission</h2>
-        <p class="section-lead">In production, parents would e-sign, upload ID photos for pickup authorization, and staff would receive a completed packet with timestamps.</p>
+        <div class="success-banner">
+          <div>
+            <strong data-i18n="doneStrong">Packet submitted for review</strong>
+            <span data-i18n="doneText">Thank you. Your enrollment forms are ready for Angel Learning Center staff to review. You’ll receive confirmation once everything is verified.</span>
+          </div>
+        </div>
+        <p class="eyebrow" data-i18n="doneEyebrow">Submission summary</p>
+        <h2 data-i18n="doneTitle">You’re all set</h2>
+        <p class="section-lead" data-i18n="doneLead">Here’s what was completed in this packet. Staff can open the received packet view to process it.</p>
         <ul class="form-list compact" id="doneList"></ul>
         <div class="hero-cta">
-          <a href="#packet" class="btn btn-primary" data-nav="packet">Review checklist</a>
-          <button type="button" class="btn btn-secondary" id="printDemo">Print / PDF preview</button>
+          <a href="#staff" class="btn btn-primary" data-nav="staff" data-i18n="viewStaff">View staff inbox</a>
+          <a href="#packet" class="btn btn-secondary" data-nav="packet" data-i18n="reviewChecklist">Review checklist</a>
+          <button type="button" class="btn btn-secondary" id="printDemo" data-i18n="printPreview">Print / PDF preview</button>
         </div>
-        <p class="pitch-note">Client pitch note: this is a front-end mockup only — no data is sent to a server. Next build can add secure storage, staff dashboard, and e-sign audit trail.</p>
+      </div>
+    </section>
+
+    <section id="view-staff" class="view">
+      <div class="staff-panel">
+        <div class="page-head">
+          <a href="#home" class="back" data-nav="home" data-i18n="backHome">← Back to home</a>
+          <p class="eyebrow" data-i18n="staffEyebrow">Center operations</p>
+          <h2 data-i18n="staffTitle">Received enrollment packets</h2>
+          <p class="section-lead" data-i18n="staffLead">What staff would see when a parent finishes the online packet — timestamps, form status, and child details in one place.</p>
+        </div>
+        <div id="staffInbox"></div>
       </div>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <img src="assets/logo.png" alt="" />
+    <div>Angel Learning Center · Savannah Highlands</div>
+    <div>178 Basswood Drive, Savannah, GA 31407 · (912) 600-3899</div>
+  </footer>
 
   <div class="toast" id="toast" hidden></div>
   <script src="app.js"></script>
