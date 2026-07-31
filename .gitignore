@@ -1,0 +1,4 @@
+_extracted/
+.vercel/
+node_modules/
+*.log

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Angel Learning Center — Online Enrollment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-glow" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a href="#home" class="brand" data-nav="home">
+      <span class="brand-mark">A</span>
+      <span class="brand-text">
+        <strong>Angel Learning Center</strong>
+        <small>Parent Portal · Demo</small>
+      </span>
+    </a>
+    <nav class="top-nav">
+      <a href="#home" data-nav="home">Home</a>
+      <a href="#packet" data-nav="packet">Forms</a>
+      <button type="button" class="btn btn-ghost" id="resetDemo">Reset demo</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="view-home" class="view is-active">
+      <div class="hero">
+        <p class="hero-kicker">Enrollment packet · 2026–2027</p>
+        <h1 class="hero-brand">Angel Learning Center</h1>
+        <p class="hero-lead">Complete every required form online — enrollment, tuition, transportation, emergency contacts, and CACFP meal benefits — in one guided flow.</p>
+        <div class="hero-cta">
+          <a href="#packet" class="btn btn-primary" data-nav="packet">Start enrollment packet</a>
+          <a href="#enrollment" class="btn btn-secondary" data-nav="enrollment">Jump to a form</a>
+        </div>
+      </div>
+
+      <section class="section packet-overview">
+        <h2>What parents complete online</h2>
+        <p class="section-lead">Replaces paper PDFs and Word docs with a single, mobile-friendly experience.</p>
+        <ul class="form-list" id="formList"></ul>
+      </section>
+    </section>
+
+    <!-- PACKET DASHBOARD -->
+    <section id="view-packet" class="view">
+      <div class="page-head">
+        <p class="eyebrow">Your packet</p>
+        <h2>Enrollment checklist</h2>
+        <p class="section-lead">Progress saves in this browser for the demo. Click any form to fill it out.</p>
+        <div class="progress-wrap">
+          <div class="progress-bar"><span id="progressFill"></span></div>
+          <p class="progress-label"><span id="progressText">0 of 5 complete</span></p>
+        </div>
+      </div>
+      <ul class="form-list" id="packetList"></ul>
+    </section>
+
+    <!-- ENROLLMENT -->
+    <section id="view-enrollment" class="view">
+      <form class="form-shell" data-form="enrollment" novalidate>
+        <div class="page-head">
+          <a href="#packet" class="back" data-nav="packet">← Back to packet</a>
+          <p class="eyebrow">Form 1 of 5</p>
+          <h2>Enrollment Form</h2>
+          <p class="section-lead">Child, parent/guardian, emergency contacts, and care schedule.</p>
+        </div>
+
+        <fieldset>
+          <legend>Child information</legend>
+          <div class="grid-3">
+            <label>First name <input name="childFirst" required /></label>
+            <label>M.I. <input name="childMI" maxlength="1" /></label>
+            <label>Last name <input name="childLast" required /></label>
+          </div>
+          <div class="grid-3">
+            <label>Preferred name <input name="childPreferred" /></label>
+            <label>Grade / class <input name="childGrade" /></label>
+            <label>Start date <input type="date" name="startDate" /></label>
+          </div>
+          <div class="grid-3">
+            <label>Date of birth <input type="date" name="childDob" required /></label>
+            <label>Gender
+              <select name="childGender">
+                <option value="">Select</option>
+                <option>Male</option>
+                <option>Female</option>
+              </select>
+            </label>
+            <label>Child SSN <input name="childSsn" inputmode="numeric" placeholder="XXX-XX-XXXX" autocomplete="off" /></label>
+          </div>
+          <label>Home address <input name="childAddress" /></label>
+          <div class="grid-2">
+            <label>City <input name="childCity" /></label>
+            <label>ZIP <input name="childZip" /></label>
+          </div>
+          <label>Medical conditions, medications, or special attention
+            <textarea name="medicalNotes" rows="3"></textarea>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Mother / guardian</legend>
+          <div class="grid-3">
+            <label>First name <input name="momFirst" /></label>
+            <label>M.I. <input name="momMI" maxlength="1" /></label>
+            <label>Last name <input name="momLast" /></label>
+          </div>
+          <div class="grid-2">
+            <label>Cell phone <input type="tel" name="momCell" /></label>
+            <label>Email <input type="email" name="momEmail" /></label>
+          </div>
+          <div class="grid-2">
+            <label>Employer <input name="momEmployer" /></label>
+            <label>Occupation <input name="momOccupation" /></label>
+          </div>
+          <div class="grid-2">
+            <label>Work phone <input type="tel" name="momWorkPhone" /></label>
+            <label>Work hours <input name="momWorkHours" /></label>
+          </div>
+          <label class="check"><input type="checkbox" name="momCustodial" /> Custodial parent</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Father / guardian</legend>
+          <div class="grid-3">
+            <label>First name <input name="dadFirst" /></label>
+            <label>M.I. <input name="dadMI" maxlength="1" /></label>
+            <label>Last name <input name="dadLast" /></label>
+          </div>
+          <div class="grid-2">
+            <label>Cell phone <input type="tel" name="dadCell" /></label>
+            <label>Email <input type="email" name="dadEmail" /></label>
+          </div>
+          <div class="grid-2">
+            <label>Employer <input name="dadEmployer" /></label>
+            <label>Occupation <input name="dadOccupation" /></label>
+          </div>
+          <label class="check"><input type="checkbox" name="dadCustodial" /> Custodial parent</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Emergency contacts <span class="hint">(authorized for pickup — ID required)</span></legend>
+          <div class="repeat-block">
+            <p class="subhead">Contact 1</p>
+            <label>Full name <input name="ec1Name" /></label>
+            <div class="grid-3">
+              <label>Home <input type="tel" name="ec1Home" /></label>
+              <label>Work <input type="tel" name="ec1Work" /></label>
+              <label>Cell <input type="tel" name="ec1Cell" /></label>
+            </div>
+            <label>Relationship <input name="ec1Rel" /></label>
+          </div>
+          <div class="repeat-block">
+            <p class="subhead">Contact 2</p>
+            <label>Full name <input name="ec2Name" /></label>
+            <div class="grid-3">
+              <label>Home <input type="tel" name="ec2Home" /></label>
+              <label>Work <input type="tel" name="ec2Work" /></label>
+              <label>Cell <input type="tel" name="ec2Cell" /></label>
+            </div>
+            <label>Relationship <input name="ec2Rel" /></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Care schedule</legend>
+          <div class="grid-2">
+            <label>Primary hours from <input type="time" name="careFrom" /></label>
+            <label>To <input type="time" name="careTo" /></label>
+          </div>
+          <p class="hint">Cannot exceed 10 hours per day.</p>
+          <div class="chip-group" role="group" aria-label="Meals served">
+            <label class="chip"><input type="checkbox" name="mealBreakfast" /> Breakfast</label>
+            <label class="chip"><input type="checkbox" name="mealLunch" /> Lunch</label>
+            <label class="chip"><input type="checkbox" name="mealSnack" /> PM Snack</label>
+          </div>
+          <label>Current tuition amount <input name="tuitionAmount" placeholder="$" /></label>
+        </fieldset>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save &amp; mark complete</button>
+          <a href="#financial" class="btn btn-secondary" data-nav="financial">Next: Tuition agreement →</a>
+        </div>
+      </form>
+    </section>
+
+    <!-- FINANCIAL -->
+    <section id="view-financial" class="view">
+      <form class="form-shell" data-form="financial" novalidate>
+        <div class="page-head">
+          <a href="#packet" class="back" data-nav="packet">← Back to packet</a>
+          <p class="eyebrow">Form 2 of 5</p>
+          <h2>Financial Responsibility &amp; Tuition Agreement</h2>
+          <p class="section-lead">Acknowledge responsibility for tuition, fees, and payment terms.</p>
+        </div>
+
+        <fieldset>
+          <legend>Responsible party</legend>
+          <label>Full legal name <input name="rpName" required /></label>
+          <div class="grid-3">
+            <label>Date of birth <input type="date" name="rpDob" /></label>
+            <label>Driver’s license / State ID <input name="rpDl" /></label>
+            <label>State <input name="rpState" maxlength="2" /></label>
+          </div>
+          <label>Home address <input name="rpAddress" /></label>
+          <div class="grid-2">
+            <label>City / State / ZIP <input name="rpCityStateZip" /></label>
+            <label>SSN <input name="rpSsn" autocomplete="off" /></label>
+          </div>
+          <div class="grid-2">
+            <label>Phone <input type="tel" name="rpPhone" /></label>
+            <label>Email <input type="email" name="rpEmail" /></label>
+          </div>
+          <label>Employer <input name="rpEmployer" /></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Child</legend>
+          <div class="grid-2">
+            <label>Child’s name <input name="finChildName" required /></label>
+            <label>Enrollment date <input type="date" name="finEnrollDate" /></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="agreement-box">
+          <legend>Agreement</legend>
+          <div class="scroll-terms">
+            <p>I acknowledge that I am legally and financially responsible for payment of all tuition, registration fees, late fees, returned payment fees, activity fees, and any other charges incurred for my child’s enrollment at Angel Learning Center. Tuition is due regardless of attendance unless otherwise provided in the Center’s written policies.</p>
+            <p><strong>Failure to pay</strong> may result in late/returned payment fees, suspension or termination of services, refusal of future enrollment, referral to collections, and civil action in a Georgia court, including recovery of filing fees and post-judgment interest.</p>
+            <p>I agree to keep my contact and employer information current and notify the Center within five (5) business days of any changes.</p>
+          </div>
+          <label class="check"><input type="checkbox" name="finAgree" required /> I have read this agreement and voluntarily agree to be personally responsible for all amounts owed.</label>
+          <div class="grid-2">
+            <label>Printed name <input name="finPrintName" required /></label>
+            <label>Date <input type="date" name="finSignDate" /></label>
+          </div>
+          <label>E-signature <input name="finSignature" class="signature" placeholder="Type full legal name to sign" required /></label>
+        </fieldset>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save &amp; mark complete</button>
+          <a href="#transport" class="btn btn-secondary" data-nav="transport">Next: Transportation →</a>
+        </div>
+      </form>
+    </section>
+
+    <!-- TRANSPORTATION -->
+    <section id="view-transport" class="view">
+      <form class="form-shell" data-form="transport" novalidate>
+        <div class="page-head">
+          <a href="#packet" class="back" data-nav="packet">← Back to packet</a>
+          <p class="eyebrow">Form 3 of 5</p>
+          <h2>Transportation Agreement</h2>
+          <p class="section-lead">Authorize Angel Learning Center staff to transport your child from school.</p>
+        </div>
+
+        <fieldset>
+          <legend>Child &amp; route</legend>
+          <label>Name of child <input name="trChild" required /></label>
+          <div class="route-options">
+            <label class="radio-card">
+              <input type="radio" name="trSchoolChoice" value="godley" />
+              <span>
+                <strong>Godley Station School</strong>
+                <small>Pickup time</small>
+                <input type="time" name="trGodleyTime" />
+              </span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="trSchoolChoice" value="newhampstead" />
+              <span>
+                <strong>New Hampstead Elementary</strong>
+                <small>Pickup time</small>
+                <input type="time" name="trNewHampTime" />
+              </span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="trSchoolChoice" value="other" />
+              <span>
+                <strong>Other school</strong>
+                <input name="trOtherSchool" placeholder="School name" />
+                <input type="time" name="trOtherTime" />
+              </span>
+            </label>
+          </div>
+          <label>Arrive at Angel Learning Center <input type="time" name="trArriveTime" /></label>
+          <p class="subhead">Transport days</p>
+          <div class="chip-group">
+            <label class="chip"><input type="checkbox" name="trMon" /> Monday</label>
+            <label class="chip"><input type="checkbox" name="trTue" /> Tuesday</label>
+            <label class="chip"><input type="checkbox" name="trWed" /> Wednesday</label>
+            <label class="chip"><input type="checkbox" name="trThu" /> Thursday</label>
+            <label class="chip"><input type="checkbox" name="trFri" /> Friday</label>
+          </div>
+          <label class="check"><input type="checkbox" name="trStaffAuth" required /> Angel Learning staff is authorized to transport my child.</label>
+          <label class="check"><input type="checkbox" name="trNotify" /> I understand I must notify the center in advance if I personally transport my child.</label>
+          <div class="grid-2">
+            <label>School name (distance note) <input name="trSchoolDistanceName" /></label>
+            <label>Approx. miles from center <input name="trMiles" inputmode="decimal" /></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Signature</legend>
+          <div class="grid-2">
+            <label>Parent / guardian signature <input name="trSignature" class="signature" placeholder="Type full name" required /></label>
+            <label>Date <input type="date" name="trDate" /></label>
+          </div>
+        </fieldset>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save &amp; mark complete</button>
+          <a href="#emergency" class="btn btn-secondary" data-nav="emergency">Next: Emergency form →</a>
+        </div>
+      </form>
+    </section>
+
+    <!-- EMERGENCY / VEHICLE -->
+    <section id="view-emergency" class="view">
+      <form class="form-shell" data-form="emergency" novalidate>
+        <div class="page-head">
+          <a href="#packet" class="back" data-nav="packet">← Back to packet</a>
+          <p class="eyebrow">Form 4 of 5</p>
+          <h2>Vehicle Emergency Medical Information</h2>
+          <p class="section-lead">Contacts, doctor, allergies, and emergency medical authorization.</p>
+        </div>
+
+        <fieldset>
+          <legend>Child</legend>
+          <div class="grid-2">
+            <label>Child’s name <input name="emChild" required /></label>
+            <label>Date of birth <input type="date" name="emDob" /></label>
+          </div>
+          <label>Address <input name="emAddress" /></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Parents</legend>
+          <div class="grid-2">
+            <label>Father’s name <input name="emFather" /></label>
+            <label>Mother’s name <input name="emMother" /></label>
+          </div>
+          <div class="grid-2">
+            <label>Father home / work <input name="emFatherPhones" placeholder="Home · Work" /></label>
+            <label>Mother home / work <input name="emMotherPhones" placeholder="Home · Work" /></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Emergency &amp; medical</legend>
+          <div class="grid-2">
+            <label>Emergency contact (if parents unreachable) <input name="emAltName" /></label>
+            <label>Phone <input type="tel" name="emAltPhone" /></label>
+          </div>
+          <div class="grid-2">
+            <label>Child’s doctor <input name="emDoctor" /></label>
+            <label>Doctor phone <input type="tel" name="emDoctorPhone" /></label>
+          </div>
+          <label>Medical facility the center uses
+            <input name="emFacility" value="St. Joseph Hospital Emergency Room, 11705 Mercy Blvd., 912-819-4100" />
+          </label>
+          <label>Child’s allergies <textarea name="emAllergies" rows="2"></textarea></label>
+          <label>Current prescribed medication <textarea name="emMeds" rows="2"></textarea></label>
+          <label>Special needs and conditions <textarea name="emSpecial" rows="2"></textarea></label>
+        </fieldset>
+
+        <fieldset class="agreement-box">
+          <legend>Authorization</legend>
+          <p>In the event of an emergency involving my child, and if Angel Learning Center cannot get in touch with me, I hereby authorize any needed emergency medical care. I further agree to be fully responsible for all medical expenses incurred during treatment.</p>
+          <div class="grid-2">
+            <label>Child’s name <input name="emAuthChild" required /></label>
+            <label>Date <input type="date" name="emDate" /></label>
+          </div>
+          <label>Parent / guardian signature <input name="emSignature" class="signature" placeholder="Type full name" required /></label>
+        </fieldset>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save &amp; mark complete</button>
+          <a href="#ies" class="btn btn-secondary" data-nav="ies">Next: Meal benefits →</a>
+        </div>
+      </form>
+    </section>
+
+    <!-- IES / CACFP -->
+    <section id="view-ies" class="view">
+      <form class="form-shell" data-form="ies" novalidate>
+        <div class="page-head">
+          <a href="#packet" class="back" data-nav="packet">← Back to packet</a>
+          <p class="eyebrow">Form 5 of 5 · CACFP 2026–2027</p>
+          <h2>Meal Benefit Income Eligibility Statement</h2>
+          <p class="section-lead">Required yearly for the Child and Adult Care Food Program. One form covers all children at this center.</p>
+        </div>
+
+        <fieldset>
+          <legend>Part I — Children enrolled</legend>
+          <div class="repeat-block">
+            <div class="grid-2">
+              <label>Child name (Last, First, M.I.) <input name="iesChild1" required /></label>
+              <label>Date of birth <input type="date" name="iesDob1" /></label>
+            </div>
+            <label>SNAP / TANF / FDPIR case # (if any) <input name="iesCase1" /></label>
+            <div class="chip-group">
+              <label class="chip"><input type="checkbox" name="iesHeadStart1" /> Head Start</label>
+              <label class="chip"><input type="checkbox" name="iesFoster1" /> Foster</label>
+              <label class="chip"><input type="checkbox" name="iesMigrant1" /> Migrant</label>
+              <label class="chip"><input type="checkbox" name="iesHomeless1" /> Homeless</label>
+            </div>
+          </div>
+          <div class="repeat-block">
+            <div class="grid-2">
+              <label>Additional child (optional) <input name="iesChild2" /></label>
+              <label>Date of birth <input type="date" name="iesDob2" /></label>
+            </div>
+            <label>Case number <input name="iesCase2" /></label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Part II — Household income <span class="hint">(skip if categorically eligible via case # above)</span></legend>
+          <label>Total child income / how often
+            <input name="iesChildIncome" placeholder="$0 / monthly" />
+          </label>
+          <div class="income-row">
+            <label>Household member <input name="iesAdult1" placeholder="First and last name" /></label>
+            <label>Earnings from work <input name="iesEarn1" placeholder="$ / how often" /></label>
+            <label>Other income <input name="iesOther1" placeholder="Support, SS, etc." /></label>
+          </div>
+          <div class="income-row">
+            <label>Household member <input name="iesAdult2" /></label>
+            <label>Earnings from work <input name="iesEarn2" /></label>
+            <label>Other income <input name="iesOther2" /></label>
+          </div>
+          <div class="grid-2">
+            <label>Total household members <input type="number" name="iesHhSize" min="1" /></label>
+            <label>Last 4 of SSN <input name="iesSsn4" maxlength="4" inputmode="numeric" /></label>
+          </div>
+          <label class="check"><input type="checkbox" name="iesNoSsn" /> I do not have a Social Security Number</label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Part III — Enrollment / meals</legend>
+          <div class="grid-2">
+            <label>Normally in care from <input type="time" name="iesCareFrom" /></label>
+            <label>To <input type="time" name="iesCareTo" /></label>
+          </div>
+          <label class="check"><input type="checkbox" name="iesBeforeAfterOnly" /> Before/after school care only</label>
+          <p class="subhead">Days</p>
+          <div class="chip-group">
+            <label class="chip"><input type="checkbox" name="iesMon" /> Mon</label>
+            <label class="chip"><input type="checkbox" name="iesTue" /> Tue</label>
+            <label class="chip"><input type="checkbox" name="iesWed" /> Wed</label>
+            <label class="chip"><input type="checkbox" name="iesThu" /> Thu</label>
+            <label class="chip"><input type="checkbox" name="iesFri" /> Fri</label>
+          </div>
+          <p class="subhead">Meals normally received</p>
+          <div class="chip-group">
+            <label class="chip"><input type="checkbox" name="iesMealB" /> Breakfast</label>
+            <label class="chip"><input type="checkbox" name="iesMealL" /> Lunch</label>
+            <label class="chip"><input type="checkbox" name="iesMealP" /> PM Snack</label>
+            <label class="chip"><input type="checkbox" name="iesMealS" /> Supper</label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Part IV — Certification</legend>
+          <p class="hint">I certify that all information is true and all income is reported. CACFP officials may verify this information.</p>
+          <div class="grid-2">
+            <label>Printed name <input name="iesPrint" required /></label>
+            <label>Date <input type="date" name="iesDate" /></label>
+          </div>
+          <label>Signature <input name="iesSignature" class="signature" placeholder="Type full name" required /></label>
+          <label>Address <input name="iesAddress" /></label>
+          <div class="grid-3">
+            <label>City <input name="iesCity" /></label>
+            <label>State <input name="iesState" maxlength="2" /></label>
+            <label>ZIP <input name="iesZip" /></label>
+          </div>
+          <label>Phone <input type="tel" name="iesPhone" /></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Part V — Ethnicity / race <span class="hint">(optional · USDA compliance only)</span></legend>
+          <div class="chip-group">
+            <label class="chip"><input type="radio" name="iesEthnicity" value="hispanic" /> Hispanic / Latino</label>
+            <label class="chip"><input type="radio" name="iesEthnicity" value="not" /> Not Hispanic / Latino</label>
+          </div>
+          <div class="chip-group">
+            <label class="chip"><input type="checkbox" name="iesRaceW" /> White</label>
+            <label class="chip"><input type="checkbox" name="iesRaceB" /> Black or African American</label>
+            <label class="chip"><input type="checkbox" name="iesRaceA" /> Asian</label>
+            <label class="chip"><input type="checkbox" name="iesRaceAI" /> American Indian / Alaskan Native</label>
+            <label class="chip"><input type="checkbox" name="iesRacePI" /> Hawaiian / Pacific Islander</label>
+            <label class="chip"><input type="checkbox" name="iesRaceM" /> Multiracial</label>
+          </div>
+        </fieldset>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save &amp; mark complete</button>
+          <a href="#done" class="btn btn-secondary" data-nav="done">Finish packet →</a>
+        </div>
+      </form>
+    </section>
+
+    <!-- DONE -->
+    <section id="view-done" class="view">
+      <div class="done-panel">
+        <p class="eyebrow">Demo complete</p>
+        <h2>Packet ready for submission</h2>
+        <p class="section-lead">In production, parents would e-sign, upload ID photos for pickup authorization, and staff would receive a completed packet with timestamps.</p>
+        <ul class="form-list compact" id="doneList"></ul>
+        <div class="hero-cta">
+          <a href="#packet" class="btn btn-primary" data-nav="packet">Review checklist</a>
+          <button type="button" class="btn btn-secondary" id="printDemo">Print / PDF preview</button>
+        </div>
+        <p class="pitch-note">Client pitch note: this is a front-end mockup only — no data is sent to a server. Next build can add secure storage, staff dashboard, and e-sign audit trail.</p>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" hidden></div>
+  <script src="app.js"></script>
+</body>
+</html>
