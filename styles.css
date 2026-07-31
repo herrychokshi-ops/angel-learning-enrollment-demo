@@ -252,7 +252,7 @@ main,
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1rem 1.25rem 0.5rem;
+  padding: 1rem 1.25rem 0.75rem;
 }
 
 .brand {
@@ -267,34 +267,6 @@ main,
   height: 52px;
   width: auto;
   display: block;
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  line-height: 1.15;
-}
-
-.brand-text small {
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.contact-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem 1.1rem;
-  padding: 0 1.25rem 0.75rem;
-  color: var(--ink-soft);
-  font-size: 0.86rem;
-  font-weight: 600;
-}
-
-.contact-strip a {
-  color: var(--blue);
-  text-decoration: none;
 }
 
 .top-nav {
@@ -831,8 +803,6 @@ input.signature {
 
 @media (max-width: 760px) {
   .brand-logo { height: 42px; }
-  .brand-text { display: none; }
-  .contact-strip { font-size: 0.78rem; }
   .grid-2,
   .grid-3,
   .income-row { grid-template-columns: 1fr; }

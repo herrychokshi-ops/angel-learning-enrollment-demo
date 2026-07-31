@@ -513,10 +513,6 @@ function applyI18n() {
     const value = t(key);
     if (value && value !== key) el.textContent = value;
   });
-  const portal = document.querySelector('[data-i18n="portalLabel"]');
-  if (portal && currentUser?.role === "staff") {
-    portal.textContent = lang === "es" ? "Portal del personal · Demo" : "Staff Portal · Demo";
-  }
   document.getElementById("langEn")?.classList.toggle("active", lang === "en");
   document.getElementById("langEs")?.classList.toggle("active", lang === "es");
   const chip = document.getElementById("userChip");
