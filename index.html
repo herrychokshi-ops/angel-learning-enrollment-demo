@@ -16,6 +16,57 @@
     Interactive mockup · not live data <span data-i18n="demoBannerHint">· for demonstration only</span>
   </div>
 
+  <!-- AUTH GATE -->
+  <section id="authScreen" class="auth-screen">
+    <div class="auth-card">
+      <img class="auth-logo" src="assets/logo.png" alt="Angel Learning Center" />
+      <p class="auth-kicker" data-i18n="authKicker">Secure parent &amp; staff access</p>
+      <h1 data-i18n="authTitle">Sign in to your portal</h1>
+      <p class="auth-lead" data-i18n="authLead">Parents complete enrollment online. Staff review submitted packets in one place.</p>
+
+      <div class="role-tabs" role="tablist">
+        <button type="button" class="role-tab active" data-role="parent" id="roleParent" data-i18n="roleParent">Parent</button>
+        <button type="button" class="role-tab" data-role="staff" id="roleStaff" data-i18n="roleStaff">Staff</button>
+      </div>
+
+      <form id="signInForm" class="auth-form" novalidate>
+        <label><span data-i18n="authEmail">Email</span> <input type="email" id="authEmail" name="email" autocomplete="username" required /></label>
+        <label><span data-i18n="authPassword">Password</span> <input type="password" id="authPassword" name="password" autocomplete="current-password" required /></label>
+        <label class="check remember"><input type="checkbox" id="authRemember" checked /> <span data-i18n="authRemember">Keep me signed in on this device</span></label>
+        <p class="auth-error" id="authError" hidden></p>
+        <button type="submit" class="btn btn-primary auth-submit" data-i18n="authSignIn">Sign in</button>
+      </form>
+
+      <form id="signUpForm" class="auth-form" hidden novalidate>
+        <label><span data-i18n="fullName">Full name</span> <input type="text" id="signUpName" required /></label>
+        <label><span data-i18n="authEmail">Email</span> <input type="email" id="signUpEmail" required /></label>
+        <label><span data-i18n="authPassword">Password</span> <input type="password" id="signUpPassword" minlength="6" required /></label>
+        <p class="auth-error" id="signUpError" hidden></p>
+        <button type="submit" class="btn btn-primary auth-submit" data-i18n="authCreate">Create account</button>
+      </form>
+
+      <div class="auth-switch">
+        <button type="button" class="linkish" id="showSignUp" data-i18n="authNeedAccount">Need an account? Create one</button>
+        <button type="button" class="linkish" id="showSignIn" hidden data-i18n="authHaveAccount">Already have an account? Sign in</button>
+      </div>
+
+      <div class="demo-creds">
+        <p class="subhead" data-i18n="demoCredsTitle">Demo logins (click to fill)</p>
+        <button type="button" class="cred-chip" data-fill="parent">
+          <strong data-i18n="roleParent">Parent</strong>
+          <span>parent@angellearning.demo · parent123</span>
+        </button>
+        <button type="button" class="cred-chip" data-fill="staff">
+          <strong data-i18n="roleStaff">Staff</strong>
+          <span>staff@angellearning.demo · staff123</span>
+        </button>
+      </div>
+
+      <p class="auth-footer-note">178 Basswood Drive, Savannah, GA 31407 · (912) 600-3899</p>
+    </div>
+  </section>
+
+  <div id="appShell" class="app-shell" hidden>
   <header class="topbar">
     <a href="#home" class="brand" data-nav="home" aria-label="Angel Learning Center">
       <img class="brand-logo" src="assets/logo.png" alt="Angel Learning Center" />
@@ -24,13 +75,15 @@
       </span>
     </a>
     <nav class="top-nav">
+      <span class="user-chip" id="userChip" hidden></span>
       <a href="#home" data-nav="home" data-i18n="navHome">Home</a>
       <a href="#packet" data-nav="packet" data-i18n="navForms">Forms</a>
-      <a href="#staff" data-nav="staff" data-i18n="navStaff">Staff view</a>
+      <a href="#staff" data-nav="staff" data-i18n="navStaff" id="navStaffLink">Staff view</a>
       <div class="lang-toggle" role="group" aria-label="Language">
         <button type="button" id="langEn" class="active">EN</button>
         <button type="button" id="langEs">ES</button>
       </div>
+      <button type="button" class="btn btn-ghost" id="signOutBtn" data-i18n="authSignOut">Sign out</button>
       <button type="button" class="btn btn-ghost" id="resetDemo" data-i18n="resetDemo">Reset demo</button>
     </nav>
   </header>
@@ -472,7 +525,7 @@
         <p class="section-lead" data-i18n="doneLead">Here’s what was completed in this packet. Staff can open the received packet view to process it.</p>
         <ul class="form-list compact" id="doneList"></ul>
         <div class="hero-cta">
-          <a href="#staff" class="btn btn-primary" data-nav="staff" data-i18n="viewStaff">View staff inbox</a>
+          <button type="button" class="btn btn-primary" id="switchToStaff" data-i18n="viewStaff">Sign in as staff to review</button>
           <a href="#packet" class="btn btn-secondary" data-nav="packet" data-i18n="reviewChecklist">Review checklist</a>
           <button type="button" class="btn btn-secondary" id="printDemo" data-i18n="printPreview">Print / PDF preview</button>
         </div>
@@ -497,6 +550,7 @@
     <div>Angel Learning Center · Savannah Highlands</div>
     <div>178 Basswood Drive, Savannah, GA 31407 · (912) 600-3899</div>
   </footer>
+  </div><!-- /appShell -->
 
   <div class="toast" id="toast" hidden></div>
   <script src="app.js"></script>

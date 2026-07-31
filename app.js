@@ -43,6 +43,14 @@ const FORMS = [
   },
 ];
 
+const DEMO_USERS = {
+  parent: { email: "parent@angellearning.demo", password: "parent123", name: "Sofia Rivera", role: "parent" },
+  staff: { email: "staff@angellearning.demo", password: "staff123", name: "Mrs. T. Johnson", role: "staff" },
+};
+
+const AUTH_KEY = "alc-enrollment-auth-v1";
+const ACCOUNTS_KEY = "alc-enrollment-accounts-v1";
+
 const I18N = {
   en: {
     demoBanner: "Interactive mockup · not live data",
@@ -52,6 +60,24 @@ const I18N = {
     navForms: "Forms",
     navStaff: "Staff view",
     resetDemo: "Reset demo",
+    authKicker: "Secure parent & staff access",
+    authTitle: "Sign in to your portal",
+    authLead: "Parents complete enrollment online. Staff review submitted packets in one place.",
+    roleParent: "Parent",
+    roleStaff: "Staff",
+    authEmail: "Email",
+    authPassword: "Password",
+    authRemember: "Keep me signed in on this device",
+    authSignIn: "Sign in",
+    authCreate: "Create account",
+    authNeedAccount: "Need an account? Create one",
+    authHaveAccount: "Already have an account? Sign in",
+    authSignOut: "Sign out",
+    demoCredsTitle: "Demo logins (click to fill)",
+    authError: "Invalid email or password. Try a demo login below.",
+    authExists: "An account with that email already exists. Sign in instead.",
+    authCreated: "Account created — you’re signed in",
+    authWelcome: "Welcome back",
     hours: "Mon–Fri 6:30 AM – 5:30 PM",
     heroKicker: "Enrollment packet · 2026–2027",
     heroLead:
@@ -81,7 +107,7 @@ const I18N = {
     doneEyebrow: "Submission summary",
     doneTitle: "You’re all set",
     doneLead: "Here’s what was completed in this packet. Staff can open the received packet view to process it.",
-    viewStaff: "View staff inbox",
+    viewStaff: "Sign in as staff to review",
     reviewChecklist: "Review checklist",
     printPreview: "Print / PDF preview",
     staffEyebrow: "Center operations",
@@ -103,6 +129,24 @@ const I18N = {
     navForms: "Formularios",
     navStaff: "Vista del personal",
     resetDemo: "Reiniciar demo",
+    authKicker: "Acceso seguro para padres y personal",
+    authTitle: "Inicie sesión en su portal",
+    authLead: "Los padres completan la inscripción en línea. El personal revisa los paquetes en un solo lugar.",
+    roleParent: "Padre/Madre",
+    roleStaff: "Personal",
+    authEmail: "Correo electrónico",
+    authPassword: "Contraseña",
+    authRemember: "Mantener sesión en este dispositivo",
+    authSignIn: "Iniciar sesión",
+    authCreate: "Crear cuenta",
+    authNeedAccount: "¿Necesita una cuenta? Créela aquí",
+    authHaveAccount: "¿Ya tiene cuenta? Inicie sesión",
+    authSignOut: "Cerrar sesión",
+    demoCredsTitle: "Accesos demo (pulse para llenar)",
+    authError: "Correo o contraseña incorrectos. Pruebe un acceso demo abajo.",
+    authExists: "Ya existe una cuenta con ese correo. Inicie sesión.",
+    authCreated: "Cuenta creada — sesión iniciada",
+    authWelcome: "Bienvenido/a",
     hours: "Lun–Vie 6:30 AM – 5:30 PM",
     heroKicker: "Paquete de inscripción · 2026–2027",
     heroLead:
@@ -132,7 +176,7 @@ const I18N = {
     doneEyebrow: "Resumen de envío",
     doneTitle: "Todo listo",
     doneLead: "Esto es lo que se completó. El personal puede abrir la bandeja de paquetes recibidos.",
-    viewStaff: "Ver bandeja del personal",
+    viewStaff: "Entrar como personal para revisar",
     reviewChecklist: "Revisar lista",
     printPreview: "Imprimir / vista PDF",
     staffEyebrow: "Operaciones del centro",
@@ -259,6 +303,56 @@ const I18N = {
 
 const STORAGE_KEY = "alc-enrollment-demo-v2";
 const LANG_KEY = "alc-enrollment-lang";
+
+let currentRole = "parent";
+let currentUser = null;
+
+function loadAccounts() {
+  try {
+    return JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function saveAccounts(accounts) {
+  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+}
+
+function loadAuth() {
+  try {
+    return (
+      JSON.parse(sessionStorage.getItem(AUTH_KEY)) ||
+      JSON.parse(localStorage.getItem(AUTH_KEY)) ||
+      null
+    );
+  } catch {
+    return null;
+  }
+}
+
+function persistAuth(user, remember) {
+  const payload = JSON.stringify(user);
+  sessionStorage.setItem(AUTH_KEY, payload);
+  if (remember) localStorage.setItem(AUTH_KEY, payload);
+  else localStorage.removeItem(AUTH_KEY);
+}
+
+function clearAuth() {
+  sessionStorage.removeItem(AUTH_KEY);
+  localStorage.removeItem(AUTH_KEY);
+  currentUser = null;
+}
+
+function findUser(email, password) {
+  const e = email.trim().toLowerCase();
+  for (const demo of Object.values(DEMO_USERS)) {
+    if (demo.email === e && demo.password === password) return { ...demo };
+  }
+  const created = loadAccounts().find((a) => a.email === e && a.password === password);
+  if (created) return { ...created };
+  return null;
+}
 
 const SAMPLE = {
   enrollment: {
@@ -419,8 +513,18 @@ function applyI18n() {
     const value = t(key);
     if (value && value !== key) el.textContent = value;
   });
+  const portal = document.querySelector('[data-i18n="portalLabel"]');
+  if (portal && currentUser?.role === "staff") {
+    portal.textContent = lang === "es" ? "Portal del personal · Demo" : "Staff Portal · Demo";
+  }
   document.getElementById("langEn")?.classList.toggle("active", lang === "en");
   document.getElementById("langEs")?.classList.toggle("active", lang === "es");
+  const chip = document.getElementById("userChip");
+  if (chip && currentUser) {
+    chip.textContent = `${currentUser.name} · ${
+      currentUser.role === "staff" ? t("roleStaff") : t("roleParent")
+    }`;
+  }
   renderLists();
   renderStaff();
 }
@@ -512,8 +616,78 @@ function renderStaff() {
     .join("");
 }
 
+function setAuthMode(mode) {
+  const signIn = document.getElementById("signInForm");
+  const signUp = document.getElementById("signUpForm");
+  const showUp = document.getElementById("showSignUp");
+  const showIn = document.getElementById("showSignIn");
+  const isUp = mode === "signup";
+  if (signIn) signIn.hidden = isUp;
+  if (signUp) signUp.hidden = !isUp;
+  if (showUp) showUp.hidden = isUp;
+  if (showIn) showIn.hidden = !isUp;
+  const authErr = document.getElementById("authError");
+  const signUpErr = document.getElementById("signUpError");
+  if (authErr) authErr.hidden = true;
+  if (signUpErr) signUpErr.hidden = true;
+}
+
+function setRole(role) {
+  currentRole = role;
+  document.querySelectorAll(".role-tab").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.role === role);
+  });
+  const demo = DEMO_USERS[role];
+  const email = document.getElementById("authEmail");
+  const pass = document.getElementById("authPassword");
+  if (email && !email.value) email.value = demo.email;
+  if (pass && !pass.value) pass.value = demo.password;
+}
+
+function enterApp(user, { silent = false } = {}) {
+  currentUser = user;
+  const auth = document.getElementById("authScreen");
+  const shell = document.getElementById("appShell");
+  if (auth) auth.hidden = true;
+  if (shell) shell.hidden = false;
+
+  const chip = document.getElementById("userChip");
+  if (chip) chip.hidden = false;
+
+  const staffLink = document.getElementById("navStaffLink");
+  if (staffLink) staffLink.style.display = user.role === "staff" ? "" : "none";
+
+  applyI18n();
+  if (user.role === "staff") {
+    if (location.hash !== "#staff") location.hash = "#staff";
+    else navigateFromHash();
+  } else if (!location.hash || location.hash === "#" || location.hash === "#staff") {
+    location.hash = "#home";
+  } else {
+    navigateFromHash();
+  }
+  if (!silent) showToast(`${t("authWelcome")}, ${user.name.split(" ")[0]}`);
+}
+
+function showAuth() {
+  const auth = document.getElementById("authScreen");
+  const shell = document.getElementById("appShell");
+  if (auth) auth.hidden = false;
+  if (shell) shell.hidden = true;
+  setAuthMode("signin");
+  setRole(currentRole);
+}
+
 function showView(id) {
-  const viewId = id || "home";
+  if (!currentUser) {
+    showAuth();
+    return;
+  }
+  let viewId = id || "home";
+  if (viewId === "staff" && currentUser.role !== "staff") {
+    viewId = "home";
+    location.hash = "#home";
+  }
   document.querySelectorAll(".view").forEach((v) => v.classList.remove("is-active"));
   const el = document.getElementById(`view-${viewId}`);
   if (el) {
@@ -528,6 +702,10 @@ function showView(id) {
 }
 
 function navigateFromHash() {
+  if (!currentUser) {
+    showAuth();
+    return;
+  }
   const id = (location.hash || "#home").slice(1) || "home";
   showView(id);
 }
@@ -657,6 +835,16 @@ document.getElementById("printDemo")?.addEventListener("click", () => window.pri
 document.getElementById("loadSample")?.addEventListener("click", loadSample);
 document.getElementById("loadSamplePacket")?.addEventListener("click", loadSample);
 
+document.getElementById("switchToStaff")?.addEventListener("click", () => {
+  clearAuth();
+  showAuth();
+  setRole("staff");
+  const demo = DEMO_USERS.staff;
+  document.getElementById("authEmail").value = demo.email;
+  document.getElementById("authPassword").value = demo.password;
+  setAuthMode("signin");
+});
+
 document.getElementById("langEn")?.addEventListener("click", () => {
   lang = "en";
   localStorage.setItem(LANG_KEY, lang);
@@ -668,7 +856,91 @@ document.getElementById("langEs")?.addEventListener("click", () => {
   applyI18n();
 });
 
+document.querySelectorAll(".role-tab").forEach((btn) => {
+  btn.addEventListener("click", () => setRole(btn.dataset.role));
+});
+
+document.querySelectorAll(".cred-chip").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const role = btn.dataset.fill;
+    setRole(role);
+    setAuthMode("signin");
+    const demo = DEMO_USERS[role];
+    document.getElementById("authEmail").value = demo.email;
+    document.getElementById("authPassword").value = demo.password;
+    document.getElementById("authError")?.setAttribute("hidden", "");
+  });
+});
+
+document.getElementById("showSignUp")?.addEventListener("click", () => setAuthMode("signup"));
+document.getElementById("showSignIn")?.addEventListener("click", () => setAuthMode("signin"));
+
+document.getElementById("signInForm")?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const email = document.getElementById("authEmail").value;
+  const password = document.getElementById("authPassword").value;
+  const remember = document.getElementById("authRemember")?.checked;
+  const err = document.getElementById("authError");
+  let user = findUser(email, password);
+  if (!user) {
+    if (err) {
+      err.hidden = false;
+      err.textContent = t("authError");
+    }
+    return;
+  }
+  // If they used parent/staff tab, prefer that role for demo accounts
+  if (user.email === DEMO_USERS.parent.email) user.role = "parent";
+  if (user.email === DEMO_USERS.staff.email) user.role = "staff";
+  if (err) err.hidden = true;
+  persistAuth(user, remember);
+  enterApp(user);
+});
+
+document.getElementById("signUpForm")?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const name = document.getElementById("signUpName").value.trim();
+  const email = document.getElementById("signUpEmail").value.trim().toLowerCase();
+  const password = document.getElementById("signUpPassword").value;
+  const err = document.getElementById("signUpError");
+  const exists =
+    Object.values(DEMO_USERS).some((u) => u.email === email) ||
+    loadAccounts().some((a) => a.email === email);
+  if (exists) {
+    if (err) {
+      err.hidden = false;
+      err.textContent = t("authExists");
+    }
+    return;
+  }
+  const user = { email, password, name, role: currentRole === "staff" ? "staff" : "parent" };
+  const accounts = loadAccounts();
+  accounts.push(user);
+  saveAccounts(accounts);
+  if (err) err.hidden = true;
+  persistAuth(user, true);
+  showToast(t("authCreated"));
+  enterApp(user);
+});
+
+document.getElementById("signOutBtn")?.addEventListener("click", () => {
+  clearAuth();
+  location.hash = "";
+  showAuth();
+  showToast(t("authSignOut"));
+});
+
 window.addEventListener("hashchange", navigateFromHash);
 hydrateForms();
 applyI18n();
-navigateFromHash();
+
+const existing = loadAuth();
+if (existing) {
+  enterApp(existing, { silent: true });
+} else {
+  showAuth();
+  setRole("parent");
+  const demo = DEMO_USERS.parent;
+  document.getElementById("authEmail").value = demo.email;
+  document.getElementById("authPassword").value = demo.password;
+}
