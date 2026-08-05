@@ -47,6 +47,18 @@ body {
   z-index: 30;
 }
 
+.prefill-notice {
+  margin: 0.75rem 0 0;
+  padding: 0.7rem 0.9rem;
+  background: rgba(23, 146, 204, 0.1);
+  border: 1px solid rgba(23, 146, 204, 0.28);
+  border-radius: 12px;
+  color: var(--navy);
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
 .mail-summary {
   margin: 0 0 1.25rem;
   display: grid;

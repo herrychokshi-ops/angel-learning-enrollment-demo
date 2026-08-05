@@ -56,10 +56,10 @@ const I18N = {
     ctaJump: "Jump to a form",
     overviewTitle: "What parents complete online",
     overviewLead:
-      "Open the link, fill the forms, submit. Prefilled PDFs go to the center email — no accounts or passwords.",
+      "Open the link, fill once. Child name, address, and contacts carry across all forms. Submit sends prefilled PDFs to the center — no login.",
     packetEyebrow: "Your packet",
     packetTitle: "Enrollment checklist",
-    packetLead: "Progress saves in this browser for the demo. Click any form to fill it out.",
+    packetLead: "Progress saves in this browser for the demo. Shared fields autofill after Enrollment.",
     progress: "{n} of {total} complete",
     statusDone: "Complete",
     statusTodo: "To do",
@@ -97,7 +97,7 @@ const I18N = {
     ctaJump: "Ir a un formulario",
     overviewTitle: "Lo que los padres completan en línea",
     overviewLead:
-      "Abra el enlace, llene los formularios y envíe. Los PDF prefllenados van al correo del centro — sin cuentas ni contraseñas.",
+      "Abra el enlace y llene una vez. Nombre, dirección y contactos se copian a todos los formularios. Envíe PDF al centro — sin inicio de sesión.",
     packetEyebrow: "Su paquete",
     packetTitle: "Lista de inscripción",
     packetLead: "El progreso se guarda en este navegador para la demo. Pulse cualquier formulario.",
@@ -451,8 +451,164 @@ function renderLists() {
   if (text) text.textContent = t("progress").replace("{n}", n).replace("{total}", FORMS.length);
 }
 
+function fullName(first, mi, last) {
+  return [first, mi, last].map((p) => (p || "").trim()).filter(Boolean).join(" ").replace(/\s+/g, " ");
+}
+
+function childFullName(en = {}) {
+  return fullName(en.childFirst, en.childMI, en.childLast);
+}
+
+function childLastFirst(en = {}) {
+  const last = (en.childLast || "").trim();
+  const first = (en.childFirst || "").trim();
+  const mi = (en.childMI || "").trim();
+  if (!last && !first) return "";
+  return `${last}${last && first ? ", " : ""}${first}${mi ? ` ${mi}.` : ""}`.trim();
+}
+
+function cityStateZip(en = {}) {
+  const city = (en.childCity || "").trim();
+  const zip = (en.childZip || "").trim();
+  if (city && zip) return `${city}, GA ${zip}`;
+  if (city) return `${city}, GA`;
+  return zip;
+}
+
+function homeLine(en = {}) {
+  const line1 = (en.childAddress || "").trim();
+  const place = cityStateZip(en);
+  if (line1 && place) return `${line1}, ${place}`;
+  return line1 || place || "";
+}
+
+function isBlank(v) {
+  return v === undefined || v === null || v === "" || v === false;
+}
+
+/** Copy shared answers across the 5 forms so parents type name/address once. */
+function carryForwardMap() {
+  const en = state.data.enrollment || {};
+  const fin = state.data.financial || {};
+  const child = childFullName(en) || fin.finChildName || "";
+  const childLf = childLastFirst(en) || child;
+  const mom = fullName(en.momFirst, en.momMI, en.momLast);
+  const dad = fullName(en.dadFirst, en.dadMI, en.dadLast);
+  const signer = fin.rpName || mom || dad || "";
+  const address = homeLine(en) || fin.rpAddress || "";
+  const phone = en.momCell || en.dadCell || fin.rpPhone || "";
+  const email = en.momEmail || en.dadEmail || fin.rpEmail || "";
+  const dob = en.childDob || "";
+  const today = new Date().toISOString().slice(0, 10);
+
+  return {
+    financial: {
+      finChildName: child,
+      rpName: signer,
+      rpAddress: en.childAddress || "",
+      rpCityStateZip: cityStateZip(en),
+      rpPhone: phone,
+      rpEmail: email,
+      rpEmployer: en.momEmployer || en.dadEmployer || "",
+      finPrintName: signer,
+      finSignature: signer,
+      finSignDate: today,
+      finEnrollDate: en.startDate || "",
+    },
+    transport: {
+      trChild: child,
+      trSignature: signer,
+      trDate: today,
+      trArriveTime: en.careTo || "",
+    },
+    emergency: {
+      emChild: child,
+      emAuthChild: child,
+      emDob: dob,
+      emAddress: address || en.childAddress || "",
+      emFather: dad,
+      emMother: mom,
+      emFatherPhones: [en.dadCell].filter(Boolean).join(" · "),
+      emMotherPhones: [en.momCell].filter(Boolean).join(" · "),
+      emSignature: signer,
+      emDate: today,
+    },
+    ies: {
+      iesChild1: childLf,
+      iesDob1: dob,
+      iesAdult1: signer || mom,
+      iesPrint: signer,
+      iesSignature: signer,
+      iesDate: today,
+      iesAddress: en.childAddress || "",
+      iesCity: en.childCity || "",
+      iesState: en.childCity || en.childZip ? "GA" : "",
+      iesZip: en.childZip || "",
+      iesPhone: phone,
+      iesCareFrom: en.careFrom || "",
+      iesCareTo: en.careTo || "",
+      iesMealB: en.mealBreakfast,
+      iesMealL: en.mealLunch,
+      iesMealP: en.mealSnack,
+    },
+  };
+}
+
+function mergeCarry(target, source, { force = false } = {}) {
+  const out = { ...(target || {}) };
+  let changed = 0;
+  Object.entries(source || {}).forEach(([key, value]) => {
+    if (isBlank(value)) return;
+    if (force || isBlank(out[key])) {
+      if (out[key] !== value) {
+        out[key] = value;
+        changed += 1;
+      }
+    }
+  });
+  return { data: out, changed };
+}
+
+function applyCarryForward({ force = false, onlyForm = null } = {}) {
+  const map = carryForwardMap();
+  let total = 0;
+  Object.entries(map).forEach(([formId, source]) => {
+    if (onlyForm && onlyForm !== formId) return;
+    // Don't force-overwrite form fields the parent already finished, unless force on non-completed
+    const formForce = force && !state.completed[formId];
+    const { data, changed } = mergeCarry(state.data[formId], source, { force: formForce });
+    if (changed) {
+      state.data[formId] = data;
+      total += changed;
+    }
+  });
+  if (total) saveState(state);
+  return total;
+}
+
+function updatePrefillNotice(viewId) {
+  document.querySelectorAll(".prefill-notice").forEach((n) => n.remove());
+  if (!["financial", "transport", "emergency", "ies"].includes(viewId)) return;
+  const en = state.data.enrollment || {};
+  if (!childFullName(en) && !en.momFirst) return;
+  const head = document.querySelector(`#view-${viewId} .page-head`);
+  if (!head) return;
+  const note = document.createElement("p");
+  note.className = "prefill-notice";
+  note.setAttribute("data-i18n-skip", "1");
+  note.textContent =
+    lang === "es"
+      ? "Campos como nombre, dirección y contacto se rellenaron desde el Formulario de inscripción. Puede editarlos."
+      : "Name, address, and contact fields were filled from the Enrollment form so you don’t retype them. Edit anything that needs changes.";
+  head.appendChild(note);
+}
+
 function showView(id) {
   const viewId = id || "home";
+  if (["financial", "transport", "emergency", "ies"].includes(viewId)) {
+    applyCarryForward({ force: false, onlyForm: viewId });
+    hydrateForms();
+  }
   document.querySelectorAll(".view").forEach((v) => v.classList.remove("is-active"));
   const el = document.getElementById(`view-${viewId}`);
   if (el) {
@@ -461,6 +617,7 @@ function showView(id) {
   } else {
     document.getElementById("view-home")?.classList.add("is-active");
   }
+  updatePrefillNotice(viewId);
   if (viewId === "done") {
     showToast(t("toastSubmitted"));
   }
@@ -546,9 +703,19 @@ document.querySelectorAll("form[data-form]").forEach((form) => {
     const id = form.dataset.form;
     state.data[id] = serializeForm(form);
     state.completed[id] = true;
+    if (id === "enrollment" || id === "financial") {
+      applyCarryForward({ force: true });
+      hydrateForms();
+    }
     saveState(state);
     renderLists();
-    showToast(t("toastSaved"));
+    showToast(
+      id === "enrollment"
+        ? lang === "es"
+          ? "Guardado — datos copiados a los demás formularios"
+          : "Saved — shared details carried to the other forms"
+        : t("toastSaved")
+    );
   });
 });
 
