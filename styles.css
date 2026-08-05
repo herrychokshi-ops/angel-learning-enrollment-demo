@@ -47,7 +47,36 @@ body {
   z-index: 30;
 }
 
-/* Auth */
+.mail-summary {
+  margin: 0 0 1.25rem;
+  display: grid;
+  gap: 0.55rem;
+  max-width: 28rem;
+}
+
+.mail-row {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  background: #fff;
+}
+
+.mail-row small {
+  display: block;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+
+.mail-row strong {
+  display: block;
+  color: var(--navy);
+  margin-top: 0.15rem;
+  font-size: 0.95rem;
+}
+
+/* Auth (unused after open fill flow) */
 .auth-screen {
   min-height: calc(100vh - 2.5rem);
   display: grid;

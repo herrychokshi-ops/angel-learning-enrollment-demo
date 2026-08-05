@@ -2,8 +2,6 @@ const FORMS = [
   {
     id: "enrollment",
     num: "01",
-    titleKey: "formEnrollment",
-    blurbKey: "blurbEnrollment",
     title: "Enrollment Form",
     blurb: "Child & guardian details, emergency contacts, care hours",
     titleEs: "Formulario de inscripción",
@@ -43,50 +41,22 @@ const FORMS = [
   },
 ];
 
-const DEMO_USERS = {
-  parent: { email: "parent@angellearning.demo", password: "parent123", name: "Sofia Rivera", role: "parent" },
-  staff: { email: "staff@angellearning.demo", password: "staff123", name: "Mrs. T. Johnson", role: "staff" },
-};
-
-const AUTH_KEY = "alc-enrollment-auth-v1";
-const ACCOUNTS_KEY = "alc-enrollment-accounts-v1";
-
 const I18N = {
   en: {
     demoBanner: "Interactive mockup · not live data",
     demoBannerHint: "· for demonstration only",
-    portalLabel: "Parent Portal · Demo",
     navHome: "Home",
     navForms: "Forms",
-    navStaff: "Staff view",
     resetDemo: "Reset demo",
-    authKicker: "Secure parent & staff access",
-    authTitle: "Sign in to your portal",
-    authLead: "Parents complete enrollment online. Staff review submitted packets in one place.",
-    roleParent: "Parent",
-    roleStaff: "Staff",
-    authEmail: "Email",
-    authPassword: "Password",
-    authRemember: "Keep me signed in on this device",
-    authSignIn: "Sign in",
-    authCreate: "Create account",
-    authNeedAccount: "Need an account? Create one",
-    authHaveAccount: "Already have an account? Sign in",
-    authSignOut: "Sign out",
-    demoCredsTitle: "Demo logins (click to fill)",
-    authError: "Invalid email or password. Try a demo login below.",
-    authExists: "An account with that email already exists. Sign in instead.",
-    authCreated: "Account created — you’re signed in",
-    authWelcome: "Welcome back",
-    hours: "Mon–Fri 6:30 AM – 5:30 PM",
     heroKicker: "Enrollment packet · 2026–2027",
     heroLead:
-      "Complete every required form online — enrollment, tuition, transportation, emergency contacts, and CACFP meal benefits — in one guided flow.",
+      "No login required. Complete enrollment, tuition, transportation, emergency, and meal-benefit forms online — then send the packet to the center by email.",
     ctaStart: "Start enrollment packet",
     ctaSample: "Load sample child",
     ctaJump: "Jump to a form",
     overviewTitle: "What parents complete online",
-    overviewLead: "Replaces paper PDFs and Word docs with a single, mobile-friendly experience.",
+    overviewLead:
+      "Open the link, fill the forms, submit. Prefilled PDFs go to the center email — no accounts or passwords.",
     packetEyebrow: "Your packet",
     packetTitle: "Enrollment checklist",
     packetLead: "Progress saves in this browser for the demo. Click any form to fill it out.",
@@ -94,68 +64,40 @@ const I18N = {
     statusDone: "Complete",
     statusTodo: "To do",
     backPacket: "← Back to packet",
-    backHome: "← Back to home",
     saveComplete: "Save & mark complete",
     toastSaved: "Saved — form marked complete",
     toastSample: "Sample family loaded — open any form to review",
     toastReset: "Demo reset",
-    toastSubmitted: "Packet sent to staff inbox",
+    toastSubmitted: "Demo: packet would email the center as PDFs",
     confirmReset: "Clear all demo form progress on this device?",
-    doneStrong: "Packet submitted for review",
+    doneStrong: "Packet emailed to the center",
     doneText:
-      "Thank you. Your enrollment forms are ready for Angel Learning Center staff to review. You’ll receive confirmation once everything is verified.",
-    doneEyebrow: "Submission summary",
+      "No login required. Your prefilled forms are sent as PDFs to Angel Learning Center, and a copy can go to your email.",
+    doneEyebrow: "What happens next",
     doneTitle: "You’re all set",
-    doneLead: "Here’s what was completed in this packet. Staff can open the received packet view to process it.",
-    viewStaff: "Sign in as staff to review",
+    doneLead:
+      "Fill online once → we email the completed packet to the front desk. No parent account, no password.",
+    emailToCenter: "SENT TO CENTER",
+    emailAttachments: "ATTACHMENTS",
+    emailAttachmentList: "5 prefilled PDF forms",
     reviewChecklist: "Review checklist",
     printPreview: "Print / PDF preview",
-    staffEyebrow: "Center operations",
-    staffTitle: "Received enrollment packets",
-    staffLead:
-      "What staff would see when a parent finishes the online packet — timestamps, form status, and child details in one place.",
-    staffEmpty: "No packets yet. Complete the parent flow (or load sample data and finish) to see one appear here.",
-    staffChild: "Child",
-    staffSubmitted: "Submitted",
-    staffForms: "Forms complete",
-    staffParent: "Primary parent",
-    staffPhone: "Phone",
   },
   es: {
     demoBanner: "Maqueta interactiva · no es información real",
     demoBannerHint: "· solo para demostración",
-    portalLabel: "Portal para padres · Demo",
     navHome: "Inicio",
     navForms: "Formularios",
-    navStaff: "Vista del personal",
     resetDemo: "Reiniciar demo",
-    authKicker: "Acceso seguro para padres y personal",
-    authTitle: "Inicie sesión en su portal",
-    authLead: "Los padres completan la inscripción en línea. El personal revisa los paquetes en un solo lugar.",
-    roleParent: "Padre/Madre",
-    roleStaff: "Personal",
-    authEmail: "Correo electrónico",
-    authPassword: "Contraseña",
-    authRemember: "Mantener sesión en este dispositivo",
-    authSignIn: "Iniciar sesión",
-    authCreate: "Crear cuenta",
-    authNeedAccount: "¿Necesita una cuenta? Créela aquí",
-    authHaveAccount: "¿Ya tiene cuenta? Inicie sesión",
-    authSignOut: "Cerrar sesión",
-    demoCredsTitle: "Accesos demo (pulse para llenar)",
-    authError: "Correo o contraseña incorrectos. Pruebe un acceso demo abajo.",
-    authExists: "Ya existe una cuenta con ese correo. Inicie sesión.",
-    authCreated: "Cuenta creada — sesión iniciada",
-    authWelcome: "Bienvenido/a",
-    hours: "Lun–Vie 6:30 AM – 5:30 PM",
     heroKicker: "Paquete de inscripción · 2026–2027",
     heroLead:
-      "Complete todos los formularios requeridos en línea — inscripción, matrícula, transporte, emergencias y beneficios de comidas CACFP — en un solo flujo.",
+      "No se necesita iniciar sesión. Complete en línea inscripción, matrícula, transporte, emergencia y comidas — y envíe el paquete al centro por correo.",
     ctaStart: "Comenzar paquete de inscripción",
     ctaSample: "Cargar niño de ejemplo",
     ctaJump: "Ir a un formulario",
     overviewTitle: "Lo que los padres completan en línea",
-    overviewLead: "Reemplaza PDFs y documentos Word con una experiencia móvil y sencilla.",
+    overviewLead:
+      "Abra el enlace, llene los formularios y envíe. Los PDF prefllenados van al correo del centro — sin cuentas ni contraseñas.",
     packetEyebrow: "Su paquete",
     packetTitle: "Lista de inscripción",
     packetLead: "El progreso se guarda en este navegador para la demo. Pulse cualquier formulario.",
@@ -163,32 +105,24 @@ const I18N = {
     statusDone: "Completo",
     statusTodo: "Pendiente",
     backPacket: "← Volver al paquete",
-    backHome: "← Volver al inicio",
     saveComplete: "Guardar y marcar completo",
     toastSaved: "Guardado — formulario marcado completo",
     toastSample: "Familia de ejemplo cargada — abra cualquier formulario",
     toastReset: "Demo reiniciada",
-    toastSubmitted: "Paquete enviado a la bandeja del personal",
+    toastSubmitted: "Demo: el paquete se enviaría al centro en PDF",
     confirmReset: "¿Borrar todo el progreso de la demo en este dispositivo?",
-    doneStrong: "Paquete enviado para revisión",
+    doneStrong: "Paquete enviado por correo al centro",
     doneText:
-      "Gracias. Sus formularios están listos para que el personal de Angel Learning Center los revise. Recibirá confirmación cuando todo esté verificado.",
-    doneEyebrow: "Resumen de envío",
+      "No se requiere inicio de sesión. Sus formularios se envían en PDF a Angel Learning Center; también puede recibir una copia.",
+    doneEyebrow: "Qué sigue",
     doneTitle: "Todo listo",
-    doneLead: "Esto es lo que se completó. El personal puede abrir la bandeja de paquetes recibidos.",
-    viewStaff: "Entrar como personal para revisar",
+    doneLead:
+      "Llene en línea una vez → enviamos el paquete a recepción. Sin cuenta de padre ni contraseña.",
+    emailToCenter: "ENVIADO AL CENTRO",
+    emailAttachments: "ADJUNTOS",
+    emailAttachmentList: "5 formularios PDF prefllenados",
     reviewChecklist: "Revisar lista",
     printPreview: "Imprimir / vista PDF",
-    staffEyebrow: "Operaciones del centro",
-    staffTitle: "Paquetes de inscripción recibidos",
-    staffLead:
-      "Lo que vería el personal cuando un padre termina el paquete en línea — marcas de tiempo, estado y datos del niño.",
-    staffEmpty: "Aún no hay paquetes. Complete el flujo de padres (o cargue datos de ejemplo y termine) para ver uno aquí.",
-    staffChild: "Niño",
-    staffSubmitted: "Enviado",
-    staffForms: "Formularios completos",
-    staffParent: "Padre/madre principal",
-    staffPhone: "Teléfono",
     enrollmentTitle: "Formulario de inscripción",
     enrollmentLead: "Niño, padres/tutores, contactos de emergencia y horario de cuidado.",
     financialTitle: "Responsabilidad financiera y acuerdo de matrícula",
@@ -251,7 +185,8 @@ const I18N = {
       "Reconozco que soy legal y financieramente responsable del pago de toda matrícula, cuotas de inscripción, cargos por mora, pagos devueltos, actividades y cualquier otro cargo por la inscripción de mi hijo en Angel Learning Center.",
     finTerms2:
       "El incumplimiento de pago puede resultar en cargos, suspensión o terminación de servicios, negativa a futuras inscripciones, cobranzas y acción civil en un tribunal de Georgia.",
-    finAgree: "He leído este acuerdo y acepto voluntariamente ser personalmente responsable de todos los montos adeudados.",
+    finAgree:
+      "He leído este acuerdo y acepto voluntariamente ser personalmente responsable de todos los montos adeudados.",
     printedName: "Nombre en letra de molde",
     date: "Fecha",
     esign: "Firma electrónica",
@@ -300,59 +235,6 @@ const I18N = {
     childInfo: "Información del niño",
   },
 };
-
-const STORAGE_KEY = "alc-enrollment-demo-v2";
-const LANG_KEY = "alc-enrollment-lang";
-
-let currentRole = "parent";
-let currentUser = null;
-
-function loadAccounts() {
-  try {
-    return JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
-
-function saveAccounts(accounts) {
-  localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
-}
-
-function loadAuth() {
-  try {
-    return (
-      JSON.parse(sessionStorage.getItem(AUTH_KEY)) ||
-      JSON.parse(localStorage.getItem(AUTH_KEY)) ||
-      null
-    );
-  } catch {
-    return null;
-  }
-}
-
-function persistAuth(user, remember) {
-  const payload = JSON.stringify(user);
-  sessionStorage.setItem(AUTH_KEY, payload);
-  if (remember) localStorage.setItem(AUTH_KEY, payload);
-  else localStorage.removeItem(AUTH_KEY);
-}
-
-function clearAuth() {
-  sessionStorage.removeItem(AUTH_KEY);
-  localStorage.removeItem(AUTH_KEY);
-  currentUser = null;
-}
-
-function findUser(email, password) {
-  const e = email.trim().toLowerCase();
-  for (const demo of Object.values(DEMO_USERS)) {
-    if (demo.email === e && demo.password === password) return { ...demo };
-  }
-  const created = loadAccounts().find((a) => a.email === e && a.password === password);
-  if (created) return { ...created };
-  return null;
-}
 
 const SAMPLE = {
   enrollment: {
@@ -480,17 +362,14 @@ const SAMPLE = {
   },
 };
 
+const STORAGE_KEY = "alc-enrollment-demo-v3";
+const LANG_KEY = "alc-enrollment-lang";
+
 function loadState() {
   try {
-    return (
-      JSON.parse(localStorage.getItem(STORAGE_KEY)) || {
-        completed: {},
-        data: {},
-        submissions: [],
-      }
-    );
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { completed: {}, data: {} };
   } catch {
-    return { completed: {}, data: {}, submissions: [] };
+    return { completed: {}, data: {} };
   }
 }
 
@@ -499,7 +378,6 @@ function saveState(state) {
 }
 
 let state = loadState();
-if (!state.submissions) state.submissions = [];
 let lang = localStorage.getItem(LANG_KEY) || "en";
 
 function t(key) {
@@ -515,18 +393,12 @@ function applyI18n() {
   });
   document.getElementById("langEn")?.classList.toggle("active", lang === "en");
   document.getElementById("langEs")?.classList.toggle("active", lang === "es");
-  const chip = document.getElementById("userChip");
-  if (chip && currentUser) {
-    chip.textContent = `${currentUser.name} · ${
-      currentUser.role === "staff" ? t("roleStaff") : t("roleParent")
-    }`;
-  }
   renderLists();
-  renderStaff();
 }
 
 function showToast(message) {
   const el = document.getElementById("toast");
+  if (!el) return;
   el.textContent = message;
   el.hidden = false;
   el.classList.add("show");
@@ -579,111 +451,8 @@ function renderLists() {
   if (text) text.textContent = t("progress").replace("{n}", n).replace("{total}", FORMS.length);
 }
 
-function renderStaff() {
-  const box = document.getElementById("staffInbox");
-  if (!box) return;
-  if (!state.submissions.length) {
-    box.innerHTML = `<div class="staff-empty">${t("staffEmpty")}</div>`;
-    return;
-  }
-
-  box.innerHTML = [...state.submissions]
-    .reverse()
-    .map((sub) => {
-      const formsHtml = FORMS.map((f) => {
-        const ok = sub.completed?.[f.id];
-        return `<span class="status ${ok ? "done" : ""}">${formTitle(f)}: ${
-          ok ? t("statusDone") : t("statusTodo")
-        }</span>`;
-      }).join(" ");
-      return `
-        <article class="staff-card">
-          <h3>${t("staffChild")}: ${sub.childName || "—"}</h3>
-          <div class="staff-meta">
-            <span>${t("staffSubmitted")}: ${new Date(sub.submittedAt).toLocaleString()}</span>
-            <span>${t("staffForms")}: ${sub.formsComplete}/${FORMS.length}</span>
-            <span>${t("staffParent")}: ${sub.parentName || "—"}</span>
-            <span>${t("staffPhone")}: ${sub.phone || "—"}</span>
-          </div>
-          <div class="chip-group">${formsHtml}</div>
-        </article>
-      `;
-    })
-    .join("");
-}
-
-function setAuthMode(mode) {
-  const signIn = document.getElementById("signInForm");
-  const signUp = document.getElementById("signUpForm");
-  const showUp = document.getElementById("showSignUp");
-  const showIn = document.getElementById("showSignIn");
-  const isUp = mode === "signup";
-  if (signIn) signIn.hidden = isUp;
-  if (signUp) signUp.hidden = !isUp;
-  if (showUp) showUp.hidden = isUp;
-  if (showIn) showIn.hidden = !isUp;
-  const authErr = document.getElementById("authError");
-  const signUpErr = document.getElementById("signUpError");
-  if (authErr) authErr.hidden = true;
-  if (signUpErr) signUpErr.hidden = true;
-}
-
-function setRole(role) {
-  currentRole = role;
-  document.querySelectorAll(".role-tab").forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.role === role);
-  });
-  const demo = DEMO_USERS[role];
-  const email = document.getElementById("authEmail");
-  const pass = document.getElementById("authPassword");
-  if (email && !email.value) email.value = demo.email;
-  if (pass && !pass.value) pass.value = demo.password;
-}
-
-function enterApp(user, { silent = false } = {}) {
-  currentUser = user;
-  const auth = document.getElementById("authScreen");
-  const shell = document.getElementById("appShell");
-  if (auth) auth.hidden = true;
-  if (shell) shell.hidden = false;
-
-  const chip = document.getElementById("userChip");
-  if (chip) chip.hidden = false;
-
-  const staffLink = document.getElementById("navStaffLink");
-  if (staffLink) staffLink.style.display = user.role === "staff" ? "" : "none";
-
-  applyI18n();
-  if (user.role === "staff") {
-    if (location.hash !== "#staff") location.hash = "#staff";
-    else navigateFromHash();
-  } else if (!location.hash || location.hash === "#" || location.hash === "#staff") {
-    location.hash = "#home";
-  } else {
-    navigateFromHash();
-  }
-  if (!silent) showToast(`${t("authWelcome")}, ${user.name.split(" ")[0]}`);
-}
-
-function showAuth() {
-  const auth = document.getElementById("authScreen");
-  const shell = document.getElementById("appShell");
-  if (auth) auth.hidden = false;
-  if (shell) shell.hidden = true;
-  setAuthMode("signin");
-  setRole(currentRole);
-}
-
 function showView(id) {
-  if (!currentUser) {
-    showAuth();
-    return;
-  }
-  let viewId = id || "home";
-  if (viewId === "staff" && currentUser.role !== "staff") {
-    viewId = "home";
-    location.hash = "#home";
-  }
+  const viewId = id || "home";
   document.querySelectorAll(".view").forEach((v) => v.classList.remove("is-active"));
   const el = document.getElementById(`view-${viewId}`);
   if (el) {
@@ -692,17 +461,15 @@ function showView(id) {
   } else {
     document.getElementById("view-home")?.classList.add("is-active");
   }
-  if (viewId === "staff") renderStaff();
-  if (viewId === "done") maybeSubmitPacket();
+  if (viewId === "done") {
+    showToast(t("toastSubmitted"));
+  }
   renderLists();
 }
 
 function navigateFromHash() {
-  if (!currentUser) {
-    showAuth();
-    return;
-  }
-  const id = (location.hash || "#home").slice(1) || "home";
+  let id = (location.hash || "#home").slice(1) || "home";
+  if (id === "staff" || id === "auth") id = "home";
   showView(id);
 }
 
@@ -763,37 +530,6 @@ function serializeForm(form) {
   return data;
 }
 
-function maybeSubmitPacket() {
-  const n = completedCount();
-  if (n < 1) return;
-  const childName =
-    state.data.enrollment?.childFirst && state.data.enrollment?.childLast
-      ? `${state.data.enrollment.childFirst} ${state.data.enrollment.childLast}`
-      : state.data.financial?.finChildName || "Sample child";
-  const parentName =
-    state.data.financial?.rpName ||
-    `${state.data.enrollment?.momFirst || ""} ${state.data.enrollment?.momLast || ""}`.trim();
-  const phone = state.data.enrollment?.momCell || state.data.financial?.rpPhone || "";
-  const fingerprint = `${childName}|${n}|${Object.keys(state.completed).sort().join(",")}`;
-  const already = state.submissions.some((s) => s.fingerprint === fingerprint);
-  if (already) {
-    renderStaff();
-    return;
-  }
-  state.submissions.push({
-    fingerprint,
-    childName,
-    parentName,
-    phone,
-    submittedAt: new Date().toISOString(),
-    formsComplete: n,
-    completed: { ...state.completed },
-  });
-  saveState(state);
-  renderStaff();
-  showToast(t("toastSubmitted"));
-}
-
 function loadSample() {
   fillFormsFromData(SAMPLE, true);
   showToast(t("toastSample"));
@@ -818,11 +554,10 @@ document.querySelectorAll("form[data-form]").forEach((form) => {
 
 document.getElementById("resetDemo")?.addEventListener("click", () => {
   if (!confirm(t("confirmReset"))) return;
-  state = { completed: {}, data: {}, submissions: [] };
+  state = { completed: {}, data: {} };
   saveState(state);
   document.querySelectorAll("form[data-form]").forEach((f) => f.reset());
   renderLists();
-  renderStaff();
   showToast(t("toastReset"));
   location.hash = "#home";
 });
@@ -830,16 +565,6 @@ document.getElementById("resetDemo")?.addEventListener("click", () => {
 document.getElementById("printDemo")?.addEventListener("click", () => window.print());
 document.getElementById("loadSample")?.addEventListener("click", loadSample);
 document.getElementById("loadSamplePacket")?.addEventListener("click", loadSample);
-
-document.getElementById("switchToStaff")?.addEventListener("click", () => {
-  clearAuth();
-  showAuth();
-  setRole("staff");
-  const demo = DEMO_USERS.staff;
-  document.getElementById("authEmail").value = demo.email;
-  document.getElementById("authPassword").value = demo.password;
-  setAuthMode("signin");
-});
 
 document.getElementById("langEn")?.addEventListener("click", () => {
   lang = "en";
@@ -852,91 +577,7 @@ document.getElementById("langEs")?.addEventListener("click", () => {
   applyI18n();
 });
 
-document.querySelectorAll(".role-tab").forEach((btn) => {
-  btn.addEventListener("click", () => setRole(btn.dataset.role));
-});
-
-document.querySelectorAll(".cred-chip").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const role = btn.dataset.fill;
-    setRole(role);
-    setAuthMode("signin");
-    const demo = DEMO_USERS[role];
-    document.getElementById("authEmail").value = demo.email;
-    document.getElementById("authPassword").value = demo.password;
-    document.getElementById("authError")?.setAttribute("hidden", "");
-  });
-});
-
-document.getElementById("showSignUp")?.addEventListener("click", () => setAuthMode("signup"));
-document.getElementById("showSignIn")?.addEventListener("click", () => setAuthMode("signin"));
-
-document.getElementById("signInForm")?.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const email = document.getElementById("authEmail").value;
-  const password = document.getElementById("authPassword").value;
-  const remember = document.getElementById("authRemember")?.checked;
-  const err = document.getElementById("authError");
-  let user = findUser(email, password);
-  if (!user) {
-    if (err) {
-      err.hidden = false;
-      err.textContent = t("authError");
-    }
-    return;
-  }
-  // If they used parent/staff tab, prefer that role for demo accounts
-  if (user.email === DEMO_USERS.parent.email) user.role = "parent";
-  if (user.email === DEMO_USERS.staff.email) user.role = "staff";
-  if (err) err.hidden = true;
-  persistAuth(user, remember);
-  enterApp(user);
-});
-
-document.getElementById("signUpForm")?.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const name = document.getElementById("signUpName").value.trim();
-  const email = document.getElementById("signUpEmail").value.trim().toLowerCase();
-  const password = document.getElementById("signUpPassword").value;
-  const err = document.getElementById("signUpError");
-  const exists =
-    Object.values(DEMO_USERS).some((u) => u.email === email) ||
-    loadAccounts().some((a) => a.email === email);
-  if (exists) {
-    if (err) {
-      err.hidden = false;
-      err.textContent = t("authExists");
-    }
-    return;
-  }
-  const user = { email, password, name, role: currentRole === "staff" ? "staff" : "parent" };
-  const accounts = loadAccounts();
-  accounts.push(user);
-  saveAccounts(accounts);
-  if (err) err.hidden = true;
-  persistAuth(user, true);
-  showToast(t("authCreated"));
-  enterApp(user);
-});
-
-document.getElementById("signOutBtn")?.addEventListener("click", () => {
-  clearAuth();
-  location.hash = "";
-  showAuth();
-  showToast(t("authSignOut"));
-});
-
 window.addEventListener("hashchange", navigateFromHash);
 hydrateForms();
 applyI18n();
-
-const existing = loadAuth();
-if (existing) {
-  enterApp(existing, { silent: true });
-} else {
-  showAuth();
-  setRole("parent");
-  const demo = DEMO_USERS.parent;
-  document.getElementById("authEmail").value = demo.email;
-  document.getElementById("authPassword").value = demo.password;
-}
+navigateFromHash();
