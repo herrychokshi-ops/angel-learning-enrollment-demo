@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ALC Online Enrollment — Client Setup Questionnaire</title>
+  <link rel="icon" href="assets/icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --g-purple: #673ab7;
+      --g-purple-dark: #5e35b1;
+      --surface: #fff;
+      --bg: #f0ebf8;
+      --text: #202124;
+      --muted: #5f6368;
+      --line: #dadce0;
+      --error: #d93025;
+      --ok: #188038;
+      --radius: 8px;
+      --shadow: 0 1px 2px rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+      --font: "Roboto", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
+      padding-bottom: 4rem;
+    }
+    .banner {
+      background: #263674;
+      color: #fff;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+    }
+    .wrap {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 0 0.75rem 2rem;
+    }
+    .hero-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-top: 12px;
+      overflow: hidden;
+    }
+    .hero-bar {
+      height: 10px;
+      background: var(--g-purple);
+    }
+    .hero-body { padding: 24px; }
+    .hero-body h1 {
+      margin: 0 0 8px;
+      font-size: 32px;
+      font-weight: 400;
+      color: var(--text);
+    }
+    .hero-body p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .hero-body .req-note {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      color: var(--error);
+      font-size: 14px;
+    }
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .brand-row img { height: 36px; }
+
+    .section-title {
+      margin: 20px 0 8px;
+      padding: 0 4px;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--g-purple-dark);
+    }
+    .section-help {
+      margin: 0 0 10px;
+      padding: 0 4px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .q {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px 24px;
+      margin-bottom: 12px;
+      border-left: 6px solid transparent;
+      transition: border-color .15s ease;
+    }
+    .q:focus-within { border-left-color: var(--g-purple); }
+    .q-label {
+      display: block;
+      font-size: 16px;
+      font-weight: 400;
+      margin-bottom: 6px;
+    }
+    .q-label .star { color: var(--error); margin-left: 2px; }
+    .q-desc {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0 0 14px;
+    }
+    .opts { display: grid; gap: 4px; }
+    .opt {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .opt input { margin-top: 3px; accent-color: var(--g-purple); }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      max-width: 100%;
+      border: none;
+      border-bottom: 1px solid var(--line);
+      padding: 8px 0;
+      font: inherit;
+      font-size: 14px;
+      background: transparent;
+      outline: none;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-bottom-color: var(--g-purple);
+      border-bottom-width: 2px;
+    }
+    textarea { min-height: 88px; resize: vertical; border: 1px solid var(--line); border-radius: 4px; padding: 10px; }
+    textarea:focus { border-color: var(--g-purple); }
+    .row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 560px) {
+      .row2 { grid-template-columns: 1fr; }
+    }
+
+    .loc-block {
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 10px;
+      background: #fafafa;
+    }
+    .loc-block h3 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--g-purple-dark);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+      align-items: center;
+    }
+    .btn {
+      appearance: none;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 24px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--g-purple);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--g-purple-dark); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--g-purple);
+    }
+    .status {
+      font-size: 13px;
+      color: var(--ok);
+      font-weight: 500;
+      display: none;
+    }
+    .status.show { display: block; }
+    .footer-note {
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+    .progress {
+      height: 4px;
+      background: #e0d4f7;
+      border-radius: 999px;
+      margin: 12px 0 0;
+      overflow: hidden;
+    }
+    .progress > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--g-purple);
+      transition: width .2s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">Angel Learning Center · Online enrollment setup · Share with client to complete</div>
+
+  <div class="wrap">
+    <form id="qForm" class="hero-card" novalidate>
+      <div class="hero-bar"></div>
+      <div class="hero-body">
+        <div class="brand-row">
+          <img src="assets/logo.png" alt="Angel Learning Center" />
+        </div>
+        <h1>Online Enrollment Setup Questionnaire</h1>
+        <p>
+          Please complete this so we can build the fill-online enrollment system (no parent login)
+          with prefilled forms emailed to each center. Answers can differ by location.
+        </p>
+        <p>
+          Estimated time: 20–30 minutes. You can save/export and send more later.
+          Attach final form PDFs by email if easier.
+        </p>
+        <div class="progress"><span id="progressFill"></span></div>
+        <p class="req-note">* Required</p>
+      </div>
+
+      <!-- 1 -->
+      <p class="section-title">1. Contacts &amp; project</p>
+      <p class="section-help">Who we work with and how decisions get made.</p>
+
+      <div class="q">
+        <label class="q-label">Your name <span class="star">*</span></label>
+        <input type="text" name="contact_name" required placeholder="Your answer" />
+      </div>
+      <div class="q">
+        <label class="q-label">Role / title <span class="star">*</span></label>
+        <input type="text" name="contact_role" required placeholder="Owner, director, operations…" />
+      </div>
+      <div class="q">
+        <div class="row2">
+          <div>
+            <label class="q-label">Email <span class="star">*</span></label>
+            <input type="email" name="contact_email" required placeholder="you@angellearningcenter.com" />
+          </div>
+          <div>
+            <label class="q-label">Phone <span class="star">*</span></label>
+            <input type="tel" name="contact_phone" required placeholder="(###) ###-####" />
+          </div>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">Secondary contact for day-to-day questions</label>
+        <input type="text" name="contact_secondary" placeholder="Name, email, phone" />
+      </div>
+      <div class="q">
+        <label class="q-label">Target go-live date (if any)</label>
+        <input type="text" name="go_live" placeholder="e.g. before fall enrollment" />
+      </div>
+
+      <!-- 2 -->
+      <p class="section-title">2. How parents will use the system</p>
+      <div class="q">
+        <label class="q-label">Confirm: no parent login — open link, fill online, submit? <span class="star">*</span></label>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="no_login" value="yes" required /> Yes — no accounts/passwords</label>
+          <label class="opt"><input type="radio" name="no_login" value="maybe" /> Prefer optional account later</label>
+          <label class="opt"><input type="radio" name="no_login" value="no" /> We want parent login after all</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">When parent finishes, how should the office get forms? <span class="star">*</span></label>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="delivery" value="email_pdf" required /> Email prefilled PDFs to the center (recommended V1)</label>
+          <label class="opt"><input type="radio" name="delivery" value="email_and_staff" /> Email PDFs + later staff webpage</label>
+          <label class="opt"><input type="radio" name="delivery" value="staff_only" /> Staff dashboard only (no email)</label>
+          <label class="opt"><input type="radio" name="delivery" value="unsure" /> Not sure — please advise</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">Should the parent also get a PDF copy by email? <span class="star">*</span></label>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="parent_copy" value="yes" required /> Yes</label>
+          <label class="opt"><input type="radio" name="parent_copy" value="no" /> No — center only</label>
+          <label class="opt"><input type="radio" name="parent_copy" value="optional" /> Optional checkbox for parent</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">One shared enrollment link for all locations, or separate links? <span class="star">*</span></label>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="link_model" value="one_link" required /> One link → parent picks location first</label>
+          <label class="opt"><input type="radio" name="link_model" value="per_loc" /> Separate link per location</label>
+          <label class="opt"><input type="radio" name="link_model" value="unsure" /> Unsure</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">Preferred web address (if any)</label>
+        <input type="text" name="preferred_url" placeholder="e.g. enroll.angellearningcenter.com" />
+      </div>
+      <div class="q">
+        <label class="q-label">Languages needed <span class="star">*</span></label>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="lang" value="en" /> English</label>
+          <label class="opt"><input type="checkbox" name="lang" value="es" /> Spanish</label>
+          <label class="opt"><input type="checkbox" name="lang" value="other" /> Other (list below)</label>
+        </div>
+        <input type="text" name="lang_other" placeholder="Other language(s)" style="margin-top:8px" />
+      </div>
+
+      <!-- 3 -->
+      <p class="section-title">3. Locations launching</p>
+      <p class="section-help">Check every site that should use online enrollment now. Fill details for each (or attach a spreadsheet).</p>
+
+      <div class="q">
+        <label class="q-label">Which locations are in launch scope? <span class="star">*</span></label>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="loc_scope" value="savannah" /> Savannah Highlands</label>
+          <label class="opt"><input type="checkbox" name="loc_scope" value="dawsonville" /> Dawsonville</label>
+          <label class="opt"><input type="checkbox" name="loc_scope" value="smarr" /> Smarr / Forsyth</label>
+          <label class="opt"><input type="checkbox" name="loc_scope" value="valdosta" /> Valdosta</label>
+          <label class="opt"><input type="checkbox" name="loc_scope" value="other" /> Other / new location (list below)</label>
+        </div>
+        <input type="text" name="loc_scope_other" placeholder="Other location name(s)" style="margin-top:8px" />
+      </div>
+
+      <div class="q">
+        <label class="q-label">Location details <span class="star">*</span></label>
+        <p class="q-desc">For each launching site: official name, address, phone, enrollment email that should receive PDFs, hours, director name.</p>
+        <textarea name="location_details" required placeholder="Example:
+Savannah Highlands — 178 Basswood Dr, Savannah, GA 31407
+Phone: (912) 600-3899
+Enrollment email: ???
+Hours: Mon–Fri 6:30–5:30
+Director: …
+
+Dawsonville — …
+…"></textarea>
+      </div>
+
+      <!-- repeatable-ish freeform for 4 known locations -->
+      <div class="q">
+        <label class="q-label">Per-location programs offered</label>
+        <p class="q-desc">Ages/programs each site offers (infants, toddlers, preschool, Pre-K, afterschool K–8, summer, etc.).</p>
+        <textarea name="programs_by_loc" placeholder="Savannah: …
+Dawsonville: …
+Smarr: …
+Valdosta: …"></textarea>
+      </div>
+
+      <!-- 4 -->
+      <p class="section-title">4. Forms &amp; packet content</p>
+      <div class="q">
+        <label class="q-label">Which forms are required at enrollment? <span class="star">*</span></label>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="forms" value="enrollment" /> Enrollment form</label>
+          <label class="opt"><input type="checkbox" name="forms" value="tuition" /> Financial responsibility / tuition agreement</label>
+          <label class="opt"><input type="checkbox" name="forms" value="transport" /> Transportation agreement</label>
+          <label class="opt"><input type="checkbox" name="forms" value="emergency" /> Vehicle / emergency medical</label>
+          <label class="opt"><input type="checkbox" name="forms" value="ies" /> CACFP meal benefit (IES) packet</label>
+          <label class="opt"><input type="checkbox" name="forms" value="handbook" /> Handbook acknowledgment</label>
+          <label class="opt"><input type="checkbox" name="forms" value="photo" /> Photo / social media release</label>
+          <label class="opt"><input type="checkbox" name="forms" value="health_upload" /> Health forms (3231/3300) upload</label>
+          <label class="opt"><input type="checkbox" name="forms" value="birth_cert" /> Birth certificate upload</label>
+          <label class="opt"><input type="checkbox" name="forms" value="custody" /> Custody / court order upload (if applies)</label>
+          <label class="opt"><input type="checkbox" name="forms" value="infant" /> Infant feeding / safe sleep</label>
+          <label class="opt"><input type="checkbox" name="forms" value="field_trip" /> Field trip / walking permission</label>
+          <label class="opt"><input type="checkbox" name="forms" value="other_forms" /> Other (list below)</label>
+        </div>
+        <textarea name="forms_other" placeholder="Other forms…" style="margin-top:10px"></textarea>
+      </div>
+      <div class="q">
+        <label class="q-label">Do all locations use the exact same form packet? <span class="star">*</span></label>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="forms_same" value="yes" required /> Yes — same forms everywhere</label>
+          <label class="opt"><input type="radio" name="forms_same" value="mostly" /> Mostly same; a few location differences</label>
+          <label class="opt"><input type="radio" name="forms_same" value="no" /> Different packets by location</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">If different, what differs by location?</label>
+        <textarea name="forms_diff" placeholder="e.g. Smarr has no bus form; Valdosta has different tuition addendum…"></textarea>
+      </div>
+      <div class="q">
+        <label class="q-label">Will you send final PDF/Word versions of every form? <span class="star">*</span></label>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="final_pdfs" value="yes" required /> Yes — attached / will email</label>
+          <label class="opt"><input type="radio" name="final_pdfs" value="partial" /> Some locations still updating</label>
+          <label class="opt"><input type="radio" name="final_pdfs" value="use_demo" /> Use what we already shared for now</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">How should social security numbers be handled? <span class="star">*</span></label>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="ssn" value="none" required /> Do not collect SSN online</label>
+          <label class="opt"><input type="radio" name="ssn" value="last4" /> Last 4 only (where form requires)</label>
+          <label class="opt"><input type="radio" name="ssn" value="full" /> Full SSN (encrypted storage required)</label>
+          <label class="opt"><input type="radio" name="ssn" value="paper_only" /> SSN still on paper only — omit from online</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">Is typed e-signature acceptable for these agreements? <span class="star">*</span></label>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="esign" value="typed" required /> Yes — type full name + timestamp</label>
+          <label class="opt"><input type="radio" name="esign" value="draw" /> Need draw signature pad</label>
+          <label class="opt"><input type="radio" name="esign" value="docusign" /> Need third-party e-sign (DocuSign etc.)</label>
+          <label class="opt"><input type="radio" name="esign" value="unsure" /> Need legal advice / unsure</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">May parents enroll more than one child in one session?</label>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="multi_child" value="yes" /> Yes — multi-child packet</label>
+          <label class="opt"><input type="radio" name="multi_child" value="no" /> No — one child per submission</label>
+          <label class="opt"><input type="radio" name="multi_child" value="later" /> Later phase</label>
+        </div>
+      </div>
+
+      <!-- 5 -->
+      <p class="section-title">5. Transportation / school routes (per location)</p>
+      <p class="section-help">Savannah forms listed Godley Station &amp; New Hampstead. Other sites will differ. If a location has no bus, say so.</p>
+
+      <div class="q">
+        <label class="q-label">Which locations offer school transport / bus / van? <span class="star">*</span></label>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="transport_locs" value="savannah" /> Savannah Highlands</label>
+          <label class="opt"><input type="checkbox" name="transport_locs" value="dawsonville" /> Dawsonville</label>
+          <label class="opt"><input type="checkbox" name="transport_locs" value="smarr" /> Smarr / Forsyth</label>
+          <label class="opt"><input type="checkbox" name="transport_locs" value="valdosta" /> Valdosta</label>
+          <label class="opt"><input type="checkbox" name="transport_locs" value="none" /> None currently</label>
+          <label class="opt"><input type="checkbox" name="transport_locs" value="other" /> Other</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">Full school / stop list for EVERY transport location <span class="star">*</span></label>
+        <p class="q-desc">For each stop: school/stop name, AM pickup time (if any), PM pickup time (if any), approx miles to center, days offered, notes (early release, etc.).</p>
+        <textarea name="routes" required placeholder="SAVANNAH
+- Godley Station School | PM pickup 2:45 | arrive center 3:15 | ~4.2 mi | M–F
+- New Hampstead Elementary | …
+- Other / free-text allowed? Yes/No
+
+DAWSONVILLE
+- (list or “no transport”)
+
+…"></textarea>
+      </div>
+      <div class="q">
+        <label class="q-label">Transport type</label>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="transport_type" value="owned_bus" /> Center-owned bus/van</label>
+          <label class="opt"><input type="checkbox" name="transport_type" value="staff_vehicle" /> Staff vehicles</label>
+          <label class="opt"><input type="checkbox" name="transport_type" value="third_party" /> Third-party contractor</label>
+          <label class="opt"><input type="checkbox" name="transport_type" value="walking" /> Walking / short escort</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">Transport schedule types offered</label>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="transport_when" value="am" /> Before school (AM)</label>
+          <label class="opt"><input type="checkbox" name="transport_when" value="pm" /> After school (PM)</label>
+          <label class="opt"><input type="checkbox" name="transport_when" value="both" /> Both</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">Required transport policy text we must include</label>
+        <textarea name="transport_policy" placeholder="Notify center if parent will transport that day; seat belt/car seat rules; behavior; liability wording…"></textarea>
+      </div>
+      <div class="q">
+        <label class="q-label">Can parents add an unlisted school (free text “other”)?</label>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="transport_other" value="yes" /> Yes</label>
+          <label class="opt"><input type="radio" name="transport_other" value="no" /> No — list only</label>
+        </div>
+      </div>
+
+      <!-- 6 -->
+      <p class="section-title">6. Emergency medical defaults</p>
+      <div class="q">
+        <label class="q-label">Default hospital / ER per location <span class="star">*</span></label>
+        <p class="q-desc">Savannah form used St. Joseph Hospital ER. List each site’s facility (name, address, phone).</p>
+        <textarea name="hospitals" required placeholder="Savannah: St. Joseph Hospital ER, 11705 Mercy Blvd., 912-819-4100
+Dawsonville: …
+Smarr: …
+Valdosta: …"></textarea>
+      </div>
+      <div class="q">
+        <label class="q-label">Any required emergency/medical policy language online?</label>
+        <textarea name="med_policy" placeholder="Allergy notification, epi-pen, staff CPR, etc."></textarea>
+      </div>
+
+      <!-- 7 -->
+      <p class="section-title">7. Tuition &amp; financial</p>
+      <div class="q">
+        <label class="q-label">Is the tuition agreement the same legal text for all locations? <span class="star">*</span></label>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="tuition_same" value="yes" required /> Yes — one company agreement</label>
+          <label class="opt"><input type="radio" name="tuition_same" value="no" /> No — per location agreement</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">Will you provide approved legal text for tuition agreement? <span class="star">*</span></label>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="tuition_text" value="yes" required /> Yes — final wording attached/emailed</label>
+          <label class="opt"><input type="radio" name="tuition_text" value="use_existing" /> Use the PDF we already have</label>
+          <label class="opt"><input type="radio" name="tuition_text" value="later" /> Attorney still reviewing</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">Should online form show dollar amounts / rate sheets?</label>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="show_rates" value="blank" /> Parent (or staff) fills amount blank only</label>
+          <label class="opt"><input type="radio" name="show_rates" value="select" /> Parent selects program → rate table</label>
+          <label class="opt"><input type="radio" name="show_rates" value="none" /> No amounts online in V1</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">Online payments in first version?</label>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="payments" value="no" /> No — forms only (recommended V1)</label>
+          <label class="opt"><input type="radio" name="payments" value="later" /> Phase 2</label>
+          <label class="opt"><input type="radio" name="payments" value="yes" /> Yes at launch (card/ACH)</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">Fee notes (registration, late fees, CAPS, sibling discount…)</label>
+        <textarea name="fee_notes" placeholder="Anything parents must acknowledge online…"></textarea>
+      </div>
+
+      <!-- 8 -->
+      <p class="section-title">8. Meals / CACFP</p>
+      <div class="q">
+        <label class="q-label">Which locations participate in CACFP / need IES form? <span class="star">*</span></label>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="cacfp_locs" value="all" /> All locations</label>
+          <label class="opt"><input type="checkbox" name="cacfp_locs" value="savannah" /> Savannah</label>
+          <label class="opt"><input type="checkbox" name="cacfp_locs" value="dawsonville" /> Dawsonville</label>
+          <label class="opt"><input type="checkbox" name="cacfp_locs" value="smarr" /> Smarr</label>
+          <label class="opt"><input type="checkbox" name="cacfp_locs" value="valdosta" /> Valdosta</label>
+          <label class="opt"><input type="checkbox" name="cacfp_locs" value="none" /> None / N/A</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">Beyond IES, which meal packet pages must parents return online?</label>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="cacfp_pages" value="ies" /> Income Eligibility Statement *</label>
+          <label class="opt"><input type="checkbox" name="cacfp_pages" value="chip" /> Medicaid/SCHIP sharing (optional form)</label>
+          <label class="opt"><input type="checkbox" name="cacfp_pages" value="infant" /> Infant affidavit</label>
+          <label class="opt"><input type="checkbox" name="cacfp_pages" value="read_only" /> Letter/FAQ — for reading only, not signature</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">Meals offered by location (for form checkboxes)</label>
+        <textarea name="meals_by_loc" placeholder="Savannah: Breakfast, Lunch, PM Snack
+…"></textarea>
+      </div>
+
+      <!-- 9 -->
+      <p class="section-title">9. Email delivery &amp; operations</p>
+      <div class="q">
+        <label class="q-label">Exact “To” email for each launching location <span class="star">*</span></label>
+        <textarea name="emails_to" required placeholder="Savannah: enrollment@…
+Dawsonville: …
+Who monitors each inbox?"></textarea>
+      </div>
+      <div class="q">
+        <label class="q-label">Should regional/owner get CC on every submission?</label>
+        <input type="text" name="emails_cc" placeholder="email@… or none" />
+      </div>
+      <div class="q">
+        <label class="q-label">From display name for emails</label>
+        <input type="text" name="email_from" placeholder="e.g. Angel Learning Center Enrollment" />
+      </div>
+      <div class="q">
+        <label class="q-label">Reference number format preference</label>
+        <input type="text" name="ref_format" placeholder="e.g. SAV-2026-#### per location" />
+      </div>
+
+      <!-- 10 -->
+      <p class="section-title">10. Branding, access &amp; legal</p>
+      <div class="q">
+        <label class="q-label">Logo / brand files</label>
+        <div class="opts">
+          <label class="opt"><input type="radio" name="logo" value="website_ok" /> Use assets from angellearningcenter.com</label>
+          <label class="opt"><input type="radio" name="logo" value="will_send" /> We will send print-quality logo</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">Who can approve final form wording? <span class="star">*</span></label>
+        <input type="text" name="approver" required placeholder="Name / attorney" />
+      </div>
+      <div class="q">
+        <label class="q-label">Who can approve go-live? <span class="star">*</span></label>
+        <input type="text" name="golive_approver" required placeholder="Name" />
+      </div>
+      <div class="q">
+        <label class="q-label">Domain / DNS contact (for enroll.angellearningcenter.com etc.)</label>
+        <input type="text" name="dns_contact" placeholder="Name, email — currently GoDaddy nameservers" />
+      </div>
+      <div class="q">
+        <label class="q-label">People who will test before launch (UAT)</label>
+        <textarea name="uat_people" placeholder="Name + email per location ideally"></textarea>
+      </div>
+      <div class="q">
+        <label class="q-label">Anything else we should know?</label>
+        <textarea name="notes" placeholder="Seasonal rush, CAPS families, Brightwheel, current pain points…"></textarea>
+      </div>
+
+      <!-- 11 -->
+      <p class="section-title">11. Priorities for version 1</p>
+      <div class="q">
+        <label class="q-label">Rank what must ship first <span class="star">*</span></label>
+        <p class="q-desc">Select everything that is must-have on day one.</p>
+        <div class="opts">
+          <label class="opt"><input type="checkbox" name="v1" value="all_forms" /> All agreed forms fillable online</label>
+          <label class="opt"><input type="checkbox" name="v1" value="carry_fields" /> No retyping name/address across forms</label>
+          <label class="opt"><input type="checkbox" name="v1" value="location_pick" /> Location picker multi-site</label>
+          <label class="opt"><input type="checkbox" name="v1" value="routes" /> Full bus/school routes by site</label>
+          <label class="opt"><input type="checkbox" name="v1" value="email_pdf" /> PDF email to center</label>
+          <label class="opt"><input type="checkbox" name="v1" value="es" /> Spanish</label>
+          <label class="opt"><input type="checkbox" name="v1" value="uploads" /> Document uploads (shot records, etc.)</label>
+          <label class="opt"><input type="checkbox" name="v1" value="payments" /> Online tuition pay</label>
+          <label class="opt"><input type="checkbox" name="v1" value="staff_portal" /> Staff review portal</label>
+        </div>
+      </div>
+      <div class="q">
+        <label class="q-label">Which locations must be live on day one if not all? <span class="star">*</span></label>
+        <input type="text" name="v1_locations" required placeholder="e.g. Savannah only first" />
+      </div>
+
+      <div class="hero-body" style="padding-top:0">
+        <div class="actions">
+          <button type="submit" class="btn btn-primary">Submit / export answers</button>
+          <button type="button" class="btn btn-ghost" id="btnCopy">Copy answers</button>
+          <button type="button" class="btn btn-ghost" id="btnDownload">Download JSON</button>
+          <button type="button" class="btn btn-ghost" id="btnClear">Clear form</button>
+        </div>
+        <p class="status" id="status">Saved to this browser. JSON downloaded / copied.</p>
+        <p class="footer-note">
+          Tip: you can also recreate these sections in Google Forms. Export keeps a backup of answers.<br />
+          Demo site: <a href="https://herrychokshi-ops.github.io/angel-learning-enrollment-demo/">enrollment demo</a>
+          · This questionnaire: share <code>questionnaire.html</code> link after publish.
+        </p>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById("qForm");
+    const status = document.getElementById("status");
+    const STORAGE = "alc-client-questionnaire-v1";
+
+    function collect() {
+      const data = {};
+      const fd = new FormData(form);
+      for (const [k, v] of fd.entries()) {
+        if (data[k] === undefined) data[k] = v;
+        else data[k] = [].concat(data[k], v);
+      }
+      // checkboxes not in FormData when unchecked — multi already handled
+      form.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+        if (!cb.name) return;
+        if (!(cb.name in data) && !cb.checked) {
+          // leave absent
+        }
+      });
+      data._savedAt = new Date().toISOString();
+      return data;
+    }
+
+    function fillProgress() {
+      const required = [...form.querySelectorAll("[required]")];
+      let filled = 0;
+      required.forEach((el) => {
+        if (el.type === "radio") {
+          const name = el.name;
+          if (form.querySelector(`input[name="${name}"]:checked`)) {
+            // count each radio group once
+            if (!el.dataset.counted) {
+              const group = form.querySelectorAll(`input[name="${name}"]`);
+              group.forEach((g) => (g.dataset.counted = "1"));
+              filled += 1;
+            }
+          }
+        } else if (el.value && String(el.value).trim()) filled += 1;
+      });
+      // rough unique radio groups
+      const radioNames = new Set(
+        [...form.querySelectorAll("input[type=radio][required]")].map((r) => r.name)
+      );
+      const textRequired = [...form.querySelectorAll("input[required], textarea[required]")].filter(
+        (el) => el.type !== "radio"
+      );
+      const total = radioNames.size + textRequired.length;
+      let done = 0;
+      radioNames.forEach((name) => {
+        if (form.querySelector(`input[name="${name}"]:checked`)) done += 1;
+      });
+      textRequired.forEach((el) => {
+        if (el.value && String(el.value).trim()) done += 1;
+      });
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      document.getElementById("progressFill").style.width = pct + "%";
+    }
+
+    function restore() {
+      try {
+        const raw = localStorage.getItem(STORAGE);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        Object.entries(data).forEach(([name, value]) => {
+          if (name.startsWith("_")) return;
+          const fields = form.querySelectorAll(`[name="${name}"]`);
+          if (!fields.length) return;
+          const values = Array.isArray(value) ? value : [value];
+          fields.forEach((field) => {
+            if (field.type === "checkbox" || field.type === "radio") {
+              field.checked = values.includes(field.value);
+            } else {
+              field.value = values[0] ?? "";
+            }
+          });
+        });
+      } catch (_) {}
+      fillProgress();
+    }
+
+    function persist() {
+      localStorage.setItem(STORAGE, JSON.stringify(collect()));
+    }
+
+    function prettyText(data) {
+      return Object.entries(data)
+        .filter(([k]) => !k.startsWith("_"))
+        .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+        .join("\n");
+    }
+
+    form.addEventListener("input", () => {
+      persist();
+      fillProgress();
+    });
+    form.addEventListener("change", () => {
+      persist();
+      fillProgress();
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      persist();
+      const data = collect();
+      download(data);
+      status.classList.add("show");
+      status.textContent = "Exported. Also saved in this browser.";
+    });
+
+    function download(data) {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `alc-enrollment-questionnaire-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    document.getElementById("btnDownload").addEventListener("click", () => {
+      persist();
+      download(collect());
+      status.classList.add("show");
+      status.textContent = "JSON downloaded.";
+    });
+
+    document.getElementById("btnCopy").addEventListener("click", async () => {
+      persist();
+      const text = prettyText(collect());
+      try {
+        await navigator.clipboard.writeText(text);
+        status.classList.add("show");
+        status.textContent = "Answers copied to clipboard (plain text).";
+      } catch {
+        prompt("Copy these answers:", text);
+      }
+    });
+
+    document.getElementById("btnClear").addEventListener("click", () => {
+      if (!confirm("Clear saved answers on this device?")) return;
+      localStorage.removeItem(STORAGE);
+      form.reset();
+      fillProgress();
+      status.classList.add("show");
+      status.textContent = "Cleared.";
+    });
+
+    restore();
+  </script>
+</body>
+</html>
