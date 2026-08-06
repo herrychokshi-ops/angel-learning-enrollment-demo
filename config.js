@@ -45,7 +45,8 @@ window.ALC_CONFIG = {
     referenceFormat: "open",
   },
 
-  v1Locations: ["savannah"],
+  v1Locations: ["savannah", "dawsonville", "smarr", "valdosta"],
+  approvalDemo: true,
 
   locations: {
     savannah: {
@@ -65,10 +66,9 @@ window.ALC_CONFIG = {
       address: "3276 Dawson Forest Rd E, Dawsonville, GA 30534",
       phone: "(706) 989-6855",
       hours: "Monday – Friday · 6:30 AM – 5:30 PM",
-      // #1: questionnaire typed dawnsonville@ — using corrected spelling; flag if undeliverable
       inbox: "dawsonville@angellearningcenter.com",
       inboxAlternate: "dawnsonville@angellearningcenter.com",
-      enabled: false, // post-V1
+      enabled: true,
     },
     smarr: {
       id: "smarr",
@@ -76,11 +76,10 @@ window.ALC_CONFIG = {
       legalName: "Angel Learning Center — Smarr",
       address: "2329 US-41, Forsyth, GA 31029",
       phone: "(478) 999-9577",
-      // #3 write: match other centers until client overrides
       hours: "Monday – Friday · 6:30 AM – 5:30 PM",
-      hoursNote: "Assumed same as Savannah/Dawsonville — client said write",
+      hoursNote: "Assumed same hours unless center overrides",
       inbox: "smarr@angellearningcenter.com",
-      enabled: false,
+      enabled: true,
     },
     valdosta: {
       id: "valdosta",
@@ -89,9 +88,9 @@ window.ALC_CONFIG = {
       address: "426 Murray Road, Valdosta, GA 31602",
       phone: "(229) 264-4606",
       hours: "Monday – Friday · 6:30 AM – 5:30 PM",
-      hoursNote: "Assumed same as Savannah/Dawsonville — client said write",
+      hoursNote: "Assumed same hours unless center overrides",
       inbox: "valdosta@angellearningcenter.com",
-      enabled: false,
+      enabled: true,
     },
   },
 

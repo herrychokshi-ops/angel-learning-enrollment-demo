@@ -103,6 +103,139 @@ function needsTransportForm() {
   return programs.some((p) => p.transport && selected.has(p.id));
 }
 
+function getSelectedLocationId() {
+  return (
+    state.locationId ||
+    state.data?.enrollment?.enLocation ||
+    state.data?.transport?.trLocation ||
+    "savannah"
+  );
+}
+
+function getLocation(id) {
+  const lid = id || getSelectedLocationId();
+  return CFG.locations?.[lid] || CFG.locations?.savannah || null;
+}
+
+function fillLocationSelects(selectedId) {
+  const id = selectedId || getSelectedLocationId();
+  const locs = CFG.locations || {};
+  ["enLocation", "trLocation"].forEach((selectId) => {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const prev = sel.value;
+    sel.innerHTML = Object.values(locs)
+      .map(
+        (loc) =>
+          `<option value="${loc.id}" ${loc.id === id ? "selected" : ""}>${loc.name} — ${loc.address.split(",")[0]}</option>`
+      )
+      .join("");
+    if (prev && locs[prev]) sel.value = prev;
+    else sel.value = id;
+  });
+}
+
+function locationSchoolCount(locationId) {
+  return (CFG.transport?.schools?.[locationId] || []).length;
+}
+
+function applyLocation(locationId, { scroll = false } = {}) {
+  const loc = getLocation(locationId);
+  if (!loc) return;
+  state.locationId = loc.id;
+  if (!state.data.enrollment) state.data.enrollment = {};
+  if (!state.data.transport) state.data.transport = {};
+  state.data.enrollment.enLocation = loc.id;
+  state.data.transport.trLocation = loc.id;
+  saveState(state);
+
+  fillLocationSelects(loc.id);
+  renderRouteSchools(loc.id, state.data.transport.trSchoolChoice || null);
+
+  const ctx = document.getElementById("enLocationContext");
+  if (ctx) {
+    ctx.innerHTML = `
+      <strong>${loc.legalName}</strong><br />
+      ${loc.address}<br />
+      ${loc.phone} · ${loc.hours || ""}<br />
+      Packet emails: <code>${loc.inbox}</code>
+      · ${locationSchoolCount(loc.id)} school stop(s) on transport form`;
+  }
+
+  const card = document.getElementById("selectedCenterCard");
+  if (card) {
+    card.hidden = false;
+    document.getElementById("selCenterName").textContent = loc.legalName;
+    document.getElementById("selCenterMeta").textContent =
+      `${loc.address} · ${loc.phone}${loc.hours ? " · " + loc.hours : ""}`;
+    document.getElementById("selCenterInbox").textContent =
+      `Forms email To: ${loc.inbox} · CC: ${(CFG.email?.cc || []).join(", ")} · ${locationSchoolCount(loc.id)} bus schools`;
+  }
+
+  document.querySelectorAll(".location-card").forEach((el) => {
+    el.classList.toggle("is-selected", el.dataset.location === loc.id);
+  });
+
+  renderLists();
+  if (scroll) card?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function renderLocationGrid() {
+  const grid = document.getElementById("locationGrid");
+  if (!grid) return;
+  const selected = getSelectedLocationId();
+  grid.innerHTML = Object.values(CFG.locations || {})
+    .map((loc) => {
+      const n = locationSchoolCount(loc.id);
+      return `
+      <button type="button" class="location-card ${loc.id === selected ? "is-selected" : ""}" data-location="${loc.id}">
+        <span class="loc-name">${loc.name}</span>
+        <span class="loc-address">${loc.address}</span>
+        <span class="loc-meta">${loc.phone}</span>
+        <span class="loc-meta">${loc.hours || ""}</span>
+        <span class="loc-inbox">${loc.inbox}</span>
+        <span class="loc-badge">${n} school routes</span>
+      </button>`;
+    })
+    .join("");
+
+  grid.querySelectorAll(".location-card").forEach((btn) => {
+    btn.addEventListener("click", () => applyLocation(btn.dataset.location, { scroll: true }));
+  });
+}
+
+function initLocationUI() {
+  renderLocationGrid();
+  fillLocationSelects(getSelectedLocationId());
+  applyLocation(getSelectedLocationId());
+
+  const enSel = document.getElementById("enLocation");
+  if (enSel && !enSel.dataset.bound) {
+    enSel.dataset.bound = "1";
+    enSel.addEventListener("change", () => {
+      applyLocation(enSel.value);
+      // clear school if switched location
+      if (state.data.transport) {
+        state.data.transport.trSchoolChoice = "";
+        state.data.transport.trSchoolAddress = "";
+      }
+      renderRouteSchools(enSel.value, null);
+    });
+  }
+  const trSel = document.getElementById("trLocation");
+  if (trSel && !trSel.dataset.bound) {
+    trSel.dataset.bound = "1";
+    trSel.addEventListener("change", () => {
+      applyLocation(trSel.value);
+      if (state.data.transport) {
+        state.data.transport.trSchoolChoice = "";
+        state.data.transport.trSchoolAddress = "";
+      }
+      renderRouteSchools(trSel.value, null);
+    });
+  }
+}
+
 function getActiveForms() {
   return ALL_FORMS.filter((f) => f.always || (f.requiresTransport && needsTransportForm()));
 }
@@ -170,12 +303,8 @@ function renderRouteSchools(locationId, selectedSchoolId) {
 }
 
 function initTransportLocationUI() {
-  const select = document.getElementById("trLocation");
-  if (!select || select.dataset.bound) return;
-  select.dataset.bound = "1";
-  select.addEventListener("change", () => {
-    renderRouteSchools(select.value, null);
-  });
+  // location change handled by initLocationUI
+  return;
 }
 
 function initProgramChips() {
@@ -575,7 +704,7 @@ const SAMPLE = {
   },
 };
 
-const STORAGE_KEY = "alc-enrollment-v1";
+const STORAGE_KEY = "alc-enrollment-v1-multi";
 const LANG_KEY = "alc-enrollment-lang";
 
 function loadState() {
@@ -669,10 +798,14 @@ function renderLists() {
       .replace("{total}", String(total));
   }
 
-  const locId = state.data.enrollment?.enLocation || "savannah";
-  const loc = CFG.locations?.[locId] || CFG.locations?.savannah;
+  const locId = getSelectedLocationId();
+  const loc = getLocation(locId);
   const inbox = document.getElementById("doneInbox");
-  if (inbox && loc) inbox.textContent = loc.inbox || "savannah@angellearningcenter.com";
+  if (inbox && loc) inbox.textContent = loc.inbox || "";
+  const cc = document.getElementById("doneCc");
+  if (cc) cc.textContent = (CFG.email?.cc || []).join(", ");
+  const subj = document.getElementById("doneSubject");
+  if (subj) subj.textContent = CFG.email?.subject || "Enrollment Packet for Angel Learning Center";
   const fn = document.getElementById("footerName");
   const fc = document.getElementById("footerContact");
   if (fn && loc) fn.textContent = loc.legalName || loc.name;
@@ -749,6 +882,12 @@ function carryForwardMap() {
       trSignature: signer,
       trDate: today,
       trArriveTime: en.careTo || "",
+      trLocation: en.enLocation || getSelectedLocationId(),
+    },
+    handbook: {
+      hbPrint: signer,
+      hbSignature: signer,
+      hbDate: today,
     },
     emergency: {
       emChild: child,
@@ -1000,9 +1139,12 @@ document.getElementById("langEs")?.addEventListener("click", () => {
 });
 
 window.addEventListener("hashchange", navigateFromHash);
+initLocationUI();
 initProgramChips();
 initSiblingButton();
 hydrateForms();
 applyI18n();
 navigateFromHash();
 updateTransportVisibility();
+// re-apply location after hydrate may have changed selects
+applyLocation(getSelectedLocationId());

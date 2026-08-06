@@ -12,8 +12,8 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="demo-banner prod-banner" data-i18n="demoBanner">
-    V1 soft launch · Savannah first <span data-i18n="demoBannerHint">· go-live target Aug 10, 2026 · no parent login</span>
+  <div class="demo-banner prod-banner">
+    Client approval preview · multi-location · no parent login · packet email to each center
   </div>
 
   <div id="appShell" class="app-shell">
@@ -22,32 +22,54 @@
       <img class="brand-logo" src="assets/logo.png" alt="Angel Learning Center" />
     </a>
     <nav class="top-nav">
-      <a href="#home" data-nav="home" data-i18n="navHome">Home</a>
-      <a href="#packet" data-nav="packet" data-i18n="navForms">Forms</a>
-      <div class="lang-toggle" role="group" aria-label="Language" hidden>
-        <button type="button" id="langEn" class="active">EN</button>
-        <button type="button" id="langEs">ES</button>
-      </div>
-      <button type="button" class="btn btn-ghost" id="resetDemo" data-i18n="resetDemo">Reset packet</button>
+      <a href="#home" data-nav="home">Home</a>
+      <a href="#packet" data-nav="packet">Forms</a>
+      <a href="mockups.html">Email flow</a>
+      <button type="button" class="btn btn-ghost" id="resetDemo">Reset packet</button>
     </nav>
   </header>
 
   <main>
     <section id="view-home" class="view is-active">
       <div class="hero">
-        <p class="hero-kicker" data-i18n="heroKicker">Enrollment packet · 2026–2027</p>
+        <p class="hero-kicker">Online enrollment · 2026–2027</p>
         <h1 class="hero-brand">Angel Learning Center</h1>
-        <p class="hero-lead" data-i18n="heroLead">No login. Fill enrollment once — forms, handbook acknowledgment, and document uploads — then the prefilled packet is emailed to your Angel Learning Center. V1 opens with Savannah; other locations share the same link soon.</p>
+        <p class="hero-lead">
+          One public link · parent picks center first · fill once · shared fields carry across forms ·
+          prefilled packet emails <strong>that location’s inbox only</strong> (no parent account, no parent PDF copy).
+        </p>
         <div class="hero-cta">
-          <a href="#packet" class="btn btn-primary" data-nav="packet" data-i18n="ctaStart">Start enrollment packet</a>
-          <button type="button" class="btn btn-green" id="loadSample" data-i18n="ctaSample">Load sample child</button>
-          <a href="#enrollment" class="btn btn-secondary" data-nav="enrollment" data-i18n="ctaJump">Jump to a form</a>
+          <a href="#locations" class="btn btn-primary" id="ctaPickLocation">Choose your center</a>
+          <button type="button" class="btn btn-green" id="loadSample">Load sample (Savannah)</button>
+          <a href="mockups.html" class="btn btn-secondary">See email delivery story</a>
         </div>
       </div>
 
+      <section class="section" id="locations">
+        <h2>Choose your Angel Learning Center</h2>
+        <p class="section-lead">
+          Client answered: <strong>one link → parent picks location first</strong>. All four sites use the same form packet;
+          school bus list, center address, phone, hours, and “To” email change with the selection.
+        </p>
+        <div class="location-grid" id="locationGrid"></div>
+        <div class="selected-center" id="selectedCenterCard" hidden>
+          <p class="eyebrow">Selected center</p>
+          <h3 id="selCenterName">—</h3>
+          <p id="selCenterMeta" class="section-lead"></p>
+          <p id="selCenterInbox" class="center-inbox"></p>
+          <div class="hero-cta">
+            <a href="#packet" class="btn btn-primary" data-nav="packet">Continue to checklist →</a>
+            <a href="#enrollment" class="btn btn-secondary" data-nav="enrollment">Start enrollment form →</a>
+          </div>
+        </div>
+      </section>
+
       <section class="section packet-overview">
-        <h2 data-i18n="overviewTitle">What parents complete online</h2>
-        <p class="section-lead" data-i18n="overviewLead">One public link. Shared fields carry forward. Transport appears only for Pre-K, before/after care, and summer camp. PDFs email the center only (no parent copy in V1).</p>
+        <h2>What parents complete (same packet everywhere)</h2>
+        <p class="section-lead">
+          Enrollment · tuition · transport <em>only for Pre-K / before-after / summer</em> · emergency ·
+          CACFP/IES · handbook · uploads. Name/address/contacts autofill after Enrollment.
+        </p>
         <ul class="form-list" id="formList"></ul>
       </section>
     </section>
@@ -81,13 +103,9 @@
           <legend>Center &amp; program</legend>
           <label>
             <span>ALC location</span>
-            <select name="enLocation" id="enLocation" required>
-              <option value="savannah">Savannah Highlands — 178 Basswood Drive</option>
-              <option value="dawsonville" disabled>Dawsonville (opens after V1)</option>
-              <option value="smarr" disabled>Smarr / Forsyth (opens after V1)</option>
-              <option value="valdosta" disabled>Valdosta (opens after V1)</option>
-            </select>
+            <select name="enLocation" id="enLocation" required></select>
           </label>
+          <div class="location-context" id="enLocationContext" aria-live="polite"></div>
           <p class="subhead">Program(s) for this child</p>
           <p class="hint">Transport form is required only if you select Pre-K, before/after care, or summer camp.</p>
           <div class="chip-group" id="programChips"></div>
@@ -271,13 +289,7 @@
           <legend data-i18n="childRoute">Child &amp; route</legend>
           <label>
             <span data-i18n="alcLocation">ALC location</span>
-            <select name="trLocation" id="trLocation" required>
-              <option value="">Select center location…</option>
-              <option value="savannah">Savannah Highlands</option>
-              <option value="dawsonville">Dawsonville</option>
-              <option value="smarr">Smarr / Forsyth</option>
-              <option value="valdosta">Valdosta</option>
-            </select>
+            <select name="trLocation" id="trLocation" required></select>
           </label>
           <label><span data-i18n="childName">Name of child</span> <input name="trChild" required /></label>
           <p class="subhead" data-i18n="selectPickupSchool">School bus pickup</p>
@@ -552,12 +564,16 @@
             <strong id="doneInbox">savannah@angellearningcenter.com</strong>
           </div>
           <div class="mail-row">
+            <small>CC (owner — confirm address)</small>
+            <strong id="doneCc">lpatel@angellearningcenter.com</strong>
+          </div>
+          <div class="mail-row">
             <small>SUBJECT</small>
-            <strong>Enrollment Packet for Angel Learning Center</strong>
+            <strong id="doneSubject">Enrollment Packet for Angel Learning Center</strong>
           </div>
           <div class="mail-row">
             <small data-i18n="emailAttachments">ATTACHMENTS</small>
-            <strong data-i18n="emailAttachmentList">Prefilled forms + uploads (center only)</strong>
+            <strong data-i18n="emailAttachmentList">Prefilled forms + uploads for selected center</strong>
           </div>
         </div>
         <ul class="form-list compact" id="doneList"></ul>
@@ -572,8 +588,8 @@
 
   <footer class="site-footer">
     <img src="assets/logo.png" alt="" />
-    <div id="footerName">Angel Learning Center · Savannah Highlands</div>
-    <div id="footerContact">178 Basswood Drive, Savannah, GA 31407 · (912) 600-3899 · Mon–Fri 6:30 AM – 5:30 PM</div>
+    <div id="footerName">Angel Learning Center · multi-location</div>
+    <div id="footerContact">Select a center to show address · phone · hours</div>
   </footer>
   </div><!-- /appShell -->
 
