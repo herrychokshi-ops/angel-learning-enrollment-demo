@@ -1,0 +1,143 @@
+{
+  "sourceFile": "alc-enrollment-questionnaire-2026-08-06 (1).json",
+  "savedAt": "2026-08-06T20:53:40.911Z",
+  "respondent": {
+    "name": "Laukik Patel",
+    "role": "Owner",
+    "email": "lpatel@angellearningcenter.com",
+    "phone": "9126557260",
+    "secondary": {
+      "name": "Hardik Patel",
+      "email": "hpatel@angellearningcenter.com"
+    },
+    "approver": "Laukik",
+    "uat": ["Hardik", "Laukik"]
+  },
+  "targetGoLive": "2026-08-10",
+  "product": {
+    "parentLogin": false,
+    "delivery": "email_prefilled_pdf_to_center",
+    "parentEmailCopy": false,
+    "linkModel": "one_public_link_all_locations",
+    "language": "en",
+    "eSign": "docusign",
+    "multiChild": true,
+    "showTuitionRates": false,
+    "inAppPayments": false,
+    "ssnCapture": "paper_only_not_in_web_form",
+    "pdfBasis": "use_demo_forms",
+    "formsSameAcrossLocations": true
+  },
+  "v1Scope": {
+    "locations": ["savannah"],
+    "features": ["all_forms", "email_pdf"]
+  },
+  "fullLocationRollout": ["savannah", "dawsonville", "smarr", "valdosta"],
+  "locations": {
+    "dawsonville": {
+      "name": "Angel Learning Center — Dawsonville",
+      "address": "3276 Dawson Forest Rd E, Dawsonville, GA 30534",
+      "phone": "(706) 989-6855",
+      "hours": "Mon–Fri 6:30AM – 5:30PM",
+      "inbox": "dawnsonville@angellearningcenter.com",
+      "inboxNote": "Typed as dawnsonville@ in questionnaire — confirm spelling with client (likely dawsonville@)"
+    },
+    "savannah": {
+      "name": "Angel Learning Center — Savannah",
+      "address": "178 Basswood Drive, Savannah, GA 31407",
+      "phone": "(912) 600-3899",
+      "hours": "Mon–Fri 6:30AM – 5:30PM",
+      "inbox": "savannah@angellearningcenter.com"
+    },
+    "smarr": {
+      "name": "Angel Learning Center — Smarr",
+      "address": "2329 US-41, Forsyth, GA 31029",
+      "phone": "(478) 999-9577",
+      "hours": null,
+      "inbox": "smarr@angellearningcenter.com"
+    },
+    "valdosta": {
+      "name": "Angel Learning Center — Valdosta",
+      "address": "426 Murray Road, Valdosta, GA 31602",
+      "phone": "(229) 264-4606",
+      "hours": null,
+      "inbox": "valdosta@angellearningcenter.com"
+    }
+  },
+  "programs": [
+    "Little Angels (6 weeks – 12 months)",
+    "Tiny Explorers (1 year)",
+    "Busy Bee (2 years)",
+    "Little Learners (3 years)",
+    "Part-time Stars (2-day / 3-day)",
+    "Before care",
+    "After care",
+    "Before & after care",
+    "GA Pre-K",
+    "Summer Camp",
+    "Holiday Weeks"
+  ],
+  "forms": {
+    "required": [
+      "enrollment",
+      "tuition",
+      "transport",
+      "emergency",
+      "ies",
+      "handbook",
+      "health_upload",
+      "birth_cert"
+    ],
+    "uploads": [
+      "child_ssn",
+      "birth_certificate",
+      "ga_parent_ids",
+      "parent_ssn",
+      "ga_shot_records"
+    ],
+    "notes": "SSN may still be paper-only for typed fields, but notes also ask for SSN uploads — clarify with Laukik."
+  },
+  "transport": {
+    "locations": ["savannah", "dawsonville", "smarr", "valdosta"],
+    "direction": "school_to_center_and_center_to_school",
+    "when": ["am", "pm", "both"],
+    "allowUnlistedSchool": false,
+    "policy": "exact as paper forms provided",
+    "showOnlyForPrograms": ["prek", "before_after", "summer_camp"],
+    "showOnlyForProgramsRaw": "PreK, before and after, summer camp"
+  },
+  "meals": {
+    "cacfpLocations": "all",
+    "meals": ["Breakfast", "Lunch", "Snack"]
+  },
+  "medical": {
+    "hospitalField": "not_required",
+    "medPolicy": null
+  },
+  "email": {
+    "fromSubjectLabel": "Enrollment Packet for Angel Learning Center",
+    "toByLocation": {
+      "valdosta": "valdosta@angellearningcenter.com",
+      "smarr": "smarr@angellearningcenter.com",
+      "savannah": "savannah@angellearningcenter.com",
+      "dawsonville": "dawnsonville@angellearningcenter.com"
+    },
+    "cc": ["lpatel@angelearningcenter.com"],
+    "ccNote": "Typo in response: angelearningcenter missing one 'l' — use lpatel@angellearningcenter.com unless client confirms otherwise",
+    "referenceFormat": "open"
+  },
+  "branding": {
+    "logo": "website_ok"
+  },
+  "openQuestions": [
+    "Confirm Dawsonville inbox spelling: dawnsonville@ vs dawsonville@",
+    "Confirm owner CC: lpatel@angelearningcenter.com vs lpatel@angellearningcenter.com",
+    "Smarr / Valdosta hours not listed — get or omit",
+    "SSN: paper_only vs upload of child/parent SSN documents — reconcile",
+    "DocuSign account ownership / sender",
+    "Per-school AM/PM times and miles still incomplete",
+    "Handbook file / version to attach or link",
+    "Whether multi-child is one packet or one packet per child",
+    "Go-live Aug 10 is 4 days after this response for full product — confirm what is acceptable for V1 soft launch"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "path": "v1_prod",
+  "not": "pitch_mockup",
+  "answers": {
+    "5_docusign": "yes",
+    "3_smarr_valdosta_hours": "written Mon–Fri 6:30AM–5:30PM (match Savannah/Dawsonville)",
+    "2_owner_cc": "waiting — using lpatel@angellearningcenter.com until confirmed",
+    "4_ssn_policy": "waiting — no SSN text fields; optional document uploads only"
+  },
+  "rest_resolved": {
+    "1_dawsonville_inbox": "using dawsonville@ (fixed spelling from dawnsonville@)",
+    "6_school_times": "parent enters times until center defaults published",
+    "7_handbook": "acknowledgment form until official PDF",
+    "8_multi_child": "one_packet_multiple_children (Add sibling)",
+    "9_soft_launch": "Savannah V1 target Aug 10; other locations disabled in UI until enabled"
+  },
+  "next_engineering": [
+    "Wire Resend/SES or Workspace SMTP for real center email",
+    "DocuSign account + envelope from Laukik",
+    "Secure upload storage (S3/Blob) — files not durable in static demo",
+    "Enable Dawsonville/Smarr/Valdosta when ready",
+    "Push V1 to host once email backend is live"
+  ]
+}

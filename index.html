@@ -12,8 +12,8 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="demo-banner" data-i18n="demoBanner">
-    Interactive mockup · not live data <span data-i18n="demoBannerHint">· for demonstration only</span>
+  <div class="demo-banner prod-banner" data-i18n="demoBanner">
+    V1 soft launch · Savannah first <span data-i18n="demoBannerHint">· go-live target Aug 10, 2026 · no parent login</span>
   </div>
 
   <div id="appShell" class="app-shell">
@@ -24,11 +24,11 @@
     <nav class="top-nav">
       <a href="#home" data-nav="home" data-i18n="navHome">Home</a>
       <a href="#packet" data-nav="packet" data-i18n="navForms">Forms</a>
-      <div class="lang-toggle" role="group" aria-label="Language">
+      <div class="lang-toggle" role="group" aria-label="Language" hidden>
         <button type="button" id="langEn" class="active">EN</button>
         <button type="button" id="langEs">ES</button>
       </div>
-      <button type="button" class="btn btn-ghost" id="resetDemo" data-i18n="resetDemo">Reset demo</button>
+      <button type="button" class="btn btn-ghost" id="resetDemo" data-i18n="resetDemo">Reset packet</button>
     </nav>
   </header>
 
@@ -37,7 +37,7 @@
       <div class="hero">
         <p class="hero-kicker" data-i18n="heroKicker">Enrollment packet · 2026–2027</p>
         <h1 class="hero-brand">Angel Learning Center</h1>
-        <p class="hero-lead" data-i18n="heroLead">Complete every required form online — enrollment, tuition, transportation, emergency contacts, and CACFP meal benefits — in one guided flow.</p>
+        <p class="hero-lead" data-i18n="heroLead">No login. Fill enrollment once — forms, handbook acknowledgment, and document uploads — then the prefilled packet is emailed to your Angel Learning Center. V1 opens with Savannah; other locations share the same link soon.</p>
         <div class="hero-cta">
           <a href="#packet" class="btn btn-primary" data-nav="packet" data-i18n="ctaStart">Start enrollment packet</a>
           <button type="button" class="btn btn-green" id="loadSample" data-i18n="ctaSample">Load sample child</button>
@@ -47,7 +47,7 @@
 
       <section class="section packet-overview">
         <h2 data-i18n="overviewTitle">What parents complete online</h2>
-        <p class="section-lead" data-i18n="overviewLead">Open the link, fill once. Child name, address, and contacts carry across all forms. Submit sends prefilled PDFs to the center — no login.</p>
+        <p class="section-lead" data-i18n="overviewLead">One public link. Shared fields carry forward. Transport appears only for Pre-K, before/after care, and summer camp. PDFs email the center only (no parent copy in V1).</p>
         <ul class="form-list" id="formList"></ul>
       </section>
     </section>
@@ -56,7 +56,7 @@
       <div class="page-head">
         <p class="eyebrow" data-i18n="packetEyebrow">Your packet</p>
         <h2 data-i18n="packetTitle">Enrollment checklist</h2>
-        <p class="section-lead" data-i18n="packetLead">Progress saves in this browser for the demo. Shared fields autofill after Enrollment.</p>
+        <p class="section-lead" data-i18n="packetLead">Progress saves in this browser. Shared fields autofill after Enrollment. Add a sibling anytime — one packet can cover multiple children.</p>
         <div class="hero-cta" style="margin-bottom:1rem">
           <button type="button" class="btn btn-green" id="loadSamplePacket" data-i18n="ctaSample">Load sample child</button>
         </div>
@@ -78,7 +78,27 @@
         </div>
 
         <fieldset>
+          <legend>Center &amp; program</legend>
+          <label>
+            <span>ALC location</span>
+            <select name="enLocation" id="enLocation" required>
+              <option value="savannah">Savannah Highlands — 178 Basswood Drive</option>
+              <option value="dawsonville" disabled>Dawsonville (opens after V1)</option>
+              <option value="smarr" disabled>Smarr / Forsyth (opens after V1)</option>
+              <option value="valdosta" disabled>Valdosta (opens after V1)</option>
+            </select>
+          </label>
+          <p class="subhead">Program(s) for this child</p>
+          <p class="hint">Transport form is required only if you select Pre-K, before/after care, or summer camp.</p>
+          <div class="chip-group" id="programChips"></div>
+          <input type="hidden" name="programs" id="programsHidden" />
+        </fieldset>
+
+        <fieldset>
           <legend data-i18n="childInfo">Child information</legend>
+          <div id="multiChildBar" class="multi-child-bar">
+            <p class="hint" style="margin:0">Enrolling more than one child? Complete this form for the first child, then use <strong>Add sibling</strong> on the checklist. Legal &amp; document forms cover the household.</p>
+          </div>
           <div class="grid-3">
             <label><span data-i18n="firstName">First name</span> <input name="childFirst" required /></label>
             <label>M.I. <input name="childMI" maxlength="1" /></label>
@@ -89,7 +109,7 @@
             <label><span data-i18n="gradeClass">Grade / class</span> <input name="childGrade" /></label>
             <label><span data-i18n="startDate">Start date</span> <input type="date" name="startDate" /></label>
           </div>
-          <div class="grid-3">
+          <div class="grid-2">
             <label><span data-i18n="dob">Date of birth</span> <input type="date" name="childDob" required /></label>
             <label><span data-i18n="gender">Gender</span>
               <select name="childGender">
@@ -98,8 +118,8 @@
                 <option>Female</option>
               </select>
             </label>
-            <label><span data-i18n="childSsn">Child SSN</span> <input name="childSsn" autocomplete="off" /></label>
           </div>
+          <p class="hint">Child / parent SSN is not typed in this web form (policy pending). Upload SSN documents in the Documents step if required by the center.</p>
           <label><span data-i18n="address">Home address</span> <input name="childAddress" /></label>
           <div class="grid-2">
             <label><span data-i18n="city">City</span> <input name="childCity" /></label>
@@ -168,7 +188,7 @@
             <label class="chip"><input type="checkbox" name="mealLunch" /> Lunch</label>
             <label class="chip"><input type="checkbox" name="mealSnack" /> PM Snack</label>
           </div>
-          <label><span data-i18n="tuitionAmount">Current tuition amount</span> <input name="tuitionAmount" placeholder="$" /></label>
+          <p class="hint">Tuition rates are confirmed by the center — not displayed in this form.</p>
         </fieldset>
 
         <div class="form-actions">
@@ -198,7 +218,9 @@
           <label><span data-i18n="address">Home address</span> <input name="rpAddress" /></label>
           <div class="grid-2">
             <label><span data-i18n="cityStateZip">City / State / ZIP</span> <input name="rpCityStateZip" /></label>
-            <label>SSN <input name="rpSsn" autocomplete="off" /></label>
+            <label>SSN (paper / center only)
+              <input name="rpSsn" value="" disabled placeholder="Not collected online" autocomplete="off" />
+            </label>
           </div>
           <div class="grid-2">
             <label><span data-i18n="phone">Phone</span> <input type="tel" name="rpPhone" /></label>
@@ -247,34 +269,43 @@
 
         <fieldset>
           <legend data-i18n="childRoute">Child &amp; route</legend>
+          <label>
+            <span data-i18n="alcLocation">ALC location</span>
+            <select name="trLocation" id="trLocation" required>
+              <option value="">Select center location…</option>
+              <option value="savannah">Savannah Highlands</option>
+              <option value="dawsonville">Dawsonville</option>
+              <option value="smarr">Smarr / Forsyth</option>
+              <option value="valdosta">Valdosta</option>
+            </select>
+          </label>
           <label><span data-i18n="childName">Name of child</span> <input name="trChild" required /></label>
-          <div class="route-options">
-            <label class="radio-card">
-              <input type="radio" name="trSchoolChoice" value="godley" />
-              <span>
-                <strong>Godley Station School</strong>
-                <small data-i18n="pickupTime">Pickup time</small>
-                <input type="time" name="trGodleyTime" />
-              </span>
+          <p class="subhead" data-i18n="selectPickupSchool">School bus pickup</p>
+          <p class="hint" data-i18n="pickupSchoolHint">Schools served by ALC routes for the location you selected (from center list).</p>
+          <div class="route-options" id="routeSchoolList"></div>
+          <p class="hint">Only listed schools may be selected (center policy). School ↔ center runs both ways. Enter AM/PM times if needed until default route times are published.</p>
+          <div class="grid-2">
+            <label>
+              <span>Direction</span>
+              <select name="trDirection">
+                <option value="both">School ↔ Center (both)</option>
+                <option value="school_to_center">School → Center only</option>
+                <option value="center_to_school">Center → School only</option>
+              </select>
             </label>
-            <label class="radio-card">
-              <input type="radio" name="trSchoolChoice" value="newhampstead" />
-              <span>
-                <strong>New Hampstead Elementary</strong>
-                <small data-i18n="pickupTime">Pickup time</small>
-                <input type="time" name="trNewHampTime" />
-              </span>
-            </label>
-            <label class="radio-card">
-              <input type="radio" name="trSchoolChoice" value="other" />
-              <span>
-                <strong data-i18n="otherSchool">Other school</strong>
-                <input name="trOtherSchool" placeholder="School name" />
-                <input type="time" name="trOtherTime" />
-              </span>
+            <label>
+              <span>When</span>
+              <select name="trWhen">
+                <option value="both">AM &amp; PM</option>
+                <option value="am">AM (before school)</option>
+                <option value="pm">PM (after school)</option>
+              </select>
             </label>
           </div>
-          <label><span data-i18n="arriveAlc">Arrive at Angel Learning Center</span> <input type="time" name="trArriveTime" /></label>
+          <div class="grid-2">
+            <label><span data-i18n="pickupTime">Pickup time (school)</span> <input type="time" name="trPickupTime" id="trPickupTime" /></label>
+            <label><span data-i18n="arriveAlc">Arrive at Angel Learning Center</span> <input type="time" name="trArriveTime" /></label>
+          </div>
           <p class="subhead" data-i18n="transportDays">Transport days</p>
           <div class="chip-group">
             <label class="chip"><input type="checkbox" name="trMon" /> Monday</label>
@@ -285,9 +316,10 @@
           </div>
           <label class="check"><input type="checkbox" name="trStaffAuth" required /> <span data-i18n="staffAuth">Angel Learning staff is authorized to transport my child.</span></label>
           <div class="grid-2">
-            <label><span data-i18n="schoolDistance">School name (distance note)</span> <input name="trSchoolDistanceName" /></label>
+            <label><span data-i18n="schoolAddress">School address</span> <input name="trSchoolAddress" id="trSchoolAddress" readonly /></label>
             <label><span data-i18n="miles">Approx. miles from center</span> <input name="trMiles" /></label>
           </div>
+          <input type="hidden" name="trSchoolChoice" id="trSchoolChoice" />
         </fieldset>
 
         <fieldset>
@@ -345,8 +377,8 @@
             <label><span data-i18n="doctor">Child’s doctor</span> <input name="emDoctor" /></label>
             <label><span data-i18n="doctorPhone">Doctor phone</span> <input type="tel" name="emDoctorPhone" /></label>
           </div>
-          <label><span data-i18n="facility">Medical facility the center uses</span>
-            <input name="emFacility" value="St. Joseph Hospital Emergency Room, 11705 Mercy Blvd., 912-819-4100" />
+          <label><span data-i18n="facility">Preferred hospital / facility (optional — not required)</span>
+            <input name="emFacility" placeholder="Optional" />
           </label>
           <label><span data-i18n="allergies">Child’s allergies</span> <textarea name="emAllergies" rows="2"></textarea></label>
           <label><span data-i18n="meds">Current prescribed medication</span> <textarea name="emMeds" rows="2"></textarea></label>
@@ -445,6 +477,59 @@
 
         <div class="form-actions">
           <button type="submit" class="btn btn-primary" data-i18n="saveComplete">Save &amp; mark complete</button>
+          <a href="#handbook" class="btn btn-secondary" data-nav="handbook">Next: Handbook →</a>
+        </div>
+      </form>
+    </section>
+
+    <section id="view-handbook" class="view">
+      <form class="form-shell" data-form="handbook" novalidate>
+        <div class="page-head">
+          <a href="#packet" class="back" data-nav="packet" data-i18n="backPacket">← Back to packet</a>
+          <p class="eyebrow">Handbook</p>
+          <h2>Parent Handbook Acknowledgment</h2>
+          <p class="section-lead">Official handbook PDF can be linked once the center provides the final file. Parents still acknowledge receipt of center policies.</p>
+        </div>
+        <fieldset class="agreement-box">
+          <legend>Acknowledgment</legend>
+          <div class="scroll-terms">
+            <p>I acknowledge that I have received (or will receive) the Angel Learning Center Parent Handbook and agree to follow the policies and procedures of the center, including tuition, attendance, health, pickup authorization, and behavior expectations.</p>
+            <p class="hint">Handbook document version: pending client file — content mirrors paper packet policy language until the permanent PDF is attached.</p>
+          </div>
+          <label class="check"><input type="checkbox" name="hbAgree" required /> I have read and agree to the Parent Handbook policies.</label>
+          <div class="grid-2">
+            <label>Printed name <input name="hbPrint" class="signature" required /></label>
+            <label>Date <input type="date" name="hbDate" /></label>
+          </div>
+          <label>E-signature (DocuSign at production handoff) <input name="hbSignature" class="signature" placeholder="Type full legal name" required /></label>
+        </fieldset>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" data-i18n="saveComplete">Save &amp; mark complete</button>
+          <a href="#uploads" class="btn btn-secondary" data-nav="uploads">Next: Documents →</a>
+        </div>
+      </form>
+    </section>
+
+    <section id="view-uploads" class="view">
+      <form class="form-shell" data-form="uploads" novalidate>
+        <div class="page-head">
+          <a href="#packet" class="back" data-nav="packet" data-i18n="backPacket">← Back to packet</a>
+          <p class="eyebrow">Documents</p>
+          <h2>Required uploads</h2>
+          <p class="section-lead">Attach files for each child/guardian as requested. SSN document uploads are optional in UI until the center confirms collection policy.</p>
+        </div>
+        <fieldset>
+          <legend>Files</legend>
+          <label>Birth certificate <input type="file" name="upBirth" accept=".pdf,image/*" /></label>
+          <label>GA immunization / shot records <input type="file" name="upShots" accept=".pdf,image/*" /></label>
+          <label>Parent / guardian photo ID(s) <input type="file" name="upParentId" accept=".pdf,image/*" multiple /></label>
+          <label>Health form (if required) <input type="file" name="upHealth" accept=".pdf,image/*" /></label>
+          <label>Child SSN document (optional — policy pending) <input type="file" name="upChildSsn" accept=".pdf,image/*" /></label>
+          <label>Parent SSN document (optional — policy pending) <input type="file" name="upParentSsn" accept=".pdf,image/*" /></label>
+          <label class="check"><input type="checkbox" name="upConfirm" required /> I confirm these documents are accurate and complete for enrollment review.</label>
+        </fieldset>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" data-i18n="saveComplete">Save &amp; mark complete</button>
           <a href="#done" class="btn btn-secondary" data-nav="done" data-i18n="finishPacket">Finish packet →</a>
         </div>
       </form>
@@ -454,27 +539,32 @@
       <div class="done-panel">
         <div class="success-banner">
           <div>
-            <strong data-i18n="doneStrong">Packet emailed to the center</strong>
-            <span data-i18n="doneText">No login required. Your prefilled forms are sent as PDFs to Angel Learning Center, and a copy can go to your email.</span>
+            <strong data-i18n="doneStrong">Packet ready for the center</strong>
+            <span data-i18n="doneText">No login. Prefill packet emails the center only (no parent copy). DocuSign seals signatures when the account is connected.</span>
           </div>
         </div>
         <p class="eyebrow" data-i18n="doneEyebrow">What happens next</p>
         <h2 data-i18n="doneTitle">You’re all set</h2>
-        <p class="section-lead" data-i18n="doneLead">Fill online once → we email the completed packet to the front desk. No parent account, no password.</p>
+        <p class="section-lead" data-i18n="doneLead">Fill online once → completed packet goes to the front desk inbox for your location. No parent account.</p>
         <div class="mail-summary" id="mailSummary">
           <div class="mail-row">
             <small data-i18n="emailToCenter">SENT TO CENTER</small>
-            <strong>enrollment@angellearningcenter.com</strong>
+            <strong id="doneInbox">savannah@angellearningcenter.com</strong>
+          </div>
+          <div class="mail-row">
+            <small>SUBJECT</small>
+            <strong>Enrollment Packet for Angel Learning Center</strong>
           </div>
           <div class="mail-row">
             <small data-i18n="emailAttachments">ATTACHMENTS</small>
-            <strong data-i18n="emailAttachmentList">5 prefilled PDF forms</strong>
+            <strong data-i18n="emailAttachmentList">Prefilled forms + uploads (center only)</strong>
           </div>
         </div>
         <ul class="form-list compact" id="doneList"></ul>
         <div class="hero-cta">
           <a href="#packet" class="btn btn-secondary" data-nav="packet" data-i18n="reviewChecklist">Review checklist</a>
           <button type="button" class="btn btn-secondary" id="printDemo" data-i18n="printPreview">Print / PDF preview</button>
+          <button type="button" class="btn btn-green" id="addSibling">Add sibling to packet</button>
         </div>
       </div>
     </section>
@@ -482,12 +572,13 @@
 
   <footer class="site-footer">
     <img src="assets/logo.png" alt="" />
-    <div>Angel Learning Center · Savannah Highlands</div>
-    <div>178 Basswood Drive, Savannah, GA 31407 · (912) 600-3899</div>
+    <div id="footerName">Angel Learning Center · Savannah Highlands</div>
+    <div id="footerContact">178 Basswood Drive, Savannah, GA 31407 · (912) 600-3899 · Mon–Fri 6:30 AM – 5:30 PM</div>
   </footer>
   </div><!-- /appShell -->
 
   <div class="toast" id="toast" hidden></div>
+  <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

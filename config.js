@@ -1,0 +1,185 @@
+/**
+ * ALC V1 production config — from Laukik questionnaire 2026-08-06 + follow-ups.
+ * Soft-launch location: Savannah. Rollout ready for other sites.
+ */
+window.ALC_CONFIG = {
+  version: "v1",
+  goLive: "2026-08-10",
+  mode: "prod", // was pitch mockup; now production soft-launch
+
+  product: {
+    parentLogin: false,
+    parentEmailCopy: false,
+    linkModel: "one_public_link",
+    language: "en", // Spanish UI retained but default EN; client said EN only
+    eSign: "docusign", // yes — wire account when client provides
+    multiChild: true,
+    multiChildModel: "one_packet_multiple_children", // rest: #8 resolved
+    showTuitionRates: false,
+    inAppPayments: false,
+    ssnTextFields: false, // waiting #4 — do not type SSN in web forms yet
+    ssnDocumentUpload: true, // allow upload slots; confirm with client later
+    hospitalRequired: false,
+    pdfBasis: "demo_forms",
+  },
+
+  contact: {
+    primary: {
+      name: "Laukik Patel",
+      role: "Owner",
+      email: "lpatel@angellearningcenter.com",
+      phone: "9126557260",
+    },
+    secondary: {
+      name: "Hardik Patel",
+      email: "hpatel@angellearningcenter.com",
+    },
+    uat: ["Laukik", "Hardik"],
+  },
+
+  email: {
+    subject: "Enrollment Packet for Angel Learning Center",
+    // #2 waiting — use correct domain; keep typed value noted
+    cc: ["lpatel@angellearningcenter.com"],
+    ccPendingConfirm: "questionnaire had lpatel@angelearningcenter.com (typo?)",
+    referenceFormat: "open",
+  },
+
+  v1Locations: ["savannah"],
+
+  locations: {
+    savannah: {
+      id: "savannah",
+      name: "Savannah Highlands",
+      legalName: "Angel Learning Center — Savannah",
+      address: "178 Basswood Drive, Savannah, GA 31407",
+      phone: "(912) 600-3899",
+      hours: "Monday – Friday · 6:30 AM – 5:30 PM",
+      inbox: "savannah@angellearningcenter.com",
+      enabled: true,
+    },
+    dawsonville: {
+      id: "dawsonville",
+      name: "Dawsonville",
+      legalName: "Angel Learning Center — Dawsonville",
+      address: "3276 Dawson Forest Rd E, Dawsonville, GA 30534",
+      phone: "(706) 989-6855",
+      hours: "Monday – Friday · 6:30 AM – 5:30 PM",
+      // #1: questionnaire typed dawnsonville@ — using corrected spelling; flag if undeliverable
+      inbox: "dawsonville@angellearningcenter.com",
+      inboxAlternate: "dawnsonville@angellearningcenter.com",
+      enabled: false, // post-V1
+    },
+    smarr: {
+      id: "smarr",
+      name: "Smarr / Forsyth",
+      legalName: "Angel Learning Center — Smarr",
+      address: "2329 US-41, Forsyth, GA 31029",
+      phone: "(478) 999-9577",
+      // #3 write: match other centers until client overrides
+      hours: "Monday – Friday · 6:30 AM – 5:30 PM",
+      hoursNote: "Assumed same as Savannah/Dawsonville — client said write",
+      inbox: "smarr@angellearningcenter.com",
+      enabled: false,
+    },
+    valdosta: {
+      id: "valdosta",
+      name: "Valdosta",
+      legalName: "Angel Learning Center — Valdosta",
+      address: "426 Murray Road, Valdosta, GA 31602",
+      phone: "(229) 264-4606",
+      hours: "Monday – Friday · 6:30 AM – 5:30 PM",
+      hoursNote: "Assumed same as Savannah/Dawsonville — client said write",
+      inbox: "valdosta@angellearningcenter.com",
+      enabled: false,
+    },
+  },
+
+  programs: [
+    { id: "little_angels", label: "Little Angels (6 weeks – 12 months)", transport: false },
+    { id: "tiny_explorers", label: "Tiny Explorers (1 year)", transport: false },
+    { id: "busy_bee", label: "Busy Bee (2 years)", transport: false },
+    { id: "little_learners", label: "Little Learners (3 years)", transport: false },
+    { id: "part_time", label: "Part-time Stars (2-day / 3-day)", transport: false },
+    { id: "before_care", label: "Before care", transport: true },
+    { id: "after_care", label: "After care", transport: true },
+    { id: "before_after", label: "Before & after care", transport: true },
+    { id: "prek", label: "GA Pre-K", transport: true },
+    { id: "summer_camp", label: "Summer Camp", transport: true },
+    { id: "holiday_weeks", label: "Holiday Weeks", transport: false },
+  ],
+
+  // Transport only when child is in a transport-eligible program
+  transport: {
+    allowUnlistedSchool: false,
+    direction: "both_ways",
+    when: ["am", "pm", "both"],
+    policySource: "paper_forms",
+    schools: {
+      savannah: [
+        { id: "godley", name: "Godley Station School", address: "2135 Benton Blvd, Savannah, GA 31407" },
+        { id: "rice-creek", name: "Rice Creek School", address: "100 Mulberry Ave, Port Wentworth, GA 31407" },
+      ],
+      dawsonville: [
+        { id: "robinson", name: "Robinson Elementary School", address: "1150 Dawson Forest Rd East, Dawsonville, GA 30534" },
+        { id: "kilough", name: "Kilough Elementary School", address: "1063 Kilough Church Road, Dawsonville, GA 30534" },
+        { id: "riverview", name: "Riverview Elementary School", address: "370 Dawson Forest Rd W, Dawsonville, GA 30534" },
+        { id: "blacks-mill", name: "Black's Mill Elementary School", address: "1860 Dawson Forest Road East, Dawsonville, GA 30534" },
+      ],
+      smarr: [
+        { id: "kb-sutton", name: "K. B. Sutton Elementary School", address: "1315 Highway 83 North, Forsyth, GA 31029" },
+        { id: "tg-scott", name: "T.G. Scott Elementary School", address: "70 Thornton Rd, Forsyth, GA 31029" },
+        { id: "hubbard", name: "Samuel E. Hubbard Elementary School", address: "558 Highway 83 South, Forsyth, GA 31029" },
+      ],
+      valdosta: [
+        { id: "sallas-mahone", name: "Sallas Mahone Elementary School", address: "3686 Lake Laurie Drive, Valdosta, GA 31605" },
+        { id: "wg-nunn", name: "W.G. Nunn Elementary School", address: "1610 Lakeland Avenue, Valdosta, GA 31602" },
+        { id: "dewar", name: "Dewar Elementary School", address: "3539 Mt. Zion Church Road, Valdosta, GA 31605" },
+      ],
+    },
+    // #6 incomplete — times/miles filled by parent or staff until center provides defaults
+  },
+
+  forms: {
+    core: ["enrollment", "financial", "transport", "emergency", "ies", "handbook", "uploads"],
+    // transport is required only when program.transport === true
+  },
+
+  uploads: [
+    { id: "birth_cert", label: "Birth certificate", required: true },
+    { id: "ga_shot_records", label: "GA immunization / shot records", required: true },
+    { id: "ga_parent_ids", label: "Parent / guardian photo IDs (GA)", required: true },
+    { id: "child_ssn_doc", label: "Child SSN document (card/letter)", required: false, pendingPolicy: true },
+    { id: "parent_ssn_doc", label: "Parent SSN document", required: false, pendingPolicy: true },
+    { id: "health_form", label: "Health / medical form (if required)", required: false },
+  ],
+
+  handbook: {
+    // #7: version / PDF URL TBD — parent acknowledges policy receipt
+    title: "Parent Handbook Acknowledgment",
+    version: "pending_client_file",
+    url: null,
+  },
+
+  meals: {
+    cacfp: "all_locations",
+    options: ["Breakfast", "Lunch", "Snack"],
+  },
+
+  open: {
+    waiting: [
+      "Owner CC exact address (typed angelearningcenter typo?)",
+      "SSN: upload required vs paper-only at center",
+    ],
+    resolved: {
+      docusign: "yes",
+      smarrValdostaHours: "written as Mon–Fri 6:30–5:30 matching others",
+      path: "v1_prod_not_pitch_mockup",
+      multiChild: "one_packet_multiple_children",
+      softLaunch: "savannah_first_aug_10",
+      dawsonvilleInbox: "using dawsonville@ (corrected spelling from dawnsonville@)",
+      schoolTimes: "parent enters pickup times until center defaults provided",
+      handbook: "acknowledgment form until official PDF provided",
+    },
+  },
+};

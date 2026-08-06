@@ -1,27 +1,33 @@
-const FORMS = [
+const CFG = window.ALC_CONFIG || {};
+
+const ALL_FORMS = [
   {
     id: "enrollment",
     num: "01",
     title: "Enrollment Form",
-    blurb: "Child & guardian details, emergency contacts, care hours",
+    blurb: "Location, program, child & guardians, care hours",
     titleEs: "Formulario de inscripción",
-    blurbEs: "Datos del niño, tutores, contactos de emergencia y horario",
+    blurbEs: "Ubicación, programa, niño y tutores",
+    always: true,
   },
   {
     id: "financial",
     num: "02",
     title: "Financial Responsibility & Tuition",
-    blurb: "Responsible party info and payment agreement",
+    blurb: "Responsible party and payment agreement",
     titleEs: "Responsabilidad financiera y matrícula",
     blurbEs: "Parte responsable y acuerdo de pago",
+    always: true,
   },
   {
     id: "transport",
     num: "03",
     title: "Transportation Agreement",
-    blurb: "School pickup authorization and schedule",
+    blurb: "School bus routes (Pre-K / before-after / summer only)",
     titleEs: "Acuerdo de transporte",
-    blurbEs: "Autorización de recogida escolar y horario",
+    blurbEs: "Rutas escolares",
+    always: false,
+    requiresTransport: true,
   },
   {
     id: "emergency",
@@ -29,7 +35,8 @@ const FORMS = [
     title: "Vehicle Emergency Medical",
     blurb: "Doctor, allergies, and emergency care consent",
     titleEs: "Información médica de emergencia",
-    blurbEs: "Médico, alergias y autorización de emergencia",
+    blurbEs: "Médico, alergias y autorización",
+    always: true,
   },
   {
     id: "ies",
@@ -37,58 +44,251 @@ const FORMS = [
     title: "CACFP Meal Benefit (IES)",
     blurb: "Income eligibility statement for 2026–2027",
     titleEs: "Beneficios de comidas CACFP (IES)",
-    blurbEs: "Declaración de elegibilidad por ingresos 2026–2027",
+    blurbEs: "Declaración de elegibilidad 2026–2027",
+    always: true,
+  },
+  {
+    id: "handbook",
+    num: "06",
+    title: "Parent Handbook",
+    blurb: "Policy acknowledgment (DocuSign-ready)",
+    titleEs: "Manual de padres",
+    blurbEs: "Acuse de políticas",
+    always: true,
+  },
+  {
+    id: "uploads",
+    num: "07",
+    title: "Documents",
+    blurb: "Birth certificate, shots, IDs, optional SSN docs",
+    titleEs: "Documentos",
+    blurbEs: "Acta, vacunas, IDs",
+    always: true,
   },
 ];
 
+function buildLocationsFromConfig() {
+  const schools = CFG.transport?.schools || {};
+  const out = {};
+  Object.keys(schools).forEach((id) => {
+    const meta = CFG.locations?.[id] || {};
+    out[id] = {
+      name: meta.name || id,
+      schools: schools[id] || [],
+      inbox: meta.inbox,
+      address: meta.address,
+      phone: meta.phone,
+      hours: meta.hours,
+    };
+  });
+  return out;
+}
+
+const LOCATIONS = buildLocationsFromConfig();
+
+function selectedPrograms() {
+  const en =
+    typeof state !== "undefined" && state?.data?.enrollment ? state.data.enrollment : {};
+  const raw = en.programs || document.getElementById("programsHidden")?.value || "";
+  if (Array.isArray(raw)) return raw;
+  return String(raw)
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function needsTransportForm() {
+  const programs = CFG.programs || [];
+  const selected = new Set(selectedPrograms());
+  return programs.some((p) => p.transport && selected.has(p.id));
+}
+
+function getActiveForms() {
+  return ALL_FORMS.filter((f) => f.always || (f.requiresTransport && needsTransportForm()));
+}
+
+// Back-compat alias used throughout
+function getFORMS() {
+  return getActiveForms();
+}
+Object.defineProperty(window, "FORMS", {
+  get: getActiveForms,
+});
+
+// For code that referenced FORMS as const — use getActiveForms()
+const FORMS = ALL_FORMS; // temporary; lists use getActiveForms()
+
+function renderRouteSchools(locationId, selectedSchoolId) {
+  const box = document.getElementById("routeSchoolList");
+  const addr = document.getElementById("trSchoolAddress");
+  const hidden = document.getElementById("trSchoolChoice");
+  if (!box) return;
+
+  const loc = LOCATIONS[locationId];
+  if (!loc) {
+    box.innerHTML = `<p class="hint">${
+      lang === "es"
+        ? "Seleccione una ubicación de ALC para ver las escuelas de la ruta."
+        : "Select an ALC location to see bus pickup schools."
+    }</p>`;
+    if (addr) addr.value = "";
+    return;
+  }
+
+  box.innerHTML = loc.schools
+    .map((s) => {
+      const checked = selectedSchoolId === s.id ? "checked" : "";
+      return `
+      <label class="radio-card">
+        <input type="radio" name="trSchoolRadio" value="${s.id}" data-address="${s.address.replace(/"/g, "&quot;")}" ${checked} />
+        <span>
+          <strong>${s.name}</strong>
+          <small>${s.address}</small>
+        </span>
+      </label>`;
+    })
+    .join("");
+
+  box.querySelectorAll('input[name="trSchoolRadio"]').forEach((radio) => {
+    radio.addEventListener("change", () => {
+      if (!radio.checked) return;
+      if (hidden) hidden.value = radio.value;
+      if (addr) addr.value = radio.dataset.address || "";
+      const other = document.getElementById("trOtherSchool");
+      if (other) other.value = "";
+    });
+  });
+
+  if (selectedSchoolId) {
+    const match = loc.schools.find((s) => s.id === selectedSchoolId);
+    if (hidden) hidden.value = selectedSchoolId;
+    if (addr && match) addr.value = match.address;
+  } else {
+    if (hidden) hidden.value = "";
+    if (addr) addr.value = "";
+  }
+}
+
+function initTransportLocationUI() {
+  const select = document.getElementById("trLocation");
+  if (!select || select.dataset.bound) return;
+  select.dataset.bound = "1";
+  select.addEventListener("change", () => {
+    renderRouteSchools(select.value, null);
+  });
+}
+
+function initProgramChips() {
+  const box = document.getElementById("programChips");
+  const hidden = document.getElementById("programsHidden");
+  if (!box || box.dataset.bound) return;
+  box.dataset.bound = "1";
+  const programs = CFG.programs || [];
+  const selected = new Set(selectedPrograms());
+  box.innerHTML = programs
+    .map(
+      (p) => `
+    <label class="chip">
+      <input type="checkbox" data-program="${p.id}" ${selected.has(p.id) ? "checked" : ""} />
+      ${p.label}
+    </label>`
+    )
+    .join("");
+
+  const sync = () => {
+    const ids = [...box.querySelectorAll("input[data-program]:checked")].map((el) => el.dataset.program);
+    if (hidden) hidden.value = ids.join(",");
+    if (!state.data.enrollment) state.data.enrollment = {};
+    state.data.enrollment.programs = ids;
+    saveState(state);
+    renderLists();
+    updateTransportVisibility();
+  };
+  box.addEventListener("change", sync);
+  sync();
+}
+
+function updateTransportVisibility() {
+  const show = needsTransportForm();
+  document.querySelectorAll('[data-nav="transport"], a[href="#transport"]').forEach((el) => {
+    el.style.display = show ? "" : "none";
+  });
+  const nextOnFin = document.querySelector('#view-financial a[data-nav="transport"], #view-financial a[href="#transport"]');
+  if (nextOnFin) {
+    if (show) {
+      nextOnFin.setAttribute("href", "#transport");
+      nextOnFin.dataset.nav = "transport";
+      nextOnFin.textContent = t("nextTransport") || "Next: Transportation →";
+    } else {
+      nextOnFin.setAttribute("href", "#emergency");
+      nextOnFin.dataset.nav = "emergency";
+      nextOnFin.textContent = t("nextEmergency") || "Next: Emergency form →";
+    }
+  }
+  if (!show && state.completed.transport) {
+    // keep completed state; just hide from checklist
+  }
+}
+
+function initSiblingButton() {
+  const btn = document.getElementById("addSibling");
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = "1";
+  btn.addEventListener("click", () => {
+    if (!state.siblings) state.siblings = [];
+    const en = state.data.enrollment || {};
+    const name = [en.childFirst, en.childLast].filter(Boolean).join(" ") || "Child 1";
+    state.siblings.push({
+      first: en.childFirst || "",
+      last: en.childLast || "",
+      dob: en.childDob || "",
+      note: "Primary child on forms",
+    });
+    saveState(state);
+    // Clear child identity fields only; keep guardians
+    const form = document.querySelector('form[data-form="enrollment"]');
+    if (form) {
+      ["childFirst", "childMI", "childLast", "childPreferred", "childGrade", "childDob", "childGender", "medicalNotes"].forEach(
+        (n) => {
+          const el = form.elements.namedItem(n);
+          if (el && el.type !== "checkbox") el.value = "";
+        }
+      );
+    }
+    if (state.data.enrollment) {
+      state.data.enrollment.childFirst = "";
+      state.data.enrollment.childLast = "";
+      state.data.enrollment.childDob = "";
+      state.completed.enrollment = false;
+      state.completed.transport = false;
+      state.completed.emergency = false;
+      saveState(state);
+    }
+    showToast("Sibling slot started — enter the next child’s details on Enrollment");
+    location.hash = "#enrollment";
+    renderLists();
+  });
+}
 const I18N = {
   en: {
-    demoBanner: "Interactive mockup · not live data",
-    demoBannerHint: "· for demonstration only",
-    navHome: "Home",
-    navForms: "Forms",
-    resetDemo: "Reset demo",
-    heroKicker: "Enrollment packet · 2026–2027",
-    heroLead:
-      "No login required. Complete enrollment, tuition, transportation, emergency, and meal-benefit forms online — then send the packet to the center by email.",
-    ctaStart: "Start enrollment packet",
-    ctaSample: "Load sample child",
-    ctaJump: "Jump to a form",
-    overviewTitle: "What parents complete online",
-    overviewLead:
-      "Open the link, fill once. Child name, address, and contacts carry across all forms. Submit sends prefilled PDFs to the center — no login.",
-    packetEyebrow: "Your packet",
-    packetTitle: "Enrollment checklist",
-    packetLead: "Progress saves in this browser for the demo. Shared fields autofill after Enrollment.",
-    progress: "{n} of {total} complete",
-    statusDone: "Complete",
-    statusTodo: "To do",
-    backPacket: "← Back to packet",
-    saveComplete: "Save & mark complete",
-    toastSaved: "Saved — form marked complete",
-    toastSample: "Sample family loaded — open any form to review",
-    toastReset: "Demo reset",
-    toastSubmitted: "Demo: packet would email the center as PDFs",
-    confirmReset: "Clear all demo form progress on this device?",
-    doneStrong: "Packet emailed to the center",
+    demoBanner: "V1 soft launch · Savannah first",
+    demoBannerHint: "· go-live target Aug 10, 2026 · no parent login",
+    resetDemo: "Reset packet",
+    toastReset: "Packet reset",
+    toastSubmitted: "Packet prepared for center email (V1)",
+    confirmReset: "Clear all form progress on this device?",
+    doneStrong: "Packet ready for the center",
     doneText:
-      "No login required. Your prefilled forms are sent as PDFs to Angel Learning Center, and a copy can go to your email.",
-    doneEyebrow: "What happens next",
-    doneTitle: "You’re all set",
-    doneLead:
-      "Fill online once → we email the completed packet to the front desk. No parent account, no password.",
-    emailToCenter: "SENT TO CENTER",
-    emailAttachments: "ATTACHMENTS",
-    emailAttachmentList: "5 prefilled PDF forms",
-    reviewChecklist: "Review checklist",
-    printPreview: "Print / PDF preview",
+      "No login. Prefill packet emails the center only (no parent copy). DocuSign seals signatures when connected.",
+    doneLead: "Fill online once → completed packet goes to the front desk for your location.",
+    emailAttachmentList: "Prefilled forms + uploads (center only)",
+    nextTransport: "Next: Transportation →",
+    nextEmergency: "Next: Emergency form →",
   },
   es: {
-    demoBanner: "Maqueta interactiva · no es información real",
-    demoBannerHint: "· solo para demostración",
-    navHome: "Inicio",
-    navForms: "Formularios",
-    resetDemo: "Reiniciar demo",
+    demoBanner: "Lanzamiento V1 · Savannah primero",
+    demoBannerHint: "· meta 10 ago 2026 · sin login",
+    resetDemo: "Reiniciar paquete",
     heroKicker: "Paquete de inscripción · 2026–2027",
     heroLead:
       "No se necesita iniciar sesión. Complete en línea inscripción, matrícula, transporte, emergencia y comidas — y envíe el paquete al centro por correo.",
@@ -191,12 +391,16 @@ const I18N = {
     date: "Fecha",
     esign: "Firma electrónica",
     childRoute: "Niño y ruta",
-    pickupTime: "Hora de recogida",
-    otherSchool: "Otra escuela",
+    alcLocation: "Ubicación de ALC",
+    selectPickupSchool: "Recogida escolar en autobús",
+    pickupSchoolHint: "Escuelas de las rutas de ALC para la ubicación seleccionada (lista del centro).",
+    pickupTime: "Hora de recogida (escuela)",
+    otherSchool: "Otra escuela (si no está en la lista)",
     arriveAlc: "Llegada a Angel Learning Center",
     transportDays: "Días de transporte",
     staffAuth: "El personal de Angel Learning está autorizado a transportar a mi hijo.",
     schoolDistance: "Nombre de la escuela (distancia)",
+    schoolAddress: "Dirección de la escuela",
     miles: "Millas aproximadas del centro",
     signature: "Firma",
     parentSignature: "Firma del padre / tutor",
@@ -238,6 +442,8 @@ const I18N = {
 
 const SAMPLE = {
   enrollment: {
+    enLocation: "savannah",
+    programs: ["after_care", "prek"],
     childFirst: "Maya",
     childMI: "J",
     childLast: "Rivera",
@@ -246,7 +452,6 @@ const SAMPLE = {
     startDate: "2026-08-10",
     childDob: "2019-03-14",
     childGender: "Female",
-    childSsn: "XXX-XX-4821",
     childAddress: "412 Magnolia Lane",
     childCity: "Savannah",
     childZip: "31407",
@@ -275,7 +480,6 @@ const SAMPLE = {
     mealBreakfast: true,
     mealLunch: true,
     mealSnack: true,
-    tuitionAmount: "$185 / week",
   },
   financial: {
     rpName: "Sofia A. Rivera",
@@ -284,7 +488,6 @@ const SAMPLE = {
     rpState: "GA",
     rpAddress: "412 Magnolia Lane",
     rpCityStateZip: "Savannah, GA 31407",
-    rpSsn: "XXX-XX-7712",
     rpPhone: "(912) 555-0148",
     rpEmail: "sofia.rivera@email.com",
     rpEmployer: "Memorial Health",
@@ -296,9 +499,10 @@ const SAMPLE = {
     finSignature: "Sofia A. Rivera",
   },
   transport: {
+    trLocation: "savannah",
     trChild: "Maya J. Rivera",
     trSchoolChoice: "godley",
-    trGodleyTime: "14:45",
+    trPickupTime: "14:45",
     trArriveTime: "15:15",
     trMon: true,
     trTue: true,
@@ -306,7 +510,7 @@ const SAMPLE = {
     trThu: true,
     trFri: true,
     trStaffAuth: true,
-    trSchoolDistanceName: "Godley Station School",
+    trSchoolAddress: "2135 Benton Blvd, Savannah, GA 31407",
     trMiles: "4.2",
     trSignature: "Sofia A. Rivera",
     trDate: "2026-07-31",
@@ -323,7 +527,7 @@ const SAMPLE = {
     emAltPhone: "(912) 555-0179",
     emDoctor: "Dr. Elena Brooks",
     emDoctorPhone: "(912) 555-4410",
-    emFacility: "St. Joseph Hospital Emergency Room, 11705 Mercy Blvd., 912-819-4100",
+    emFacility: "",
     emAllergies: "Peanuts",
     emMeds: "Epinephrine auto-injector as needed",
     emSpecial: "None",
@@ -360,9 +564,18 @@ const SAMPLE = {
     iesZip: "31407",
     iesPhone: "(912) 555-0148",
   },
+  handbook: {
+    hbAgree: true,
+    hbPrint: "Sofia A. Rivera",
+    hbDate: "2026-07-31",
+    hbSignature: "Sofia A. Rivera",
+  },
+  uploads: {
+    upConfirm: true,
+  },
 };
 
-const STORAGE_KEY = "alc-enrollment-demo-v3";
+const STORAGE_KEY = "alc-enrollment-v1";
 const LANG_KEY = "alc-enrollment-lang";
 
 function loadState() {
@@ -407,7 +620,7 @@ function showToast(message) {
 }
 
 function completedCount() {
-  return FORMS.filter((f) => state.completed[f.id]).length;
+  return getActiveForms().filter((f) => state.completed[f.id]).length;
 }
 
 function formTitle(form) {
@@ -419,6 +632,7 @@ function formBlurb(form) {
 }
 
 function renderLists() {
+  const active = getActiveForms();
   const makeItem = (form, asLink = true) => {
     const done = !!state.completed[form.id];
     const status = done ? t("statusDone") : t("statusTodo");
@@ -436,19 +650,34 @@ function renderLists() {
     return `<li><div class="row">${inner}</div></li>`;
   };
 
-  const html = FORMS.map((f) => makeItem(f)).join("");
+  const html = active.map((f) => makeItem(f)).join("");
   const home = document.getElementById("formList");
   const packet = document.getElementById("packetList");
-  const done = document.getElementById("doneList");
   if (home) home.innerHTML = html;
   if (packet) packet.innerHTML = html;
-  if (done) done.innerHTML = FORMS.map((f) => makeItem(f, false)).join("");
+  const doneList = document.getElementById("doneList");
+  if (doneList) doneList.innerHTML = active.map((f) => makeItem(f, false)).join("");
 
+  const total = active.length;
   const n = completedCount();
   const fill = document.getElementById("progressFill");
-  const text = document.getElementById("progressText");
-  if (fill) fill.style.width = `${(n / FORMS.length) * 100}%`;
-  if (text) text.textContent = t("progress").replace("{n}", n).replace("{total}", FORMS.length);
+  const progressText = document.getElementById("progressText");
+  if (fill) fill.style.width = total ? `${(n / total) * 100}%` : "0%";
+  if (progressText) {
+    progressText.textContent = (t("progress") || "{n} of {total} complete")
+      .replace("{n}", String(n))
+      .replace("{total}", String(total));
+  }
+
+  const locId = state.data.enrollment?.enLocation || "savannah";
+  const loc = CFG.locations?.[locId] || CFG.locations?.savannah;
+  const inbox = document.getElementById("doneInbox");
+  if (inbox && loc) inbox.textContent = loc.inbox || "savannah@angellearningcenter.com";
+  const fn = document.getElementById("footerName");
+  const fc = document.getElementById("footerContact");
+  if (fn && loc) fn.textContent = loc.legalName || loc.name;
+  if (fc && loc) fc.textContent = `${loc.address} · ${loc.phone}${loc.hours ? " · " + loc.hours : ""}`;
+  updateTransportVisibility();
 }
 
 function fullName(first, mi, last) {
@@ -588,7 +817,7 @@ function applyCarryForward({ force = false, onlyForm = null } = {}) {
 
 function updatePrefillNotice(viewId) {
   document.querySelectorAll(".prefill-notice").forEach((n) => n.remove());
-  if (!["financial", "transport", "emergency", "ies"].includes(viewId)) return;
+  if (!["financial", "transport", "emergency", "ies", "handbook"].includes(viewId)) return;
   const en = state.data.enrollment || {};
   if (!childFullName(en) && !en.momFirst) return;
   const head = document.querySelector(`#view-${viewId} .page-head`);
@@ -605,7 +834,7 @@ function updatePrefillNotice(viewId) {
 
 function showView(id) {
   const viewId = id || "home";
-  if (["financial", "transport", "emergency", "ies"].includes(viewId)) {
+  if (["financial", "transport", "emergency", "ies", "handbook"].includes(viewId)) {
     applyCarryForward({ force: false, onlyForm: viewId });
     hydrateForms();
   }
@@ -649,6 +878,17 @@ function setFieldValue(field, value) {
   else field.value = value ?? "";
 }
 
+function hydrateTransportSchools() {
+  initTransportLocationUI();
+  const data = state.data.transport || {};
+  const loc = data.trLocation || document.getElementById("trLocation")?.value || "";
+  renderRouteSchools(loc, data.trSchoolChoice || null);
+  if (data.trSchoolAddress) {
+    const addr = document.getElementById("trSchoolAddress");
+    if (addr) addr.value = data.trSchoolAddress;
+  }
+}
+
 function hydrateForms() {
   document.querySelectorAll("form[data-form]").forEach((form) => {
     const id = form.dataset.form;
@@ -657,17 +897,25 @@ function hydrateForms() {
       setFieldValue(form.elements.namedItem(name), value);
     });
   });
+  hydrateTransportSchools();
 }
 
 function fillFormsFromData(dataset, markComplete) {
   state.data = JSON.parse(JSON.stringify(dataset));
   state.completed = {};
   if (markComplete) {
-    FORMS.forEach((f) => {
+    getActiveForms().forEach((f) => {
       state.completed[f.id] = true;
     });
   }
   saveState(state);
+  // rebind program chips from data
+  const box = document.getElementById("programChips");
+  if (box) {
+    box.dataset.bound = "";
+    box.innerHTML = "";
+  }
+  initProgramChips();
   hydrateForms();
   renderLists();
 }
@@ -676,6 +924,7 @@ function serializeForm(form) {
   const data = {};
   const fd = new FormData(form);
   for (const [key, value] of fd.entries()) {
+    if (key === "trSchoolRadio") continue;
     if (data[key] !== undefined) data[key] = [].concat(data[key], value);
     else data[key] = value;
   }
@@ -684,6 +933,11 @@ function serializeForm(form) {
     if (!(cb.name in data)) data[cb.name] = false;
     else if (data[cb.name] === "on") data[cb.name] = true;
   });
+  if (form.dataset.form === "transport") {
+    const picked = form.querySelector('input[name="trSchoolRadio"]:checked');
+    if (picked) data.trSchoolChoice = picked.value;
+    else if ((data.trOtherSchool || "").toString().trim()) data.trSchoolChoice = "other";
+  }
   return data;
 }
 
@@ -724,6 +978,7 @@ document.getElementById("resetDemo")?.addEventListener("click", () => {
   state = { completed: {}, data: {} };
   saveState(state);
   document.querySelectorAll("form[data-form]").forEach((f) => f.reset());
+  hydrateTransportSchools();
   renderLists();
   showToast(t("toastReset"));
   location.hash = "#home";
@@ -745,6 +1000,9 @@ document.getElementById("langEs")?.addEventListener("click", () => {
 });
 
 window.addEventListener("hashchange", navigateFromHash);
+initProgramChips();
+initSiblingButton();
 hydrateForms();
 applyI18n();
 navigateFromHash();
+updateTransportVisibility();
