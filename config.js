@@ -57,6 +57,8 @@ window.ALC_CONFIG = {
       phone: "(912) 600-3899",
       hours: "Monday – Friday · 6:30 AM – 5:30 PM",
       inbox: "savannah@angellearningcenter.com",
+      schoolDistrict: "Chatham County School System",
+      hospital: "Chandler Hospital, 5353 Reynolds St.",
       enabled: true,
     },
     dawsonville: {
@@ -68,6 +70,8 @@ window.ALC_CONFIG = {
       hours: "Monday – Friday · 6:30 AM – 5:30 PM",
       inbox: "dawsonville@angellearningcenter.com",
       inboxAlternate: "dawnsonville@angellearningcenter.com",
+      schoolDistrict: "Dawson County School System",
+      hospital: "Chestatee Urgent Care, 2395 Thompson Rd.",
       enabled: true,
     },
     smarr: {
@@ -77,8 +81,9 @@ window.ALC_CONFIG = {
       address: "2329 US-41, Forsyth, GA 31029",
       phone: "(478) 999-9577",
       hours: "Monday – Friday · 6:30 AM – 5:30 PM",
-      hoursNote: "Assumed same hours unless center overrides",
       inbox: "smarr@angellearningcenter.com",
+      schoolDistrict: "Monroe County School System",
+      hospital: "88 Martin Luther King Jr Dr, Forsyth, GA 31029",
       enabled: true,
     },
     valdosta: {
@@ -88,8 +93,9 @@ window.ALC_CONFIG = {
       address: "426 Murray Road, Valdosta, GA 31602",
       phone: "(229) 264-4606",
       hours: "Monday – Friday · 6:30 AM – 5:30 PM",
-      hoursNote: "Assumed same hours unless center overrides",
       inbox: "valdosta@angellearningcenter.com",
+      schoolDistrict: "Valdosta City School System",
+      hospital: "South Georgia Medical Center, 2501 N. Patterson St.",
       enabled: true,
     },
   },
@@ -146,19 +152,48 @@ window.ALC_CONFIG = {
 
   uploads: [
     { id: "birth_cert", label: "Birth certificate", required: true },
-    { id: "ga_shot_records", label: "GA immunization / shot records", required: true },
+    { id: "ga_shot_records", label: "GA immunization Form 3231", required: true },
     { id: "ga_parent_ids", label: "Parent / guardian photo IDs (GA)", required: true },
+    { id: "health_form", label: "Child Health Form (physician)", required: true },
+    { id: "photo_release", label: "Photo / Video Permission Form", required: true, note: "Listed in handbook enrollment requirements" },
+    { id: "custody", label: "Custody documentation (if applicable)", required: false },
     { id: "child_ssn_doc", label: "Child SSN document (card/letter)", required: false, pendingPolicy: true },
     { id: "parent_ssn_doc", label: "Parent SSN document", required: false, pendingPolicy: true },
-    { id: "health_form", label: "Health / medical form (if required)", required: false },
+    { id: "caps", label: "CAPS documentation (if applicable)", required: false },
   ],
 
   handbook: {
-    // #7: version / PDF URL TBD — parent acknowledges policy receipt
     title: "Parent Handbook Acknowledgment",
-    version: "pending_client_file",
-    url: null,
+    version: "2026",
+    year: 2026,
+    pages: 56,
+    url: "assets/Parent-Handbook-2026.pdf",
+    contact: "info@angellearningcenter.com",
+    acknowledgment:
+      "I acknowledge that I have received and read the Angel Learning Center Parent Handbook. I understand the policies, procedures, and expectations contained within and agree to abide by them while my child is enrolled at Angel Learning Center. I understand that policies may be updated as needed, and I will be notified of any changes.",
+    source: "Parent-Handbook-2026.pdf",
   },
+
+  medical: {
+    hospitalRequired: false,
+    note: "Handbook lists default facility per location for transport/emergency",
+  },
+
+  enrollmentRequiredFromHandbook: [
+    "Completed Enrollment Application",
+    "Signed Parent Handbook Acknowledgment",
+    "Signed Tuition Agreement",
+    "Child Health Form completed by a licensed physician",
+    "Current Georgia Immunization Record (Form 3231)",
+    "Emergency Contact Information",
+    "Authorized Pick-Up List",
+    "Custody Documentation (if applicable)",
+    "Infant Feeding Schedule (for infants)",
+    "Special Diet or Allergy Documentation (physician statement if allergy)",
+    "Transportation Forms (if applicable)",
+    "Photo/Video Permission Form",
+    "CAPS Documentation (if applicable)",
+  ],
 
   meals: {
     cacfp: "all_locations",

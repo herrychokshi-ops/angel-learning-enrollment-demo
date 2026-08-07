@@ -177,6 +177,17 @@ function applyLocation(locationId, { scroll = false } = {}) {
   });
 
   renderLists();
+  // default emergency facility from handbook by location (don't overwrite parent edits already typed except on clear/switch)
+  const emFac = document.getElementById("emFacility");
+  if (emFac && loc.hospital) {
+    const prior = state.data.emergency?.emFacility;
+    const hospitals = Object.values(CFG.locations || {}).map((l) => l.hospital).filter(Boolean);
+    if (!prior || hospitals.includes(prior) || emFac.value === "") {
+      emFac.value = loc.hospital;
+      if (!state.data.emergency) state.data.emergency = {};
+      state.data.emergency.emFacility = loc.hospital;
+    }
+  }
   if (scroll) card?.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
@@ -888,6 +899,7 @@ function carryForwardMap() {
       hbPrint: signer,
       hbSignature: signer,
       hbDate: today,
+      hbChild: child,
     },
     emergency: {
       emChild: child,
@@ -900,6 +912,7 @@ function carryForwardMap() {
       emMotherPhones: [en.momCell].filter(Boolean).join(" · "),
       emSignature: signer,
       emDate: today,
+      emFacility: getLocation(en.enLocation || getSelectedLocationId())?.hospital || "",
     },
     ies: {
       iesChild1: childLf,

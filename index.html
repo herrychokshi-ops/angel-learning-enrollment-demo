@@ -389,8 +389,8 @@
             <label><span data-i18n="doctor">Child’s doctor</span> <input name="emDoctor" /></label>
             <label><span data-i18n="doctorPhone">Doctor phone</span> <input type="tel" name="emDoctorPhone" /></label>
           </div>
-          <label><span data-i18n="facility">Preferred hospital / facility (optional — not required)</span>
-            <input name="emFacility" placeholder="Optional" />
+          <label><span data-i18n="facility">Default emergency facility (from Parent Handbook — editable)</span>
+            <input name="emFacility" id="emFacility" placeholder="Auto-fills from selected center" />
           </label>
           <label><span data-i18n="allergies">Child’s allergies</span> <textarea name="emAllergies" rows="2"></textarea></label>
           <label><span data-i18n="meds">Current prescribed medication</span> <textarea name="emMeds" rows="2"></textarea></label>
@@ -498,22 +498,28 @@
       <form class="form-shell" data-form="handbook" novalidate>
         <div class="page-head">
           <a href="#packet" class="back" data-nav="packet" data-i18n="backPacket">← Back to packet</a>
-          <p class="eyebrow">Handbook</p>
+          <p class="eyebrow">Handbook · 2026</p>
           <h2>Parent Handbook Acknowledgment</h2>
-          <p class="section-lead">Official handbook PDF can be linked once the center provides the final file. Parents still acknowledge receipt of center policies.</p>
+          <p class="section-lead">
+            Official 56-page Parent Handbook (2026). Please open and review, then sign the acknowledgment used at enrollment.
+          </p>
+          <p class="hero-cta" style="margin-bottom:1rem">
+            <a class="btn btn-secondary" href="assets/Parent-Handbook-2026.pdf" target="_blank" rel="noopener">Open Parent Handbook 2026 (PDF)</a>
+          </p>
         </div>
         <fieldset class="agreement-box">
           <legend>Acknowledgment</legend>
           <div class="scroll-terms">
-            <p>I acknowledge that I have received (or will receive) the Angel Learning Center Parent Handbook and agree to follow the policies and procedures of the center, including tuition, attendance, health, pickup authorization, and behavior expectations.</p>
-            <p class="hint">Handbook document version: pending client file — content mirrors paper packet policy language until the permanent PDF is attached.</p>
+            <p id="hbAckText">I acknowledge that I have received and read the Angel Learning Center Parent Handbook. I understand the policies, procedures, and expectations contained within and agree to abide by them while my child is enrolled at Angel Learning Center. I understand that policies may be updated as needed, and I will be notified of any changes.</p>
+            <p class="hint">Source: Parent Handbook 2026 · contact info@angellearningcenter.com · agreements section (end of handbook).</p>
           </div>
-          <label class="check"><input type="checkbox" name="hbAgree" required /> I have read and agree to the Parent Handbook policies.</label>
+          <label class="check"><input type="checkbox" name="hbAgree" required /> I have received and read the 2026 Parent Handbook and agree to its policies.</label>
           <div class="grid-2">
             <label>Printed name <input name="hbPrint" class="signature" required /></label>
             <label>Date <input type="date" name="hbDate" /></label>
           </div>
-          <label>E-signature (DocuSign at production handoff) <input name="hbSignature" class="signature" placeholder="Type full legal name" required /></label>
+          <label>Parent / guardian signature <input name="hbSignature" class="signature" placeholder="Type full legal name" required /></label>
+          <label>Child’s full name <input name="hbChild" placeholder="As on enrollment" /></label>
         </fieldset>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary" data-i18n="saveComplete">Save &amp; mark complete</button>
@@ -528,16 +534,19 @@
           <a href="#packet" class="back" data-nav="packet" data-i18n="backPacket">← Back to packet</a>
           <p class="eyebrow">Documents</p>
           <h2>Required uploads</h2>
-          <p class="section-lead">Attach files for each child/guardian as requested. SSN document uploads are optional in UI until the center confirms collection policy.</p>
+          <p class="section-lead">Required items from Parent Handbook 2026 enrollment checklist (plus IDs). Optional slots stay available if the center requests them.</p>
         </div>
         <fieldset>
           <legend>Files</legend>
           <label>Birth certificate <input type="file" name="upBirth" accept=".pdf,image/*" /></label>
-          <label>GA immunization / shot records <input type="file" name="upShots" accept=".pdf,image/*" /></label>
+          <label>GA immunization Form 3231 <input type="file" name="upShots" accept=".pdf,image/*" /></label>
+          <label>Child Health Form (licensed physician) <input type="file" name="upHealth" accept=".pdf,image/*" /></label>
           <label>Parent / guardian photo ID(s) <input type="file" name="upParentId" accept=".pdf,image/*" multiple /></label>
-          <label>Health form (if required) <input type="file" name="upHealth" accept=".pdf,image/*" /></label>
-          <label>Child SSN document (optional — policy pending) <input type="file" name="upChildSsn" accept=".pdf,image/*" /></label>
-          <label>Parent SSN document (optional — policy pending) <input type="file" name="upParentSsn" accept=".pdf,image/*" /></label>
+          <label>Photo / Video Permission Form <input type="file" name="upPhoto" accept=".pdf,image/*" /></label>
+          <label>Custody documentation (if applicable) <input type="file" name="upCustody" accept=".pdf,image/*" /></label>
+          <label>CAPS documentation (if applicable) <input type="file" name="upCaps" accept=".pdf,image/*" /></label>
+          <label>Child SSN document (optional) <input type="file" name="upChildSsn" accept=".pdf,image/*" /></label>
+          <label>Parent SSN document (optional) <input type="file" name="upParentSsn" accept=".pdf,image/*" /></label>
           <label class="check"><input type="checkbox" name="upConfirm" required /> I confirm these documents are accurate and complete for enrollment review.</label>
         </fieldset>
         <div class="form-actions">
