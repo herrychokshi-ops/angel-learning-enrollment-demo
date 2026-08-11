@@ -258,11 +258,24 @@
 
         <fieldset class="agreement-box">
           <legend data-i18n="agreement">Agreement</legend>
-          <div class="scroll-terms">
-            <p data-i18n="finTerms1">I acknowledge that I am legally and financially responsible for payment of all tuition, registration fees, late fees, returned payment fees, activity fees, and any other charges incurred for my child’s enrollment at Angel Learning Center. Tuition is due regardless of attendance unless otherwise provided in the Center’s written policies.</p>
-            <p data-i18n="finTerms2">Failure to pay may result in late/returned payment fees, suspension or termination of services, refusal of future enrollment, referral to collections, and civil action in a Georgia court.</p>
+          <div class="scroll-terms legal-terms-full">
+            <p><strong>Financial responsibility.</strong> I acknowledge that I am the individual legally and financially responsible for payment of all tuition, registration fees, late fees, returned payment fees, activity fees, and any other charges incurred for my child’s enrollment at Angel Learning Center. I understand that tuition is due regardless of my child’s attendance unless otherwise provided in the Center’s written policies.</p>
+            <p><strong>Failure to Pay.</strong> Failure to pay may result in Angel Learning Center’s right to:</p>
+            <ul>
+              <li>Assess applicable late fees and returned payment fees in accordance with Center policy.</li>
+              <li>Suspend or terminate childcare services until the account is brought current.</li>
+              <li>Refuse future enrollment while any balance remains unpaid.</li>
+              <li>Refer the account to a collection agency.</li>
+              <li>File a civil action in a Georgia court, including Magistrate (Small Claims) Court where permitted by law, to recover any unpaid balance.</li>
+              <li>Seek recovery of court filing fees, service fees, post-judgment interest, and any other amounts recoverable under Georgia law.</li>
+            </ul>
+            <p><strong>Contact information.</strong> I agree to keep my mailing address, email address, telephone number, and employer information current and notify the Center within five (5) business days of any changes.</p>
+            <p><strong>Acknowledgment.</strong> I certify that the information provided above is true and correct. I have read this Agreement, understand my financial obligations, and voluntarily agree to be personally responsible for all amounts owed to Angel Learning Center. I understand that this Agreement is a legally binding contract and may be used as evidence in any collection or legal proceeding arising from unpaid tuition or fees.</p>
           </div>
-          <label class="check"><input type="checkbox" name="finAgree" required /> <span data-i18n="finAgree">I have read this agreement and voluntarily agree to be personally responsible for all amounts owed.</span></label>
+          <label class="check">
+            <input type="checkbox" name="finAgree" required />
+            <span>I have read this Agreement in full, understand my financial obligations, and voluntarily agree to be personally responsible for all amounts owed to Angel Learning Center.</span>
+          </label>
           <div class="grid-2">
             <label><span data-i18n="printedName">Printed name</span> <input name="finPrintName" required /></label>
             <label><span data-i18n="date">Date</span> <input type="date" name="finSignDate" /></label>
