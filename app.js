@@ -644,11 +644,12 @@ const I18N = {
     confirmReset: "Clear all form progress on this device?",
     doneStrong: "Packet ready for the center",
     doneText:
-      "No login. Prefill packet emails the center only (no parent copy). DocuSign seals signatures when connected.",
-    doneLead: "Fill online once → completed packet goes to the front desk for your location.",
-    emailAttachmentList: "Prefilled forms + uploads (center only)",
+      "Download prefilled PDFs below. Center email and DocuSign wiring come next (not auto-sent yet).",
+    doneLead: "Fill online once → download prefilled PDFs for the front desk. No parent account.",
+    emailAttachmentList: "Download prefilled PDFs (not auto-emailed yet)",
     nextTransport: "Next: Transportation →",
     nextEmergency: "Next: Emergency form →",
+    printPreview: "Print webpage",
   },
   es: {
     demoBanner: "Lanzamiento V1 · Savannah primero",
@@ -1424,6 +1425,35 @@ document.getElementById("resetDemo")?.addEventListener("click", () => {
 document.getElementById("printDemo")?.addEventListener("click", () => window.print());
 document.getElementById("loadSample")?.addEventListener("click", loadSample);
 document.getElementById("loadSamplePacket")?.addEventListener("click", loadSample);
+
+function downloadPdfBundle(which) {
+  try {
+    if (typeof window.ALC_generatePdfs !== "function") {
+      showToast("PDF engine not loaded — refresh the page");
+      return;
+    }
+    const loc = getLocation(getSelectedLocationId());
+    // freeze programs into enrollment data if only in chips
+    if (state.data.enrollment) {
+      state.data.enrollment.programs = selectedPrograms();
+    }
+    window.ALC_generatePdfs({ state, location: loc, which });
+    showToast(
+      which === "financial"
+        ? "Financial PDF downloaded (full legal text)"
+        : which === "enrollment"
+          ? "Enrollment PDF downloaded"
+          : "Packet PDFs downloaded"
+    );
+  } catch (err) {
+    console.error(err);
+    showToast("PDF generation failed — see console");
+  }
+}
+
+document.getElementById("downloadPacketPdfs")?.addEventListener("click", () => downloadPdfBundle("packet"));
+document.getElementById("downloadEnrollmentPdf")?.addEventListener("click", () => downloadPdfBundle("enrollment"));
+document.getElementById("downloadFinancialPdf")?.addEventListener("click", () => downloadPdfBundle("financial"));
 
 document.getElementById("langEn")?.addEventListener("click", () => {
   lang = "en";

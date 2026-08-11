@@ -747,15 +747,21 @@
             <small>SUBJECT</small>
             <strong id="doneSubject">Enrollment Packet for Angel Learning Center</strong>
           </div>
-          <div class="mail-row">
+        <div class="mail-row">
             <small data-i18n="emailAttachments">ATTACHMENTS</small>
-            <strong data-i18n="emailAttachmentList">Prefilled forms + uploads for selected center</strong>
+            <strong id="doneAttachNote">Download prefilled PDFs below (center email wiring is next — not auto-sent yet)</strong>
           </div>
         </div>
+        <div class="pdf-actions hero-cta" style="margin-bottom:1.25rem">
+          <button type="button" class="btn btn-primary" id="downloadPacketPdfs">Download full packet PDFs</button>
+          <button type="button" class="btn btn-secondary" id="downloadEnrollmentPdf">Enrollment PDF</button>
+          <button type="button" class="btn btn-secondary" id="downloadFinancialPdf">Financial PDF (full legal text)</button>
+        </div>
+        <p class="hint" id="pdfHint">PDFs are generated in your browser from the filled answers (enrollment + financial include all entered data and the full tuition agreement wording). These are text layout PDFs for staff; pixel-perfect official Adobe form templates can replace them later.</p>
         <ul class="form-list compact" id="doneList"></ul>
         <div class="hero-cta">
           <a href="#packet" class="btn btn-secondary" data-nav="packet" data-i18n="reviewChecklist">Review checklist</a>
-          <button type="button" class="btn btn-secondary" id="printDemo" data-i18n="printPreview">Print / PDF preview</button>
+          <button type="button" class="btn btn-secondary" id="printDemo" data-i18n="printPreview">Print webpage</button>
           <button type="button" class="btn btn-green" id="addSibling">Add sibling to packet</button>
         </div>
       </div>
@@ -770,7 +776,9 @@
   </div><!-- /appShell -->
 
   <div class="toast" id="toast" hidden></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="config.js"></script>
+  <script src="packet-pdf.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
