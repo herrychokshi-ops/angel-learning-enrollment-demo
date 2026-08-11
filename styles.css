@@ -828,6 +828,28 @@ input.signature {
   font-weight: 500;
 }
 
+.scroll-terms.legal-terms-full {
+  max-height: 320px;
+  line-height: 1.45;
+}
+
+.scroll-terms.legal-terms-full ul {
+  margin: 0.4rem 0 0.75rem 1.1rem;
+  padding: 0;
+}
+
+.scroll-terms.legal-terms-full li {
+  margin-bottom: 0.35rem;
+}
+
+.scroll-terms.legal-terms-full p {
+  margin: 0 0 0.75rem;
+}
+
+.scroll-terms.legal-terms-full p:last-child {
+  margin-bottom: 0;
+}
+
 .ies-terms {
   max-height: 220px;
 }
