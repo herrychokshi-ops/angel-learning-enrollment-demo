@@ -24,6 +24,7 @@
     <nav class="top-nav">
       <a href="#home" data-nav="home">Home</a>
       <a href="#packet" data-nav="packet">Forms</a>
+      <a href="#staff" data-nav="staff">Staff</a>
       <a href="mockups.html">Email flow</a>
       <button type="button" class="btn btn-ghost" id="resetDemo">Reset packet</button>
     </nav>
@@ -137,7 +138,7 @@
               </select>
             </label>
           </div>
-          <p class="hint">Child / parent SSN is not typed in this web form (policy pending). Upload SSN documents in the Documents step if required by the center.</p>
+          <p class="hint">SSN numbers are not typed in this web form. Upload parent and child SSN documents in the Documents step (required).</p>
           <label><span data-i18n="address">Home address</span> <input name="childAddress" /></label>
           <div class="grid-2">
             <label><span data-i18n="city">City</span> <input name="childCity" /></label>
@@ -418,41 +419,103 @@
       <form class="form-shell" data-form="ies" novalidate>
         <div class="page-head">
           <a href="#packet" class="back" data-nav="packet" data-i18n="backPacket">← Back to packet</a>
-          <p class="eyebrow" data-i18n="form5">Form 5 of 5 · CACFP 2026–2027</p>
+          <p class="eyebrow" data-i18n="form5">Form · CACFP 2026–2027</p>
           <h2 data-i18n="iesTitle">Meal Benefit Income Eligibility Statement</h2>
-          <p class="section-lead" data-i18n="iesLead">Required yearly for the Child and Adult Care Food Program. One form covers all children at this center.</p>
+          <p class="section-lead" data-i18n="iesLead">
+            Section A is read-only. Section B is required for every age group. Section C is optional.
+            Section D is required only for Little Angels (6 weeks–12 months).
+          </p>
         </div>
 
-        <fieldset>
-          <legend data-i18n="iesPart1">Part I — Children enrolled</legend>
+        <fieldset class="ies-section" data-ies-section="A">
+          <legend>
+            <span class="section-badge">A</span>
+            Section A — Household letter &amp; terms
+            <span class="pill-muted">Read only</span>
+          </legend>
+          <div class="scroll-terms ies-terms">
+            <p><strong>Dear Parent / Guardian,</strong></p>
+            <p>
+              This center participates in the USDA Child and Adult Care Food Program (CACFP).
+              Completing the Meal Benefit Income Eligibility Statement helps determine if your child
+              qualifies for free or reduced-price meal reimbursement. You are not required to complete
+              the form to enroll, but children without a completed statement are placed in the paid category.
+            </p>
+            <p>
+              <strong>Privacy Act Statement:</strong> The Richard B. Russell National School Lunch Act
+              requires the information on this application. You do not have to give the information, but if
+              you do not, we cannot approve your child for free or reduced-price meals. You must include
+              the last four digits of the social security number of the adult household member who signs
+              the application, unless you list a SNAP, TANF, or FDPIR case number, apply for a foster child,
+              or indicate that the adult signing does not have a social security number. We will use your
+              information to determine eligibility for free or reduced-price meals and for administration
+              and enforcement of the Program.
+            </p>
+            <p>
+              <strong>Non-Discrimination Statement:</strong> In accordance with Federal civil rights law and
+              U.S. Department of Agriculture (USDA) civil rights regulations and policies, this institution
+              is prohibited from discriminating on the basis of race, color, national origin, sex (including
+              gender identity and sexual orientation), disability, age, or reprisal or retaliation for prior
+              civil rights activity. To file a program complaint of discrimination, complete the USDA
+              Program Discrimination Complaint Form (AD-3027) online at
+              <em>https://www.usda.gov/oascr/how-to-file-a-program-discrimination-complaint</em>,
+              or write USDA, Office of the Assistant Secretary for Civil Rights, 1400 Independence Avenue SW,
+              Washington, D.C. 20250-9410. This institution is an equal opportunity provider.
+            </p>
+            <p>
+              <strong>Sharing Information with Medicaid / SCHIP:</strong> Unless you complete the optional
+              opt-out in Section C, information from this statement may be shared with Medicaid or SCHIP
+              when requested by Bright from the Start or USDA.
+            </p>
+            <p class="hint">Source: Georgia Bright from the Start / USDA CACFP Meal Benefit IES package.</p>
+          </div>
+          <p class="hint">Section A is for reading only — no signature or fields to complete.</p>
+        </fieldset>
+
+        <fieldset class="ies-section" data-ies-section="B">
+          <legend>
+            <span class="section-badge">B</span>
+            Section B — Income Eligibility Statement
+            <span class="pill-req">Required · all age groups</span>
+          </legend>
+
+          <p class="subhead">Part I — Child(ren) enrolled</p>
           <div class="repeat-block">
             <div class="grid-2">
-              <label><span data-i18n="childNameLastFirst">Child name (Last, First, M.I.)</span> <input name="iesChild1" required /></label>
-              <label><span data-i18n="dob">Date of birth</span> <input type="date" name="iesDob1" /></label>
+              <label><span data-i18n="childNameLastFirst">Child name (Last, First, M.I.)</span> <input name="iesChild1" id="iesChild1" required /></label>
+              <label><span data-i18n="dob">Date of birth</span> <input type="date" name="iesDob1" id="iesDob1" required /></label>
             </div>
-            <label><span data-i18n="caseNumber">SNAP / TANF / FDPIR case # (if any)</span> <input name="iesCase1" /></label>
+            <label><span data-i18n="caseNumber">SNAP / TANF / FDPIR case # (if any — skip Part II income if listed)</span> <input name="iesCase1" /></label>
+            <div class="chip-group">
+              <label class="chip"><input type="checkbox" name="iesFoster" /> Foster</label>
+              <label class="chip"><input type="checkbox" name="iesHeadStart" /> Head Start</label>
+              <label class="chip"><input type="checkbox" name="iesHomeless" /> Homeless / Migrant / Runaway</label>
+            </div>
           </div>
-        </fieldset>
 
-        <fieldset>
-          <legend data-i18n="iesPart2">Part II — Household income</legend>
-          <label><span data-i18n="childIncome">Total child income / how often</span> <input name="iesChildIncome" placeholder="$0 / monthly" /></label>
+          <p class="subhead">Part II — Household income <span class="hint">(required unless categorically eligible above)</span></p>
+          <label><span data-i18n="childIncome">A. Total child income / how often</span> <input name="iesChildIncome" placeholder="$0 / monthly" /></label>
+          <p class="hint">B. List each adult household member and gross income (before taxes). Enter 0 if none.</p>
           <div class="income-row">
-            <label><span data-i18n="hhMember">Household member</span> <input name="iesAdult1" /></label>
-            <label><span data-i18n="earnings">Earnings from work</span> <input name="iesEarn1" /></label>
-            <label><span data-i18n="otherIncome">Other income</span> <input name="iesOther1" /></label>
+            <label><span data-i18n="hhMember">Household member</span> <input name="iesAdult1" required /></label>
+            <label><span data-i18n="earnings">Earnings from work</span> <input name="iesEarn1" required /></label>
+            <label>Welfare / child support <input name="iesWelfare1" placeholder="$0" /></label>
+          </div>
+          <div class="income-row">
+            <label>Social Security / pensions <input name="iesSs1" placeholder="$0" /></label>
+            <label><span data-i18n="otherIncome">Other income</span> <input name="iesOther1" placeholder="$0" /></label>
+            <label>How often <input name="iesOften1" placeholder="monthly" /></label>
           </div>
           <div class="grid-2">
-            <label><span data-i18n="hhSize">Total household members</span> <input type="number" name="iesHhSize" min="1" /></label>
-            <label><span data-i18n="ssn4">Last 4 of SSN</span> <input name="iesSsn4" maxlength="4" /></label>
+            <label><span data-i18n="hhSize">C. Total household members</span> <input type="number" name="iesHhSize" min="1" required /></label>
+            <label><span data-i18n="ssn4">Last 4 of adult signer SSN</span> <input name="iesSsn4" maxlength="4" pattern="[0-9]{4}" /></label>
           </div>
-        </fieldset>
+          <label class="check"><input type="checkbox" name="iesNoSsn" /> I do not have a Social Security Number</label>
 
-        <fieldset>
-          <legend data-i18n="iesPart3">Part III — Enrollment / meals</legend>
+          <p class="subhead">Part III — Enrollment / meals</p>
           <div class="grid-2">
-            <label><span data-i18n="careFrom">Normally in care from</span> <input type="time" name="iesCareFrom" /></label>
-            <label><span data-i18n="hoursTo">To</span> <input type="time" name="iesCareTo" /></label>
+            <label><span data-i18n="careFrom">Normally in care from</span> <input type="time" name="iesCareFrom" required /></label>
+            <label><span data-i18n="hoursTo">To</span> <input type="time" name="iesCareTo" required /></label>
           </div>
           <p class="subhead" data-i18n="days">Days</p>
           <div class="chip-group">
@@ -468,23 +531,81 @@
             <label class="chip"><input type="checkbox" name="iesMealL" /> Lunch</label>
             <label class="chip"><input type="checkbox" name="iesMealP" /> PM Snack</label>
           </div>
-        </fieldset>
 
-        <fieldset>
-          <legend data-i18n="iesPart4">Part IV — Certification</legend>
-          <p class="hint" data-i18n="iesCert">I certify that all information is true and all income is reported. CACFP officials may verify this information.</p>
+          <p class="subhead">Part IV — Certification</p>
+          <div class="scroll-terms">
+            <p>
+              I certify that all information on this form is true and that all income is reported. I understand
+              that this information is being given for the receipt of Federal funds, that CACFP officials may
+              verify the information, and that deliberate misrepresentation may subject me to prosecution under
+              applicable State and Federal criminal laws. This signature also acknowledges that the child(ren)
+              listed are enrolled for care. If not completed fully and signed, the participant will be placed in
+              the Paid category.
+            </p>
+          </div>
+          <label class="check"><input type="checkbox" name="iesCertAgree" required /> I have read and agree to the certification above.</label>
           <div class="grid-2">
             <label><span data-i18n="printedName">Printed name</span> <input name="iesPrint" required /></label>
-            <label><span data-i18n="date">Date</span> <input type="date" name="iesDate" /></label>
+            <label><span data-i18n="date">Date</span> <input type="date" name="iesDate" required /></label>
           </div>
           <label><span data-i18n="signature">Signature</span> <input name="iesSignature" class="signature" required /></label>
-          <label><span data-i18n="address">Address</span> <input name="iesAddress" /></label>
+          <label><span data-i18n="address">Address</span> <input name="iesAddress" required /></label>
           <div class="grid-3">
-            <label><span data-i18n="city">City</span> <input name="iesCity" /></label>
-            <label><span data-i18n="state">State</span> <input name="iesState" maxlength="2" /></label>
-            <label>ZIP <input name="iesZip" /></label>
+            <label><span data-i18n="city">City</span> <input name="iesCity" required /></label>
+            <label><span data-i18n="state">State</span> <input name="iesState" maxlength="2" required /></label>
+            <label>ZIP <input name="iesZip" required /></label>
           </div>
-          <label><span data-i18n="phone">Phone</span> <input type="tel" name="iesPhone" /></label>
+          <label><span data-i18n="phone">Phone</span> <input type="tel" name="iesPhone" required /></label>
+        </fieldset>
+
+        <fieldset class="ies-section" data-ies-section="C">
+          <legend>
+            <span class="section-badge">C</span>
+            Section C — Medicaid / SCHIP sharing
+            <span class="pill-muted">Optional</span>
+          </legend>
+          <p class="hint">
+            Complete this section only if you do <strong>not</strong> want your information shared with
+            Medicaid or SCHIP. It is okay to leave Section C blank.
+          </p>
+          <label class="check"><input type="checkbox" name="iesChipOptOut" /> Do not share my child’s meal benefit information with Medicaid or SCHIP.</label>
+          <div class="grid-2">
+            <label>Parent / guardian name (optional) <input name="iesChipName" /></label>
+            <label>Date (optional) <input type="date" name="iesChipDate" /></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="ies-section" data-ies-section="D" id="iesSectionD">
+          <legend>
+            <span class="section-badge">D</span>
+            Section D — Infant affidavit (Little Angels)
+            <span class="pill-req" id="iesSectionDPill">Required for Little Angels (6 weeks–12 months)</span>
+          </legend>
+          <p class="hint" id="iesSectionDHint">
+            Required when the child is enrolled in Little Angels (6 weeks to 12 months). Hidden unless that program is selected.
+          </p>
+          <div id="iesSectionDBody">
+            <p>
+              As a CACFP participant, this center must offer meals to all enrolled infants and provide at least
+              one iron-fortified infant formula and iron-fortified infant cereal.
+            </p>
+            <div class="grid-2">
+              <label>Infant name <input name="iesInfantName" id="iesInfantName" /></label>
+              <label>Infant date of birth <input type="date" name="iesInfantDob" id="iesInfantDob" /></label>
+            </div>
+            <label>Parent / guardian name <input name="iesInfantParent" id="iesInfantParent" /></label>
+            <p class="subhead">Milk / formula choice</p>
+            <label class="check"><input type="radio" name="iesInfantMilk" value="breast" /> I will provide breast milk</label>
+            <label class="check"><input type="radio" name="iesInfantMilk" value="center_formula" /> I accept the center’s iron-fortified formula</label>
+            <label class="check"><input type="radio" name="iesInfantMilk" value="parent_formula" /> I will provide my own iron-fortified formula</label>
+            <label>Formula brand (if parent-provided) <input name="iesInfantFormulaBrand" placeholder="Brand name" /></label>
+            <label class="check"><input type="checkbox" name="iesInfantCereal" id="iesInfantCereal" /> I understand the center provides iron-fortified infant cereal and infant foods as age-appropriate.</label>
+            <label class="check"><input type="checkbox" name="iesInfantAgree" id="iesInfantAgree" /> I have read and agree to this infant feeding affidavit.</label>
+            <div class="grid-2">
+              <label>Parent signature <input name="iesInfantSignature" id="iesInfantSignature" class="signature" /></label>
+              <label>Date <input type="date" name="iesInfantDate" id="iesInfantDate" /></label>
+            </div>
+          </div>
         </fieldset>
 
         <div class="form-actions">
@@ -534,26 +655,59 @@
           <a href="#packet" class="back" data-nav="packet" data-i18n="backPacket">← Back to packet</a>
           <p class="eyebrow">Documents</p>
           <h2>Required uploads</h2>
-          <p class="section-lead">Required items from Parent Handbook 2026 enrollment checklist (plus IDs). Optional slots stay available if the center requests them.</p>
+          <p class="section-lead">
+            Required for each child: parent SSN document(s) (1 or 2), child SSN document, birth certificate,
+            immunization / shot records, and proof of GA residency for any one parent. Staff can add any
+            missing document later from the Staff view.
+          </p>
         </div>
         <fieldset>
-          <legend>Files</legend>
-          <label>Birth certificate <input type="file" name="upBirth" accept=".pdf,image/*" /></label>
-          <label>GA immunization Form 3231 <input type="file" name="upShots" accept=".pdf,image/*" /></label>
-          <label>Child Health Form (licensed physician) <input type="file" name="upHealth" accept=".pdf,image/*" /></label>
-          <label>Parent / guardian photo ID(s) <input type="file" name="upParentId" accept=".pdf,image/*" multiple /></label>
-          <label>Photo / Video Permission Form <input type="file" name="upPhoto" accept=".pdf,image/*" /></label>
-          <label>Custody documentation (if applicable) <input type="file" name="upCustody" accept=".pdf,image/*" /></label>
-          <label>CAPS documentation (if applicable) <input type="file" name="upCaps" accept=".pdf,image/*" /></label>
-          <label>Child SSN document (optional) <input type="file" name="upChildSsn" accept=".pdf,image/*" /></label>
-          <label>Parent SSN document (optional) <input type="file" name="upParentSsn" accept=".pdf,image/*" /></label>
-          <label class="check"><input type="checkbox" name="upConfirm" required /> I confirm these documents are accurate and complete for enrollment review.</label>
+          <legend>Required for enrollment</legend>
+          <div id="uploadSlots" class="upload-slots"></div>
+          <label class="check"><input type="checkbox" name="upConfirm" required /> I confirm these documents are accurate and complete for enrollment review (or will be completed by staff later).</label>
+        </fieldset>
+        <fieldset>
+          <legend>Optional / if applicable</legend>
+          <div id="uploadSlotsOptional" class="upload-slots"></div>
         </fieldset>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary" data-i18n="saveComplete">Save &amp; mark complete</button>
           <a href="#done" class="btn btn-secondary" data-nav="done" data-i18n="finishPacket">Finish packet →</a>
         </div>
       </form>
+    </section>
+
+    <section id="view-staff" class="view">
+      <div class="staff-panel form-shell">
+        <div class="page-head">
+          <a href="#home" class="back" data-nav="home">← Back to home</a>
+          <p class="eyebrow">Center operations</p>
+          <h2>Staff · packet documents</h2>
+          <p class="section-lead">
+            Review document status for the current packet and upload any missing files at a later date.
+            Uploads are saved to this packet (demo stores file names in this browser).
+          </p>
+        </div>
+        <div id="staffDocStatus" class="staff-doc-status"></div>
+        <fieldset>
+          <legend>Upload missing document to packet</legend>
+          <div class="grid-2">
+            <label>
+              Document type
+              <select id="staffDocType"></select>
+            </label>
+            <label>
+              File
+              <input type="file" id="staffDocFile" accept=".pdf,image/*" />
+            </label>
+          </div>
+          <label>Staff note (optional) <input type="text" id="staffDocNote" placeholder="e.g. Received at front desk 8/11" /></label>
+          <div class="form-actions">
+            <button type="button" class="btn btn-primary" id="staffUploadBtn">Add to packet</button>
+          </div>
+        </fieldset>
+        <div id="staffUploadLog" class="upload-log"></div>
+      </div>
     </section>
 
     <section id="view-done" class="view">

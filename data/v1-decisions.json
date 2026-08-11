@@ -5,7 +5,7 @@
     "5_docusign": "yes",
     "3_smarr_valdosta_hours": "written Mon–Fri 6:30AM–5:30PM (match Savannah/Dawsonville)",
     "2_owner_cc": "waiting — using lpatel@angellearningcenter.com until confirmed",
-    "4_ssn_policy": "waiting — no SSN text fields; optional document uploads only"
+    "4_ssn_policy": "resolved — no SSN text fields; required uploads: parent SSN (1–2), child SSN, birth cert, shots, GA residency; staff may upload missing docs later"
   },
   "rest_resolved": {
     "1_dawsonville_inbox": "using dawsonville@ (fixed spelling from dawnsonville@)",

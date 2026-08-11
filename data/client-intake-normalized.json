@@ -89,13 +89,20 @@
       "birth_cert"
     ],
     "uploads": [
+      "parent_ssn_1_or_2",
       "child_ssn",
       "birth_certificate",
-      "ga_parent_ids",
-      "parent_ssn",
-      "ga_shot_records"
+      "immunization_shot_records",
+      "ga_residency_any_one_parent"
     ],
-    "notes": "SSN may still be paper-only for typed fields, but notes also ask for SSN uploads — clarify with Laukik."
+    "iesSections": {
+      "A": "read_only_letter_and_terms",
+      "B": "required_every_age_group",
+      "C": "optional_medicaid_schip",
+      "D": "required_little_angels_6w_12m_infant_affidavit"
+    },
+    "staffLateUploads": true,
+    "notes": "Sash K 2026-08-10: IES A read-only; B all ages; C optional; D Little Angels. Required uploads include parent/child SSN docs, birth cert, shots, GA residency. Staff can upload missing docs later."
   },
   "transport": {
     "locations": ["savannah", "dawsonville", "smarr", "valdosta"],
@@ -133,7 +140,6 @@
     "Confirm Dawsonville inbox spelling: dawnsonville@ vs dawsonville@",
     "Confirm owner CC: lpatel@angelearningcenter.com vs lpatel@angellearningcenter.com",
     "Smarr / Valdosta hours not listed — get or omit",
-    "SSN: paper_only vs upload of child/parent SSN documents — reconcile",
     "DocuSign account ownership / sender",
     "Per-school AM/PM times and miles still incomplete",
     "Handbook file / version to attach or link",

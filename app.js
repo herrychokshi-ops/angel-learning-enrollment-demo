@@ -60,12 +60,34 @@ const ALL_FORMS = [
     id: "uploads",
     num: "07",
     title: "Documents",
-    blurb: "Birth certificate, shots, IDs, optional SSN docs",
+    blurb: "SSNs, birth certificate, shots, GA residency",
     titleEs: "Documentos",
-    blurbEs: "Acta, vacunas, IDs",
+    blurbEs: "SSN, acta, vacunas, residencia GA",
     always: true,
   },
 ];
+
+function needsLittleAngels() {
+  return selectedPrograms().includes("little_angels");
+}
+
+function uploadDefs() {
+  return CFG.uploads || [];
+}
+
+function requiredUploads() {
+  return uploadDefs().filter((u) => u.required);
+}
+
+function optionalUploads() {
+  return uploadDefs().filter((u) => !u.required);
+}
+
+function ensureUploadState() {
+  if (!state.data.uploads) state.data.uploads = {};
+  if (!state.data.uploads.files) state.data.uploads.files = {};
+  if (!state.data.uploads.staffLog) state.data.uploads.staffLog = [];
+}
 
 function buildLocationsFromConfig() {
   const schools = CFG.transport?.schools || {};
@@ -337,15 +359,218 @@ function initProgramChips() {
 
   const sync = () => {
     const ids = [...box.querySelectorAll("input[data-program]:checked")].map((el) => el.dataset.program);
+    updateIesSectionD();
     if (hidden) hidden.value = ids.join(",");
     if (!state.data.enrollment) state.data.enrollment = {};
     state.data.enrollment.programs = ids;
     saveState(state);
     renderLists();
     updateTransportVisibility();
+    updateIesSectionD();
   };
   box.addEventListener("change", sync);
   sync();
+}
+
+function updateIesSectionD() {
+  const section = document.getElementById("iesSectionD");
+  const body = document.getElementById("iesSectionDBody");
+  const hint = document.getElementById("iesSectionDHint");
+  const pill = document.getElementById("iesSectionDPill");
+  if (!section || !body) return;
+  const needed = needsLittleAngels();
+  section.classList.toggle("is-required", needed);
+  section.classList.toggle("is-skipped", !needed);
+  body.hidden = !needed;
+  if (hint) {
+    hint.textContent = needed
+      ? "Little Angels selected — complete the infant affidavit below."
+      : "Not required unless Little Angels (6 weeks–12 months) is selected on Enrollment.";
+  }
+  if (pill) {
+    pill.textContent = needed
+      ? "Required for Little Angels"
+      : "Only if Little Angels";
+    pill.className = needed ? "pill-req" : "pill-muted";
+  }
+  const requiredIds = [
+    "iesInfantName",
+    "iesInfantDob",
+    "iesInfantParent",
+    "iesInfantAgree",
+    "iesInfantSignature",
+    "iesInfantDate",
+  ];
+  requiredIds.forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (needed) el.setAttribute("required", "");
+    else el.removeAttribute("required");
+  });
+  const milkRadios = document.querySelectorAll('input[name="iesInfantMilk"]');
+  milkRadios.forEach((r) => {
+    if (needed) r.setAttribute("required", "");
+    else r.removeAttribute("required");
+  });
+}
+
+function fileMetaFromInput(input) {
+  if (!input?.files?.length) return null;
+  return [...input.files].map((f) => ({
+    name: f.name,
+    size: f.size,
+    type: f.type,
+    uploadedAt: new Date().toISOString(),
+    uploadedBy: "parent",
+  }));
+}
+
+function renderUploadSlots() {
+  const reqBox = document.getElementById("uploadSlots");
+  const optBox = document.getElementById("uploadSlotsOptional");
+  if (!reqBox || !optBox) return;
+  ensureUploadState();
+  const files = state.data.uploads.files || {};
+
+  const makeRow = (def) => {
+    const saved = files[def.id];
+    const status = saved?.length
+      ? `<span class="upload-status done">On file: ${saved.map((f) => f.name).join(", ")}</span>`
+      : def.required
+        ? `<span class="upload-status todo">Required</span>`
+        : `<span class="upload-status">Optional</span>`;
+    return `
+      <div class="upload-row" data-upload-id="${def.id}">
+        <div class="upload-row-head">
+          <strong>${def.label}${def.required ? " *" : ""}</strong>
+          ${status}
+        </div>
+        ${def.note ? `<p class="hint">${def.note}</p>` : ""}
+        <label class="upload-file-label">
+          <span>Choose file${def.multiple ? "(s)" : ""}</span>
+          <input type="file" name="up_${def.id}" data-upload-id="${def.id}" accept=".pdf,image/*" ${
+            def.multiple ? "multiple" : ""
+          } />
+        </label>
+      </div>`;
+  };
+
+  reqBox.innerHTML = requiredUploads().map(makeRow).join("");
+  optBox.innerHTML = optionalUploads().map(makeRow).join("");
+
+  document.querySelectorAll("#view-uploads input[type=file][data-upload-id]").forEach((input) => {
+    input.addEventListener("change", () => {
+      ensureUploadState();
+      const id = input.dataset.uploadId;
+      const meta = fileMetaFromInput(input);
+      if (meta) {
+        state.data.uploads.files[id] = meta;
+        saveState(state);
+        renderUploadSlots();
+        renderStaffDocs();
+      }
+    });
+  });
+}
+
+function renderStaffDocs() {
+  const statusBox = document.getElementById("staffDocStatus");
+  const typeSel = document.getElementById("staffDocType");
+  const logBox = document.getElementById("staffUploadLog");
+  if (!statusBox || !typeSel) return;
+  ensureUploadState();
+  const files = state.data.uploads.files || {};
+
+  statusBox.innerHTML = uploadDefs()
+    .map((def) => {
+      const saved = files[def.id] || [];
+      const ok = saved.length > 0;
+      return `
+        <div class="staff-doc-row ${ok ? "ok" : def.required ? "missing" : ""}">
+          <strong>${def.label}</strong>
+          <span>${
+            ok
+              ? saved
+                  .map(
+                    (f) =>
+                      `${f.name} <small>(${f.uploadedBy || "parent"}${
+                        f.note ? " · " + f.note : ""
+                      })</small>`
+                  )
+                  .join("<br>")
+              : def.required
+                ? "Missing — staff can upload"
+                : "Not provided"
+          }</span>
+        </div>`;
+    })
+    .join("");
+
+  if (!typeSel.dataset.bound) {
+    typeSel.innerHTML = uploadDefs()
+      .map((d) => `<option value="${d.id}">${d.label}${d.required ? " *" : ""}</option>`)
+      .join("");
+    typeSel.dataset.bound = "1";
+  }
+
+  const log = state.data.uploads.staffLog || [];
+  if (logBox) {
+    logBox.innerHTML = log.length
+      ? `<h3>Staff upload history</h3><ul>${log
+          .map(
+            (e) =>
+              `<li><strong>${e.label}</strong> — ${e.name} <small>${new Date(
+                e.uploadedAt
+              ).toLocaleString()}${e.note ? " · " + e.note : ""}</small></li>`
+          )
+          .join("")}</ul>`
+      : `<p class="hint">No staff uploads yet for this packet.</p>`;
+  }
+}
+
+function initStaffUpload() {
+  const btn = document.getElementById("staffUploadBtn");
+  if (!btn || btn.dataset.bound) return;
+  btn.dataset.bound = "1";
+  btn.addEventListener("click", () => {
+    const typeSel = document.getElementById("staffDocType");
+    const fileInput = document.getElementById("staffDocFile");
+    const noteEl = document.getElementById("staffDocNote");
+    const def = uploadDefs().find((d) => d.id === typeSel?.value);
+    if (!def) return;
+    if (!fileInput?.files?.length) {
+      showToast("Choose a file to upload");
+      return;
+    }
+    ensureUploadState();
+    const meta = fileMetaFromInput(fileInput).map((m) => ({
+      ...m,
+      uploadedBy: "staff",
+      note: (noteEl?.value || "").trim(),
+    }));
+    const prev = state.data.uploads.files[def.id] || [];
+    state.data.uploads.files[def.id] = def.multiple ? [...prev, ...meta] : meta;
+    state.data.uploads.staffLog = [
+      ...(state.data.uploads.staffLog || []),
+      ...meta.map((m) => ({
+        id: def.id,
+        label: def.label,
+        name: m.name,
+        uploadedAt: m.uploadedAt,
+        note: m.note,
+      })),
+    ];
+    // If all required docs present, mark uploads complete
+    const allReq = requiredUploads().every((u) => (state.data.uploads.files[u.id] || []).length);
+    if (allReq) state.completed.uploads = true;
+    saveState(state);
+    fileInput.value = "";
+    if (noteEl) noteEl.value = "";
+    renderUploadSlots();
+    renderStaffDocs();
+    renderLists();
+    showToast("Document added to packet");
+  });
 }
 
 function updateTransportVisibility() {
@@ -682,7 +907,10 @@ const SAMPLE = {
     iesChildIncome: "$0 / monthly",
     iesAdult1: "Sofia Rivera",
     iesEarn1: "$4200 / monthly",
+    iesWelfare1: "$0",
+    iesSs1: "$0",
     iesOther1: "$0",
+    iesOften1: "monthly",
     iesHhSize: "3",
     iesSsn4: "7712",
     iesCareFrom: "07:00",
@@ -695,6 +923,7 @@ const SAMPLE = {
     iesMealB: true,
     iesMealL: true,
     iesMealP: true,
+    iesCertAgree: true,
     iesPrint: "Sofia A. Rivera",
     iesDate: "2026-07-31",
     iesSignature: "Sofia A. Rivera",
@@ -703,6 +932,7 @@ const SAMPLE = {
     iesState: "GA",
     iesZip: "31407",
     iesPhone: "(912) 555-0148",
+    iesChipOptOut: false,
   },
   handbook: {
     hbAgree: true,
@@ -712,6 +942,24 @@ const SAMPLE = {
   },
   uploads: {
     upConfirm: true,
+    files: {
+      parent_ssn_doc: [
+        { name: "sofia-ssn.pdf", size: 120000, type: "application/pdf", uploadedAt: "2026-07-31T12:00:00.000Z", uploadedBy: "parent" },
+      ],
+      child_ssn_doc: [
+        { name: "maya-ssn.pdf", size: 110000, type: "application/pdf", uploadedAt: "2026-07-31T12:00:00.000Z", uploadedBy: "parent" },
+      ],
+      birth_cert: [
+        { name: "maya-birth-cert.pdf", size: 200000, type: "application/pdf", uploadedAt: "2026-07-31T12:00:00.000Z", uploadedBy: "parent" },
+      ],
+      ga_shot_records: [
+        { name: "maya-3231.pdf", size: 180000, type: "application/pdf", uploadedAt: "2026-07-31T12:00:00.000Z", uploadedBy: "parent" },
+      ],
+      ga_residency: [
+        { name: "utility-bill-ga.pdf", size: 90000, type: "application/pdf", uploadedAt: "2026-07-31T12:00:00.000Z", uploadedBy: "parent" },
+      ],
+    },
+    staffLog: [],
   },
 };
 
@@ -747,6 +995,9 @@ function applyI18n() {
   document.getElementById("langEn")?.classList.toggle("active", lang === "en");
   document.getElementById("langEs")?.classList.toggle("active", lang === "es");
   renderLists();
+  updateIesSectionD();
+  renderUploadSlots();
+  renderStaffDocs();
 }
 
 function showToast(message) {
@@ -1002,12 +1253,18 @@ function showView(id) {
   if (viewId === "done") {
     showToast(t("toastSubmitted"));
   }
+  if (viewId === "ies") updateIesSectionD();
+  if (viewId === "uploads") renderUploadSlots();
+  if (viewId === "staff") {
+    initStaffUpload();
+    renderStaffDocs();
+  }
   renderLists();
 }
 
 function navigateFromHash() {
   let id = (location.hash || "#home").slice(1) || "home";
-  if (id === "staff" || id === "auth") id = "home";
+  if (id === "auth") id = "home";
   showView(id);
 }
 
@@ -1046,10 +1303,14 @@ function hydrateForms() {
     const id = form.dataset.form;
     const data = state.data[id] || {};
     Object.entries(data).forEach(([name, value]) => {
+      if (name === "files" || name === "staffLog") return;
       setFieldValue(form.elements.namedItem(name), value);
     });
   });
   hydrateTransportSchools();
+  updateIesSectionD();
+  renderUploadSlots();
+  renderStaffDocs();
 }
 
 function fillFormsFromData(dataset, markComplete) {
@@ -1102,12 +1363,35 @@ function loadSample() {
 document.querySelectorAll("form[data-form]").forEach((form) => {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
+    updateIesSectionD();
     if (!form.checkValidity()) {
       form.reportValidity();
       return;
     }
     const id = form.dataset.form;
+    if (id === "ies" && needsLittleAngels()) {
+      const milk = form.querySelector('input[name="iesInfantMilk"]:checked');
+      if (!milk) {
+        showToast("Section D: choose breast milk or formula option");
+        return;
+      }
+    }
+    if (id === "uploads") {
+      ensureUploadState();
+      const missing = requiredUploads().filter((u) => !(state.data.uploads.files[u.id] || []).length);
+      if (missing.length) {
+        const ok = confirm(
+          `Missing required documents:\n• ${missing.map((m) => m.label).join("\n• ")}\n\nSave anyway? Staff can upload missing files later.`
+        );
+        if (!ok) return;
+      }
+    }
+    const prevUploads = id === "uploads" ? state.data.uploads : null;
     state.data[id] = serializeForm(form);
+    if (id === "uploads" && prevUploads) {
+      state.data.uploads.files = prevUploads.files || {};
+      state.data.uploads.staffLog = prevUploads.staffLog || [];
+    }
     state.completed[id] = true;
     if (id === "enrollment" || id === "financial") {
       applyCarryForward({ force: true });
@@ -1115,6 +1399,7 @@ document.querySelectorAll("form[data-form]").forEach((form) => {
     }
     saveState(state);
     renderLists();
+    renderStaffDocs();
     showToast(
       id === "enrollment"
         ? lang === "es"
@@ -1155,9 +1440,13 @@ window.addEventListener("hashchange", navigateFromHash);
 initLocationUI();
 initProgramChips();
 initSiblingButton();
+initStaffUpload();
 hydrateForms();
 applyI18n();
 navigateFromHash();
 updateTransportVisibility();
+updateIesSectionD();
+renderUploadSlots();
+renderStaffDocs();
 // re-apply location after hydrate may have changed selects
 applyLocation(getSelectedLocationId());

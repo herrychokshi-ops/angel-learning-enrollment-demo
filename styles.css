@@ -814,7 +814,8 @@ input.signature {
   padding-top: 0;
 }
 
-.agreement-box .scroll-terms {
+.agreement-box .scroll-terms,
+.scroll-terms {
   max-height: 150px;
   overflow: auto;
   padding: 0.8rem 1rem;
@@ -825,6 +826,126 @@ input.signature {
   font-size: 0.9rem;
   color: var(--ink-soft);
   font-weight: 500;
+}
+
+.ies-terms {
+  max-height: 220px;
+}
+
+.ies-section {
+  position: relative;
+}
+
+.ies-section legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.6rem;
+}
+
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 999px;
+  background: var(--navy);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.pill-req,
+.pill-muted {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+.pill-req {
+  background: rgba(0, 158, 74, 0.14);
+  color: var(--green);
+}
+
+.pill-muted {
+  background: rgba(114, 127, 159, 0.16);
+  color: var(--muted);
+}
+
+.ies-section.is-skipped #iesSectionDBody {
+  display: none;
+}
+
+.upload-slots {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.upload-row {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.upload-row-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: baseline;
+  margin-bottom: 0.35rem;
+}
+
+.upload-status {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.upload-status.done { color: var(--green); }
+.upload-status.todo { color: var(--orange); }
+
+.upload-file-label {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.35rem 0 0;
+  font-size: 0.88rem;
+}
+
+.staff-panel { margin: 1.25rem auto; max-width: 820px; }
+
+.staff-doc-status {
+  display: grid;
+  gap: 0.55rem;
+  margin-bottom: 1.25rem;
+}
+
+.staff-doc-row {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.staff-doc-row.ok { border-color: rgba(0, 158, 74, 0.35); background: rgba(0, 158, 74, 0.06); }
+.staff-doc-row.missing { border-color: rgba(239, 143, 32, 0.45); background: rgba(239, 143, 32, 0.08); }
+
+.upload-log {
+  margin-top: 1rem;
+  font-size: 0.92rem;
+}
+
+.upload-log ul {
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
 }
 
 .route-options {

@@ -151,14 +151,35 @@ window.ALC_CONFIG = {
   },
 
   uploads: [
-    { id: "birth_cert", label: "Birth certificate", required: true },
-    { id: "ga_shot_records", label: "GA immunization Form 3231", required: true },
-    { id: "ga_parent_ids", label: "Parent / guardian photo IDs (GA)", required: true },
-    { id: "health_form", label: "Child Health Form (physician)", required: true },
-    { id: "photo_release", label: "Photo / Video Permission Form", required: true, note: "Listed in handbook enrollment requirements" },
+    {
+      id: "parent_ssn_doc",
+      label: "Parent / guardian SSN document (1 or 2 parents)",
+      required: true,
+      multiple: true,
+      note: "SSN card or letter for each parent on the packet",
+    },
+    {
+      id: "child_ssn_doc",
+      label: "Child SSN document",
+      required: true,
+      note: "Required for each child on the packet",
+    },
+    { id: "birth_cert", label: "Birth certificate of the child", required: true },
+    {
+      id: "ga_shot_records",
+      label: "Immunization / shot records (GA Form 3231)",
+      required: true,
+    },
+    {
+      id: "ga_residency",
+      label: "Proof of GA residency (any one parent)",
+      required: true,
+      note: "Utility bill, lease, or other GA residency proof",
+    },
+    { id: "ga_parent_ids", label: "Parent / guardian photo ID(s)", required: false },
+    { id: "health_form", label: "Child Health Form (physician)", required: false },
+    { id: "photo_release", label: "Photo / Video Permission Form", required: false },
     { id: "custody", label: "Custody documentation (if applicable)", required: false },
-    { id: "child_ssn_doc", label: "Child SSN document (card/letter)", required: false, pendingPolicy: true },
-    { id: "parent_ssn_doc", label: "Parent SSN document", required: false, pendingPolicy: true },
     { id: "caps", label: "CAPS documentation (if applicable)", required: false },
   ],
 
@@ -203,7 +224,6 @@ window.ALC_CONFIG = {
   open: {
     waiting: [
       "Owner CC exact address (typed angelearningcenter typo?)",
-      "SSN: upload required vs paper-only at center",
     ],
     resolved: {
       docusign: "yes",
@@ -214,6 +234,12 @@ window.ALC_CONFIG = {
       dawsonvilleInbox: "using dawsonville@ (corrected spelling from dawnsonville@)",
       schoolTimes: "parent enters pickup times until center defaults provided",
       handbook: "acknowledgment form until official PDF provided",
+      ssnPolicy: "no typed SSN fields; required document uploads for parent(s) and child",
+      iesSections:
+        "A read-only letter/T&Cs; B required all ages; C Medicaid/SCHIP optional; D infant affidavit required for Little Angels",
+      requiredDocs:
+        "parent SSN (1–2), child SSN, birth certificate, immunization/shots, GA residency proof",
+      staffLateUploads: "staff can attach missing docs to packet later",
     },
   },
 };
