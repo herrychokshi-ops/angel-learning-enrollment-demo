@@ -146,7 +146,7 @@ window.ALC_CONFIG = {
   },
 
   forms: {
-    core: ["enrollment", "financial", "transport", "emergency", "ies", "handbook", "uploads"],
+    core: ["enrollment", "financial", "transport", "emergency", "ies", "handbook", "photo", "uploads"],
     // transport is required only when program.transport === true
   },
 
@@ -176,9 +176,20 @@ window.ALC_CONFIG = {
       required: true,
       note: "Utility bill, lease, or other GA residency proof",
     },
-    { id: "ga_parent_ids", label: "Parent / guardian photo ID(s)", required: false },
+    {
+      id: "ga_parent_ids",
+      label: "Parent / guardian photo ID(s)",
+      required: true,
+      multiple: true,
+      note: "Required — government photo ID for parent(s)",
+    },
+    {
+      id: "completed_ies",
+      label: "Completed Meal Benefit (IES) form",
+      required: true,
+      note: "Download/print from the Meal Benefit step, complete on the official form, then upload here",
+    },
     { id: "health_form", label: "Child Health Form (physician)", required: false },
-    { id: "photo_release", label: "Photo / Video Permission Form", required: false },
     { id: "custody", label: "Custody documentation (if applicable)", required: false },
     { id: "caps", label: "CAPS documentation (if applicable)", required: false },
   ],

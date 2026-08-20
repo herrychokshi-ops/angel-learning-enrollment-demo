@@ -1113,12 +1113,50 @@ input.signature {
 
 @media print {
   .demo-banner,
+  .topbar,
   .top-nav,
   .form-actions,
   .back,
   .btn,
-  .lang-toggle { display: none !important; }
-  body { background: #fff; }
-  .view { display: block !important; break-inside: avoid; }
-  .form-shell { box-shadow: none; border: none; }
+  .lang-toggle,
+  .hero-cta,
+  .location-grid,
+  .pdf-actions,
+  .site-footer,
+  #authScreen,
+  .toast {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  .app-shell {
+    display: block !important;
+  }
+  /* Only print the active view — avoids 30+ empty pages */
+  .view {
+    display: none !important;
+  }
+  .view.is-active {
+    display: block !important;
+    break-inside: avoid;
+  }
+  .form-shell,
+  .done-panel,
+  .staff-panel {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+  }
+  .scroll-terms,
+  .legal-terms-full,
+  .ies-terms {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .brand-logo,
+  .auth-logo,
+  .site-footer img {
+    max-height: 48px !important;
+  }
 }

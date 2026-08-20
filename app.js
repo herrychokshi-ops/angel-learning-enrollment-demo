@@ -41,10 +41,10 @@ const ALL_FORMS = [
   {
     id: "ies",
     num: "05",
-    title: "CACFP Meal Benefit (IES)",
-    blurb: "Income eligibility statement for 2026–2027",
-    titleEs: "Beneficios de comidas CACFP (IES)",
-    blurbEs: "Declaración de elegibilidad 2026–2027",
+    title: "Meal Benefit Form (IES)",
+    blurb: "Download official CACFP form → upload completed copy",
+    titleEs: "Formulario de comidas (IES)",
+    blurbEs: "Descargar formulario oficial CACFP",
     always: true,
   },
   {
@@ -57,12 +57,21 @@ const ALL_FORMS = [
     always: true,
   },
   {
-    id: "uploads",
+    id: "photo",
     num: "07",
+    title: "Photo / Video Permission",
+    blurb: "Required signed permission form",
+    titleEs: "Permiso de foto / video",
+    blurbEs: "Formulario de permiso firmado",
+    always: true,
+  },
+  {
+    id: "uploads",
+    num: "08",
     title: "Documents",
-    blurb: "SSNs, birth certificate, shots, GA residency",
+    blurb: "SSNs, IDs, birth cert, shots, residency, completed IES",
     titleEs: "Documentos",
-    blurbEs: "SSN, acta, vacunas, residencia GA",
+    blurbEs: "SSN, IDs, acta, vacunas, IES",
     always: true,
   },
 ];
@@ -366,7 +375,7 @@ function initProgramChips() {
     saveState(state);
     renderLists();
     updateTransportVisibility();
-    updateIesSectionD();
+    if (document.getElementById("iesSectionD")) updateIesSectionD();
   };
   box.addEventListener("change", sync);
   sync();
@@ -575,10 +584,12 @@ function initStaffUpload() {
 
 function updateTransportVisibility() {
   const show = needsTransportForm();
-  document.querySelectorAll('[data-nav="transport"], a[href="#transport"]').forEach((el) => {
+  // Hide transport only in nav/checklist links that still target transport — not retargeted next buttons
+  document.querySelectorAll('a[href="#transport"], [data-nav="transport"]').forEach((el) => {
+    if (el.id === "financialNextBtn") return;
     el.style.display = show ? "" : "none";
   });
-  const nextOnFin = document.querySelector('#view-financial a[data-nav="transport"], #view-financial a[href="#transport"]');
+  const nextOnFin = document.getElementById("financialNextBtn");
   if (nextOnFin) {
     if (show) {
       nextOnFin.setAttribute("href", "#transport");
@@ -589,9 +600,7 @@ function updateTransportVisibility() {
       nextOnFin.dataset.nav = "emergency";
       nextOnFin.textContent = t("nextEmergency") || "Next: Emergency form →";
     }
-  }
-  if (!show && state.completed.transport) {
-    // keep completed state; just hide from checklist
+    nextOnFin.style.display = "";
   }
 }
 
@@ -835,12 +844,19 @@ const SAMPLE = {
     dadLast: "Rivera",
     dadCell: "(912) 555-0192",
     dadEmail: "luis.rivera@email.com",
+    dadEmployer: "Gulfstream Aerospace",
+    dadOccupation: "Technician",
     dadCustodial: true,
     ec1Name: "Ana Morales",
     ec1Home: "(912) 555-0177",
     ec1Work: "(912) 555-0178",
     ec1Cell: "(912) 555-0179",
     ec1Rel: "Aunt",
+    ec2Name: "Carlos Vega",
+    ec2Home: "(912) 555-0180",
+    ec2Work: "",
+    ec2Cell: "(912) 555-0181",
+    ec2Rel: "Family friend",
     careFrom: "07:00",
     careTo: "17:00",
     mealBreakfast: true,
@@ -857,6 +873,7 @@ const SAMPLE = {
     rpPhone: "(912) 555-0148",
     rpEmail: "sofia.rivera@email.com",
     rpEmployer: "Memorial Health",
+    rp2Name: "",
     finChildName: "Maya J. Rivera",
     finEnrollDate: "2026-08-10",
     finAgree: true,
@@ -887,8 +904,8 @@ const SAMPLE = {
     emAddress: "412 Magnolia Lane, Savannah, GA 31407",
     emFather: "Luis M. Rivera",
     emMother: "Sofia A. Rivera",
-    emFatherPhones: "(912) 555-0192 · (912) 555-2200",
-    emMotherPhones: "(912) 555-0148 · (912) 555-3300",
+    emFatherCell: "(912) 555-0192",
+    emMotherCell: "(912) 555-0148",
     emAltName: "Ana Morales",
     emAltPhone: "(912) 555-0179",
     emDoctor: "Dr. Elena Brooks",
@@ -902,44 +919,28 @@ const SAMPLE = {
     emSignature: "Sofia A. Rivera",
   },
   ies: {
-    iesChild1: "Rivera, Maya J.",
-    iesDob1: "2019-03-14",
-    iesCase1: "",
-    iesChildIncome: "$0 / monthly",
-    iesAdult1: "Sofia Rivera",
-    iesEarn1: "$4200 / monthly",
-    iesWelfare1: "$0",
-    iesSs1: "$0",
-    iesOther1: "$0",
-    iesOften1: "monthly",
-    iesHhSize: "3",
-    iesSsn4: "7712",
-    iesCareFrom: "07:00",
-    iesCareTo: "17:00",
-    iesMon: true,
-    iesTue: true,
-    iesWed: true,
-    iesThu: true,
-    iesFri: true,
-    iesMealB: true,
-    iesMealL: true,
-    iesMealP: true,
-    iesCertAgree: true,
-    iesPrint: "Sofia A. Rivera",
-    iesDate: "2026-07-31",
-    iesSignature: "Sofia A. Rivera",
-    iesAddress: "412 Magnolia Lane",
-    iesCity: "Savannah",
-    iesState: "GA",
-    iesZip: "31407",
-    iesPhone: "(912) 555-0148",
-    iesChipOptOut: false,
+    iesDownloadAck: true,
+    iesAckPrint: "Sofia A. Rivera",
+    iesAckDate: "2026-07-31",
   },
   handbook: {
     hbAgree: true,
     hbPrint: "Sofia A. Rivera",
     hbDate: "2026-07-31",
     hbSignature: "Sofia A. Rivera",
+    hbChild: "Maya J. Rivera",
+  },
+  photo: {
+    photoClassroom: true,
+    photoFamily: true,
+    photoWeb: false,
+    photoMarketing: false,
+    photoNone: false,
+    photoChild: "Maya J. Rivera",
+    photoAgree: true,
+    photoPrint: "Sofia A. Rivera",
+    photoDate: "2026-07-31",
+    photoSignature: "Sofia A. Rivera",
   },
   uploads: {
     upConfirm: true,
@@ -958,6 +959,12 @@ const SAMPLE = {
       ],
       ga_residency: [
         { name: "utility-bill-ga.pdf", size: 90000, type: "application/pdf", uploadedAt: "2026-07-31T12:00:00.000Z", uploadedBy: "parent" },
+      ],
+      ga_parent_ids: [
+        { name: "sofia-dl.pdf", size: 95000, type: "application/pdf", uploadedAt: "2026-07-31T12:00:00.000Z", uploadedBy: "parent" },
+      ],
+      completed_ies: [
+        { name: "ies-completed.pdf", size: 150000, type: "application/pdf", uploadedAt: "2026-07-31T12:00:00.000Z", uploadedBy: "parent" },
       ],
     },
     staffLog: [],
@@ -996,7 +1003,7 @@ function applyI18n() {
   document.getElementById("langEn")?.classList.toggle("active", lang === "en");
   document.getElementById("langEs")?.classList.toggle("active", lang === "es");
   renderLists();
-  updateIesSectionD();
+  if (document.getElementById("iesSectionD")) updateIesSectionD();
   renderUploadSlots();
   renderStaffDocs();
 }
@@ -1160,29 +1167,21 @@ function carryForwardMap() {
       emAddress: address || en.childAddress || "",
       emFather: dad,
       emMother: mom,
-      emFatherPhones: [en.dadCell].filter(Boolean).join(" · "),
-      emMotherPhones: [en.momCell].filter(Boolean).join(" · "),
+      emFatherCell: en.dadCell || "",
+      emMotherCell: en.momCell || "",
       emSignature: signer,
       emDate: today,
       emFacility: getLocation(en.enLocation || getSelectedLocationId())?.hospital || "",
     },
     ies: {
-      iesChild1: childLf,
-      iesDob1: dob,
-      iesAdult1: signer || mom,
-      iesPrint: signer,
-      iesSignature: signer,
-      iesDate: today,
-      iesAddress: en.childAddress || "",
-      iesCity: en.childCity || "",
-      iesState: en.childCity || en.childZip ? "GA" : "",
-      iesZip: en.childZip || "",
-      iesPhone: phone,
-      iesCareFrom: en.careFrom || "",
-      iesCareTo: en.careTo || "",
-      iesMealB: en.mealBreakfast,
-      iesMealL: en.mealLunch,
-      iesMealP: en.mealSnack,
+      iesAckPrint: signer,
+      iesAckDate: today,
+    },
+    photo: {
+      photoChild: child,
+      photoPrint: signer,
+      photoSignature: signer,
+      photoDate: today,
     },
   };
 }
@@ -1221,7 +1220,7 @@ function applyCarryForward({ force = false, onlyForm = null } = {}) {
 
 function updatePrefillNotice(viewId) {
   document.querySelectorAll(".prefill-notice").forEach((n) => n.remove());
-  if (!["financial", "transport", "emergency", "ies", "handbook"].includes(viewId)) return;
+  if (!["financial", "transport", "emergency", "ies", "handbook", "photo"].includes(viewId)) return;
   const en = state.data.enrollment || {};
   if (!childFullName(en) && !en.momFirst) return;
   const head = document.querySelector(`#view-${viewId} .page-head`);
@@ -1238,7 +1237,7 @@ function updatePrefillNotice(viewId) {
 
 function showView(id) {
   const viewId = id || "home";
-  if (["financial", "transport", "emergency", "ies", "handbook"].includes(viewId)) {
+  if (["financial", "transport", "emergency", "ies", "handbook", "photo"].includes(viewId)) {
     applyCarryForward({ force: false, onlyForm: viewId });
     hydrateForms();
   }
@@ -1254,7 +1253,7 @@ function showView(id) {
   if (viewId === "done") {
     showToast(t("toastSubmitted"));
   }
-  if (viewId === "ies") updateIesSectionD();
+  if (viewId === "ies" && document.getElementById("iesSectionD")) updateIesSectionD();
   if (viewId === "uploads") renderUploadSlots();
   if (viewId === "staff") {
     initStaffUpload();
@@ -1309,7 +1308,7 @@ function hydrateForms() {
     });
   });
   hydrateTransportSchools();
-  updateIesSectionD();
+  if (document.getElementById("iesSectionD")) updateIesSectionD();
   renderUploadSlots();
   renderStaffDocs();
 }
@@ -1364,13 +1363,13 @@ function loadSample() {
 document.querySelectorAll("form[data-form]").forEach((form) => {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    updateIesSectionD();
+    if (document.getElementById("iesSectionD")) updateIesSectionD();
     if (!form.checkValidity()) {
       form.reportValidity();
       return;
     }
     const id = form.dataset.form;
-    if (id === "ies" && needsLittleAngels()) {
+    if (id === "ies" && needsLittleAngels() && document.getElementById("iesInfantAgree")) {
       const milk = form.querySelector('input[name="iesInfantMilk"]:checked');
       if (!milk) {
         showToast("Section D: choose breast milk or formula option");
@@ -1429,21 +1428,25 @@ document.getElementById("loadSamplePacket")?.addEventListener("click", loadSampl
 function downloadPdfBundle(which) {
   try {
     if (typeof window.ALC_generatePdfs !== "function") {
-      showToast("PDF engine not loaded — refresh the page");
+      showToast("PDF engine not loaded — check network / refresh");
+      return;
+    }
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      showToast("jsPDF library missing — refresh and try again");
       return;
     }
     const loc = getLocation(getSelectedLocationId());
-    // freeze programs into enrollment data if only in chips
     if (state.data.enrollment) {
       state.data.enrollment.programs = selectedPrograms();
     }
-    window.ALC_generatePdfs({ state, location: loc, which });
+    const result = window.ALC_generatePdfs({ state, location: loc, which });
+    const n = result?.queued || 1;
     showToast(
       which === "financial"
-        ? "Financial PDF downloaded (full legal text)"
+        ? "Financial PDF downloading…"
         : which === "enrollment"
-          ? "Enrollment PDF downloaded"
-          : "Packet PDFs downloaded"
+          ? "Enrollment PDF downloading…"
+          : `Downloading ${n} packet PDF(s)… (allow multiple downloads if prompted)`
     );
   } catch (err) {
     console.error(err);
@@ -1451,9 +1454,28 @@ function downloadPdfBundle(which) {
   }
 }
 
+function downloadBlankIes() {
+  try {
+    if (typeof window.ALC_generateBlankIesPdf !== "function") {
+      showToast("PDF engine not loaded — refresh the page");
+      return;
+    }
+    window.ALC_generateBlankIesPdf();
+    showToast("Blank IES PDF downloaded — complete offline, then upload in Documents");
+  } catch (err) {
+    console.error(err);
+    showToast("Blank IES download failed");
+  }
+}
+
 document.getElementById("downloadPacketPdfs")?.addEventListener("click", () => downloadPdfBundle("packet"));
 document.getElementById("downloadEnrollmentPdf")?.addEventListener("click", () => downloadPdfBundle("enrollment"));
 document.getElementById("downloadFinancialPdf")?.addEventListener("click", () => downloadPdfBundle("financial"));
+document.getElementById("downloadBlankIes")?.addEventListener("click", downloadBlankIes);
+document.getElementById("printBlankIesPage")?.addEventListener("click", () => {
+  location.hash = "#ies";
+  setTimeout(() => window.print(), 200);
+});
 
 document.getElementById("langEn")?.addEventListener("click", () => {
   lang = "en";
@@ -1475,7 +1497,7 @@ hydrateForms();
 applyI18n();
 navigateFromHash();
 updateTransportVisibility();
-updateIesSectionD();
+if (document.getElementById("iesSectionD")) updateIesSectionD();
 renderUploadSlots();
 renderStaffDocs();
 // re-apply location after hydrate may have changed selects

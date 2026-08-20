@@ -93,11 +93,16 @@
     y = sectionTitle(doc, "Father / guardian", y);
     y = line(doc, "Name", [en.dadFirst, en.dadMI, en.dadLast].filter(Boolean).join(" "), 14, y, 180);
     y = line(doc, "Cell / Email", `${en.dadCell || "—"} / ${en.dadEmail || "—"}`, 14, y, 180);
+    y = line(doc, "Employer / Occupation", `${en.dadEmployer || "—"} / ${en.dadOccupation || "—"}`, 14, y, 180);
     y = line(doc, "Custodial", en.dadCustodial ? "Yes" : "No", 14, y, 180);
     y = ensureSpace(doc, y, 25);
     y = sectionTitle(doc, "Emergency contact 1", y);
     y = line(doc, "Name / Relationship", `${en.ec1Name || "—"} / ${en.ec1Rel || "—"}`, 14, y, 180);
     y = line(doc, "Phones", `H ${en.ec1Home || "—"}  W ${en.ec1Work || "—"}  C ${en.ec1Cell || "—"}`, 14, y, 180);
+    y = ensureSpace(doc, y, 25);
+    y = sectionTitle(doc, "Emergency contact 2", y);
+    y = line(doc, "Name / Relationship", `${en.ec2Name || "—"} / ${en.ec2Rel || "—"}`, 14, y, 180);
+    y = line(doc, "Phones", `H ${en.ec2Home || "—"}  W ${en.ec2Work || "—"}  C ${en.ec2Cell || "—"}`, 14, y, 180);
     y = ensureSpace(doc, y, 25);
     y = sectionTitle(doc, "Care schedule & meals", y);
     y = line(doc, "Hours", `${en.careFrom || "—"} – ${en.careTo || "—"}`, 14, y, 180);
@@ -125,6 +130,16 @@
     y = line(doc, "City/State/ZIP", fin.rpCityStateZip, 14, y, 180);
     y = line(doc, "Phone / Email", `${fin.rpPhone || "—"} / ${fin.rpEmail || "—"}`, 14, y, 180);
     y = line(doc, "Employer", fin.rpEmployer, 14, y, 180);
+    if (fin.rp2Name) {
+      y = ensureSpace(doc, y, 30);
+      y = sectionTitle(doc, "Second responsible party (optional)", y);
+      y = line(doc, "Full legal name", fin.rp2Name, 14, y, 180);
+      y = line(doc, "DOB / DL / State", `${fin.rp2Dob || "—"} / ${fin.rp2Dl || "—"} / ${fin.rp2State || "—"}`, 14, y, 180);
+      y = line(doc, "Address", fin.rp2Address, 14, y, 180);
+      y = line(doc, "City/State/ZIP", fin.rp2CityStateZip, 14, y, 180);
+      y = line(doc, "Phone / Email", `${fin.rp2Phone || "—"} / ${fin.rp2Email || "—"}`, 14, y, 180);
+      y = line(doc, "Employer", fin.rp2Employer, 14, y, 180);
+    }
     y = line(doc, "Child / Enroll date", `${fin.finChildName || "—"} / ${fin.finEnrollDate || "—"}`, 14, y, 180);
     y = ensureSpace(doc, y, 20);
     y = sectionTitle(doc, "Agreement (full text)", y);
@@ -160,8 +175,8 @@
     y = line(doc, "DOB", em.emDob, 14, y, 180);
     y = line(doc, "Address", em.emAddress, 14, y, 180);
     y = line(doc, "Father / Mother", `${em.emFather || "—"} / ${em.emMother || "—"}`, 14, y, 180);
-    y = line(doc, "Father phones", em.emFatherPhones, 14, y, 180);
-    y = line(doc, "Mother phones", em.emMotherPhones, 14, y, 180);
+    y = line(doc, "Father cell", em.emFatherCell || em.emFatherPhones, 14, y, 180);
+    y = line(doc, "Mother cell", em.emMotherCell || em.emMotherPhones, 14, y, 180);
     y = line(doc, "Alt contact", `${em.emAltName || "—"} ${em.emAltPhone || ""}`, 14, y, 180);
     y = line(doc, "Doctor", `${em.emDoctor || "—"} ${em.emDoctorPhone || ""}`, 14, y, 180);
     y = line(doc, "Facility", em.emFacility, 14, y, 180);
@@ -215,28 +230,81 @@
   function iesPdf(data, loc) {
     const ies = data.ies || {};
     const doc = getPdf();
-    let y = header(doc, "CACFP Meal Benefit IES (prefilled summary)", loc);
-    y = line(doc, "Child", `${ies.iesChild1 || "—"} DOB ${ies.iesDob1 || "—"}`, 14, y, 180);
-    y = line(doc, "Case #", ies.iesCase1, 14, y, 180);
-    y = line(doc, "Adult / Earnings", `${ies.iesAdult1 || "—"} / ${ies.iesEarn1 || "—"}`, 14, y, 180);
-    y = line(doc, "HH size / SSN4", `${ies.iesHhSize || "—"} / ${ies.iesSsn4 || "—"}`, 14, y, 180);
-    y = line(doc, "Care hours", `${ies.iesCareFrom || "—"} – ${ies.iesCareTo || "—"}`, 14, y, 180);
+    let y = header(doc, "Meal Benefit Form — acknowledgment (prefilled)", loc);
+    y = line(doc, "Acknowledged download/complete & upload", ies.iesDownloadAck ? "Yes" : "No", 14, y, 180);
+    y = line(doc, "Printed name / Date", `${ies.iesAckPrint || "—"} / ${ies.iesAckDate || "—"}`, 14, y, 180);
+    y = ensureSpace(doc, y, 20);
+    const note = doc.splitTextToSize(
+      "Parent completes the official Georgia CACFP Income Eligibility Statement offline, then uploads the completed form in Documents.",
+      180
+    );
+    doc.text(note, 14, y);
+    footerPage(doc);
+    return doc;
+  }
+
+  function blankIesPdf() {
+    const doc = getPdf();
+    let y = 20;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("CACFP Meal Benefit Income Eligibility Statement", 14, y);
+    y += 8;
+    doc.setFontSize(11);
+    doc.text("Blank worksheet for print / offline completion", 14, y);
+    y += 10;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    const instructions = [
+      "Angel Learning Center requires the official Georgia Bright from the Start / USDA CACFP Meal Benefit Income Eligibility Statement.",
+      "1) Print this cover sheet and complete the official IES form fields on paper (or use the DECAL fillable PDF if available).",
+      "2) Include infant affidavit pages when enrolling Little Angels (6 weeks–12 months).",
+      "3) Upload the completed form in the online Documents step (Completed Meal Benefit / IES).",
+      "Official forms: https://www.decal.ga.gov/BftS/FormList.aspx?cat=CACFP",
+      "",
+      "Child name: ________________________________  DOB: ______________",
+      "Parent / guardian: _______________________________________________",
+      "SNAP / TANF / FDPIR case # (if any): _____________________________",
+      "Household size: ______   Adult signer last 4 SSN: ______",
+      "Care hours: ________ to ________   Days: M T W Th F",
+      "Meals: Breakfast ___  Lunch ___  PM Snack ___",
+      "Signature: _______________________________  Date: ______________",
+    ];
+    instructions.forEach((p) => {
+      if (y > 265) {
+        doc.addPage();
+        y = 20;
+      }
+      const lines = doc.splitTextToSize(p, 180);
+      doc.text(lines, 14, y);
+      y += lines.length * 5 + 3;
+    });
+    return doc;
+  }
+
+  function photoPdf(data, loc) {
+    const ph = data.photo || {};
+    const doc = getPdf();
+    let y = header(doc, "Photo / Video Permission (prefilled)", loc);
+    y = line(doc, "Child", ph.photoChild, 14, y, 180);
     y = line(
       doc,
-      "Meals",
-      [ies.iesMealB && "B", ies.iesMealL && "L", ies.iesMealP && "Snack"].filter(Boolean).join(" ") || "—",
+      "Permissions",
+      [
+        ph.photoClassroom && "Classroom",
+        ph.photoFamily && "Family communications",
+        ph.photoWeb && "Website/social",
+        ph.photoMarketing && "Marketing",
+        ph.photoNone && "NO permission",
+      ]
+        .filter(Boolean)
+        .join(", ") || "—",
       14,
       y,
       180
     );
-    y = line(doc, "Certification", ies.iesCertAgree ? "Agreed" : "—", 14, y, 180);
-    y = line(doc, "Signer / Date", `${ies.iesPrint || ies.iesSignature || "—"} / ${ies.iesDate || "—"}`, 14, y, 180);
-    y = line(doc, "Address", `${ies.iesAddress || ""} ${ies.iesCity || ""} ${ies.iesState || ""} ${ies.iesZip || ""}`, 14, y, 180);
-    if (ies.iesInfantName || ies.iesInfantMilk) {
-      y = sectionTitle(doc, "Section D — Infant", y);
-      y = line(doc, "Infant", `${ies.iesInfantName || "—"} ${ies.iesInfantDob || ""}`, 14, y, 180);
-      y = line(doc, "Milk/formula", ies.iesInfantMilk, 14, y, 180);
-    }
+    y = line(doc, "Agreed", ph.photoAgree ? "Yes" : "No", 14, y, 180);
+    y = line(doc, "Printed / Signature / Date", `${ph.photoPrint || "—"} / ${ph.photoSignature || "—"} / ${ph.photoDate || "—"}`, 14, y, 180);
     footerPage(doc);
     return doc;
   }
@@ -247,6 +315,11 @@
       .replace(/_+/g, "_")
       .slice(0, 40);
   }
+
+  window.ALC_generateBlankIesPdf = function () {
+    blankIesPdf().save(`ALC_Blank_IES_${new Date().toISOString().slice(0, 10)}.pdf`);
+    return true;
+  };
 
   /**
    * @param {object} opts
@@ -271,20 +344,25 @@
     if (which === "packet") {
       jobs.push({ doc: () => transportPdf(data, loc), name: `${base}_03_Transport.pdf` });
       jobs.push({ doc: () => emergencyPdf(data, loc), name: `${base}_04_Emergency.pdf` });
-      jobs.push({ doc: () => iesPdf(data, loc), name: `${base}_05_IES.pdf` });
+      jobs.push({ doc: () => iesPdf(data, loc), name: `${base}_05_IES_Ack.pdf` });
       jobs.push({ doc: () => handbookPdf(data, loc), name: `${base}_06_Handbook_Ack.pdf` });
+      jobs.push({ doc: () => photoPdf(data, loc), name: `${base}_07_Photo_Permission.pdf` });
     }
 
+    let saved = 0;
     jobs.forEach((job, idx) => {
       setTimeout(() => {
         try {
           const d = job.doc();
-          if (d) d.save(job.name);
+          if (d) {
+            d.save(job.name);
+            saved += 1;
+          }
         } catch (e) {
           console.error("PDF fail", job.name, e);
         }
-      }, idx * 500);
+      }, idx * 700);
     });
-    return true;
+    return { queued: jobs.length };
   };
 })();
