@@ -220,7 +220,7 @@ export function CheckboxField({ label, checked, style = {} }) {
   return (
     <View style={[pdfStyles.checkboxRow, style]}>
       <View style={pdfStyles.checkboxBox}>
-        {checked ? <Text style={pdfStyles.checkboxChecked}>•</Text> : <Text> </Text>}
+        {checked ? <Text style={pdfStyles.checkboxChecked}>✓</Text> : <Text> </Text>}
       </View>
       <Text style={pdfStyles.checkboxLabel}>{label}</Text>
     </View>

@@ -17,6 +17,19 @@ export function PhotoView() {
     photoPrint: savedData.photoPrint || "",
     photoDate: savedData.photoDate || "",
     photoSignature: savedData.photoSignature || "",
+    permWaterSprinkler: !!savedData.permWaterSprinkler,
+    permWaterSplashing: !!savedData.permWaterSplashing,
+    permWaterPools: !!savedData.permWaterPools,
+    permWaterTable: !!savedData.permWaterTable,
+    prepBabyWipes: !!savedData.prepBabyWipes,
+    prepBandAids: !!savedData.prepBandAids,
+    prepNeosporin: !!savedData.prepNeosporin,
+    prepBactine: !!savedData.prepBactine,
+    prepSunscreen: !!savedData.prepSunscreen,
+    prepInsectRepellent: !!savedData.prepInsectRepellent,
+    prepNonRxOintment: !!savedData.prepNonRxOintment,
+    prepBabyPowder: !!savedData.prepBabyPowder,
+    prepOther: savedData.prepOther || "",
   });
 
   useEffect(() => {
@@ -34,6 +47,19 @@ export function PhotoView() {
       photoMarketing: !!ph.photoMarketing,
       photoNone: !!ph.photoNone,
       photoAgree: !!ph.photoAgree,
+      permWaterSprinkler: !!ph.permWaterSprinkler,
+      permWaterSplashing: !!ph.permWaterSplashing,
+      permWaterPools: !!ph.permWaterPools,
+      permWaterTable: !!ph.permWaterTable,
+      prepBabyWipes: !!ph.prepBabyWipes,
+      prepBandAids: !!ph.prepBandAids,
+      prepNeosporin: !!ph.prepNeosporin,
+      prepBactine: !!ph.prepBactine,
+      prepSunscreen: !!ph.prepSunscreen,
+      prepInsectRepellent: !!ph.prepInsectRepellent,
+      prepNonRxOintment: !!ph.prepNonRxOintment,
+      prepBabyPowder: !!ph.prepBabyPowder,
+      prepOther: ph.prepOther || "",
     }));
   }, [state.data?.photo]);
 
@@ -142,6 +168,64 @@ export function PhotoView() {
               onChange={handleChange}
             />
             I do <strong>not</strong> grant photo/video permission
+          </label>
+
+          <p className="subhead">Water activities consent <span className="pill-muted">Optional</span></p>
+          <p className="hint">Matches the Permissions page in your enrollment packet PDF.</p>
+          <label className="check">
+            <input type="checkbox" name="permWaterSprinkler" checked={formData.permWaterSprinkler} onChange={handleChange} />
+            Sprinkler
+          </label>
+          <label className="check">
+            <input type="checkbox" name="permWaterSplashing" checked={formData.permWaterSplashing} onChange={handleChange} />
+            Play Splashing
+          </label>
+          <label className="check">
+            <input type="checkbox" name="permWaterPools" checked={formData.permWaterPools} onChange={handleChange} />
+            Swimming Pools
+          </label>
+          <label className="check">
+            <input type="checkbox" name="permWaterTable" checked={formData.permWaterTable} onChange={handleChange} />
+            Water Table Play
+          </label>
+
+          <p className="subhead">Topical preparations <span className="pill-muted">Optional</span></p>
+          <p className="hint">Select any external preparations you authorize the center to apply.</p>
+          <label className="check">
+            <input type="checkbox" name="prepBabyWipes" checked={formData.prepBabyWipes} onChange={handleChange} />
+            Baby wipes
+          </label>
+          <label className="check">
+            <input type="checkbox" name="prepBandAids" checked={formData.prepBandAids} onChange={handleChange} />
+            Band-Aids
+          </label>
+          <label className="check">
+            <input type="checkbox" name="prepNeosporin" checked={formData.prepNeosporin} onChange={handleChange} />
+            Neosporin or similar ointment
+          </label>
+          <label className="check">
+            <input type="checkbox" name="prepBactine" checked={formData.prepBactine} onChange={handleChange} />
+            Bactine or similar first aid spray
+          </label>
+          <label className="check">
+            <input type="checkbox" name="prepSunscreen" checked={formData.prepSunscreen} onChange={handleChange} />
+            Sunscreen
+          </label>
+          <label className="check">
+            <input type="checkbox" name="prepInsectRepellent" checked={formData.prepInsectRepellent} onChange={handleChange} />
+            Insect repellent
+          </label>
+          <label className="check">
+            <input type="checkbox" name="prepNonRxOintment" checked={formData.prepNonRxOintment} onChange={handleChange} />
+            Non-prescription ointment (A&amp;D, Desitin, Vaseline, etc.)
+          </label>
+          <label className="check">
+            <input type="checkbox" name="prepBabyPowder" checked={formData.prepBabyPowder} onChange={handleChange} />
+            Baby Powder
+          </label>
+          <label>
+            Other topical preparation (optional)
+            <input name="prepOther" value={formData.prepOther} onChange={handleChange} />
           </label>
 
           <label>

@@ -323,14 +323,40 @@ function normalize(data = {}, location = {}) {
       cardCvv: fin.finCardCvv,
     },
     permissions: {
-      water: [],
+      water: [
+        ph.permWaterSprinkler && "Sprinkler",
+        ph.permWaterSplashing && "Play Splashing",
+        ph.permWaterPools && "Swimming Pools",
+        ph.permWaterTable && "Water Table Play",
+      ].filter(Boolean),
       transportConsent: [
         tr.trStaffAuth && "Emergency Care",
-        (tr.trSchoolChoice || tr.trStaffAuth) && "To/From Elementary School",
+        tr.trStaffAuth && "Field Trips",
+        tr.trSchoolChoice && tr.trStaffAuth && "To and From Elementary School",
       ].filter(Boolean),
       photoRelease: ph.photoNone ? "no" : ph.photoAgree ? "yes" : null,
     },
-    externalPreparations: { selected: [], other: "" },
+    photo: {
+      classroom: !!ph.photoClassroom,
+      family: !!ph.photoFamily,
+      web: !!ph.photoWeb,
+      marketing: !!ph.photoMarketing,
+      none: !!ph.photoNone,
+      agree: !!ph.photoAgree,
+    },
+    externalPreparations: {
+      selected: [
+        ph.prepBabyWipes && "Baby Wipes",
+        ph.prepBandAids && "Band-Aids",
+        ph.prepNeosporin && "Neosporin",
+        ph.prepBactine && "Bactine",
+        ph.prepSunscreen && "Sunscreen",
+        ph.prepInsectRepellent && "Insect Repellent",
+        ph.prepNonRxOintment && "Non-prescription Ointment",
+        ph.prepBabyPowder && "Baby Powder",
+      ].filter(Boolean),
+      other: ph.prepOther || "",
+    },
     photoVideo: {
       granted: [
         ph.photoClassroom && "Classroom / center displays",
@@ -356,6 +382,31 @@ function checkedFrom(value, option) {
   return value === option || value === true;
 }
 
+function isBulletChecked(selected, label) {
+  if (!selected) return false;
+  if (Array.isArray(selected)) return selected.includes(label);
+  if (selected instanceof Set) return selected.has(label);
+  return !!selected;
+}
+
+function resolveBulletItems(items, defaultChecked = false) {
+  return (items || []).map((item) => {
+    if (item && typeof item === "object" && "text" in item) {
+      return { text: item.text, checked: !!item.checked };
+    }
+    return { text: String(item), checked: !!defaultChecked };
+  });
+}
+
+function BulletMark({ checked }) {
+  return (
+    <View style={{ flexDirection: "row", width: 20, flexShrink: 0 }}>
+      <Text style={enroll.policyBulletMark}>•</Text>
+      <Text style={[enroll.policyCheckMark, checked ? enroll.valueText : null]}>{checked ? "✓" : " "}</Text>
+    </View>
+  );
+}
+
 function FieldLine({ label, value, flex = 1, multiline = false }) {
   return (
     <View style={[s.col, { flex, minWidth: 0 }]}>
@@ -372,7 +423,7 @@ function FieldLine({ label, value, flex = 1, multiline = false }) {
 function Checkbox({ label, checked }) {
   return (
     <View style={[s.checkboxRow, { marginBottom: 3 }]}>
-      <View style={s.checkboxBox}>{checked ? <Text style={s.checkText}>•</Text> : <Text> </Text>}</View>
+      <View style={s.checkboxBox}>{checked ? <Text style={s.checkText}>✓</Text> : <Text> </Text>}</View>
       <Text style={enroll.checkboxText}>{label}</Text>
     </View>
   );
@@ -702,7 +753,13 @@ const enroll = StyleSheet.create({
   policyBulletMark: {
     fontFamily: FONT,
     fontSize: 10,
-    width: 12,
+    width: 10,
+    flexShrink: 0,
+  },
+  policyCheckMark: {
+    fontFamily: "Helvetica",
+    fontSize: 10,
+    width: 10,
     flexShrink: 0,
   },
   policyBulletText: {
@@ -826,7 +883,9 @@ function InlineField({ label, value, width, flex, grow = false }) {
 function InlineCheck({ label, checked, trailingLine = false }) {
   return (
     <View style={{ flexDirection: "row", alignItems: "flex-end", marginRight: 10 }}>
-      <Text style={[enroll.checkboxText, checked ? enroll.valueText : null]}>• {label}</Text>
+      <Text style={enroll.checkboxText}>
+        •{checked ? <Text style={enroll.valueText}> ✓</Text> : null} {label}
+      </Text>
       {trailingLine ? (
         <View style={[enroll.inlineValue, { width: 48, flexGrow: 0, marginLeft: 2 }]}>
           <Text style={enroll.valueText}> </Text>
@@ -999,9 +1058,9 @@ function Page2({ d }) {
       </View>
       <View style={enroll.lineRow}>
         <Text style={enroll.inlineLabel}>Meals Served:</Text>
-        <Text style={enroll.mealLabel}>Breakfast</Text>
-        <Text style={enroll.mealLabel}>Lunch</Text>
-        <Text style={enroll.mealLabel}>PM Snack</Text>
+        <InlineCheck label="Breakfast" checked={(d.care?.meals || []).includes("Breakfast")} />
+        <InlineCheck label="Lunch" checked={(d.care?.meals || []).includes("Lunch")} />
+        <InlineCheck label="PM Snack" checked={(d.care?.meals || []).includes("PM Snack")} />
       </View>
       <Text style={enroll.subLabel}>Previous School Information:</Text>
       <View style={enroll.lineRow}>
@@ -1135,6 +1194,37 @@ function PermSignature({ signature, date }) {
 function Page4({ d }) {
   const sig = d.signatures?.mother;
   const date = d.signatures?.date;
+  const perm = d.permissions || {};
+  const photo = d.photo || {};
+
+  const waterItems = ["Sprinkler", "Play Splashing", "Swimming Pools", "Water Table Play"].map((text) => ({
+    text,
+    checked: isBulletChecked(perm.water, text),
+  }));
+
+  const transportItems = ["Emergency Care", "Field Trips", "To and From Elementary School"].map((text) => ({
+    text,
+    checked: isBulletChecked(perm.transportConsent, text),
+  }));
+
+  const photoItems = [
+    {
+      text: "I understand Angel Learning Center takes photographs of center events and classroom activities throughout the year.",
+      checked: !!(photo.agree || photo.classroom || photo.family || photo.web || photo.marketing || photo.none),
+    },
+    {
+      text: "I give permission to the Angel Learning Center to use these pictures for decorations, projects and to post to the center’s website and Facebook.",
+      checked: !!(photo.classroom || photo.family || photo.web || photo.marketing) && !photo.none,
+    },
+    {
+      text: "Yes, I give permission for photographs to be taken and utilized by ALC.",
+      checked: !!(photo.agree && !photo.none),
+    },
+    {
+      text: "No, I do not give permission for photographs of any kind to be taken.",
+      checked: !!photo.none,
+    },
+  ];
 
   return (
     <Page size="LETTER" style={enroll.page}>
@@ -1145,16 +1235,14 @@ function Page4({ d }) {
       <Text style={enroll.permBody}>
         I give consent for my child to participate in the following water activities:
       </Text>
-      <PolicyBullets
-        items={["Sprinkler", "Play Splashing", "Swimming Pools", "Water Table Play"]}
-      />
+      <PolicyBullets items={waterItems} />
       <PermSignature signature={sig} date={date} />
 
       <Text style={enroll.permSection}>Transportation:</Text>
       <Text style={enroll.permBody}>
         I give consent for my child to be transported and supervised by Angel Learning Center Staff for:
       </Text>
-      <PolicyBullets items={["Emergency Care", "Field Trips", "To and From Elementary School"]} />
+      <PolicyBullets items={transportItems} />
       <Text style={[enroll.permBody, { marginTop: 8 }]}>
         Field trips will be announced at least 48 hours in advance. Parents will sign an individual permission slip for
         each trip indicating the address of the trip, length of the trip, and information on each passenger and driver.
@@ -1162,14 +1250,7 @@ function Page4({ d }) {
       <PermSignature signature={sig} date={date} />
 
       <Text style={enroll.permSection}>Photography Release</Text>
-      <PolicyBullets
-        items={[
-          "I understand Angel Learning Center takes photographs of center events and classroom activities throughout the year.",
-          "I give permission to the Angel Learning Center to use these pictures for decorations, projects and to post to the center’s website and Facebook.",
-          "Yes, I give permission for photographs to be taken and utilized by ALC.",
-          "No, I do not give permission for photographs of any kind to be taken.",
-        ]}
-      />
+      <PolicyBullets items={photoItems} />
       <PermSignature signature={sig} date={date} />
       <PdfFooter />
     </Page>
@@ -1203,22 +1284,23 @@ function PolicySignature({ signature, date }) {
   );
 }
 
-function PolicyBullet({ children }) {
+function PolicyBullet({ children, checked = false }) {
   return (
     <View style={enroll.policyBullet}>
-      <Text style={enroll.policyBulletMark}>•</Text>
+      <BulletMark checked={checked} />
       <Text style={enroll.policyBulletText}>{children}</Text>
     </View>
   );
 }
 
-function PolicyBullets({ items }) {
+function PolicyBullets({ items, checked = false }) {
+  const rows = resolveBulletItems(items, checked);
   return (
     <View>
-      {items.map((item, idx) => (
+      {rows.map((row, idx) => (
         <View key={idx} style={enroll.policyBullet}>
-          <Text style={enroll.policyBulletMark}>•</Text>
-          <Text style={enroll.policyBulletText}>{item}</Text>
+          <BulletMark checked={row.checked} />
+          <Text style={enroll.policyBulletText}>{row.text}</Text>
         </View>
       ))}
     </View>
@@ -1228,17 +1310,18 @@ function PolicyBullets({ items }) {
 function Page5({ d }) {
   const sig = d.signatures?.mother;
   const date = d.signatures?.date;
+  const agreed = !!d.parentHandbook?.acknowledged;
 
   return (
     <Page size="LETTER" style={enroll.page}>
       <PdfHeader />
       <Text style={enroll.title}>Biting Intervention Plan for Angel Learning Center</Text>
 
-      <PolicyBullets items={bitingPlanItems} />
+      <PolicyBullets items={bitingPlanItems} checked={agreed} />
       <PolicySignature signature={sig} date={date} />
 
       <Text style={[enroll.permSection, { marginTop: 16 }]}>Potty Training Policy</Text>
-      <PolicyBullets items={pottyPolicyItems} />
+      <PolicyBullets items={pottyPolicyItems} checked={agreed} />
       <PolicySignature signature={sig} date={date} />
       <PdfFooter />
     </Page>
@@ -1275,12 +1358,14 @@ function ChildSigFields({ d }) {
 }
 
 function Page6({ d }) {
+  const agreed = !!d.parentHandbook?.acknowledged;
+
   return (
     <Page size="LETTER" style={enroll.page}>
       <PdfHeader />
       <Text style={enroll.title}>Center Policies and Procedures Agreement</Text>
 
-      <PolicyBullets items={centerPolicyItems} />
+      <PolicyBullets items={centerPolicyItems} checked={agreed} />
       <ChildSigFields d={d} />
       <PdfFooter />
     </Page>
@@ -1309,19 +1394,21 @@ const terminationItems = [
 ];
 
 function Page7({ d }) {
+  const agreed = !!d.parentHandbook?.acknowledged;
+
   return (
     <Page size="LETTER" style={enroll.page}>
       <PdfHeader />
       <Text style={enroll.title}>Obligations of Parents or Guardians</Text>
 
-      <PolicyBullets items={obligationItems} />
+      <PolicyBullets items={obligationItems} checked={agreed} />
       <ChildSigFields d={d} />
 
       <Text style={[enroll.permSection, { marginTop: 14 }]}>Termination of the Agreement</Text>
       <Text style={[enroll.permBody, { marginBottom: 8, fontWeight: "bold" }]}>
         This Agreement shall be terminated if any one or more of the following occurs:
       </Text>
-      <PolicyBullets items={terminationItems} />
+      <PolicyBullets items={terminationItems} checked={agreed} />
       <PdfFooter />
     </Page>
   );
@@ -1345,15 +1432,17 @@ const otherItems = [
 ];
 
 function Page8({ d }) {
+  const agreed = !!d.parentHandbook?.acknowledged;
+
   return (
     <Page size="LETTER" style={enroll.page}>
       <PdfHeader />
 
       <Text style={[enroll.permSection, { textAlign: "center", marginTop: 4 }]}>PROCEDURE</Text>
-      <PolicyBullets items={procedureItems} />
+      <PolicyBullets items={procedureItems} checked={agreed} />
 
       <Text style={[enroll.permSection, { textAlign: "center" }]}>MODIFICATIONS</Text>
-      <PolicyBullets items={modificationItems} />
+      <PolicyBullets items={modificationItems} checked={agreed} />
 
       <View style={[enroll.permSigRow, { marginTop: 10, marginBottom: 10 }]}>
         <InlineField label="Parent/Guardian Signature" value={d.signatures?.mother} flex={2.2} />
@@ -1361,7 +1450,7 @@ function Page8({ d }) {
       </View>
 
       <Text style={[enroll.permSection, { textAlign: "center" }]}>OTHER</Text>
-      <PolicyBullets items={otherItems} />
+      <PolicyBullets items={otherItems} checked={agreed} />
       <PdfFooter />
     </Page>
   );
@@ -1382,6 +1471,7 @@ function Page9({ d }) {
   const childName = d._derived?.childName || "";
   const sig = d.signatures?.mother;
   const date = d.signatures?.date;
+  const selected = d.externalPreparations?.selected || [];
 
   return (
     <Page size="LETTER" style={enroll.page}>
@@ -1403,8 +1493,10 @@ function Page9({ d }) {
         the directions on the label of the container.
       </Text>
 
-      {externalPrepItems.map(({ label }) => (
-        <PolicyBullet key={label}>{label}</PolicyBullet>
+      {externalPrepItems.map(({ label, key }) => (
+        <PolicyBullet key={label} checked={selected.includes(key)}>
+          {label}
+        </PolicyBullet>
       ))}
 
       <View style={[enroll.lineRow, { marginTop: 8 }]}>
@@ -1451,6 +1543,7 @@ function Page10({ d }) {
   const sig = d.signatures?.mother;
   const fatherSig = d.signatures?.father;
   const date = d.signatures?.date;
+  const agreed = !!(d.parentHandbook?.acknowledged || d.financial?.agreed);
 
   return (
     <Page size="LETTER" style={enroll.page}>
@@ -1472,7 +1565,7 @@ function Page10({ d }) {
       <Text style={[enroll.permBody, { marginBottom: 8 }]}>
         For services listed in this agreement, and in accordance with the terms of this agreement:
       </Text>
-      <PolicyBullets items={agreementSignatureItems} />
+      <PolicyBullets items={agreementSignatureItems} checked={agreed} />
 
       <View style={[enroll.lineRow, { marginTop: 16, alignItems: "flex-start" }]}>
         <AgreementSigColumn label="Mother's Signature" value={sig} />
@@ -1499,21 +1592,22 @@ const acknowledgmentItems = [
 function Page11({ d }) {
   const sig = d.signatures?.mother;
   const date = d.signatures?.date;
+  const acked = !!(d.parentHandbook?.acknowledged || d.mealBenefit?.acknowledged || sig);
 
   return (
     <Page size="LETTER" style={enroll.page}>
       <PdfHeader />
       <Text style={enroll.title}>Acknowledgments</Text>
 
-      <PolicyBullets items={acknowledgmentItems.slice(0, 2)} />
-      <PolicyBullet>
+      <PolicyBullets items={acknowledgmentItems.slice(0, 2)} checked={acked} />
+      <PolicyBullet checked={acked}>
         Upon return, my student must be cleared by their doctor before re-entering the class. A doctor’s note must be
         provided upon the student’s return.{" "}
         <Text style={{ textDecoration: "underline" }}>
           Students must be symptoms free for 24 hours before returning to school.
         </Text>
       </PolicyBullet>
-      <PolicyBullets items={acknowledgmentItems.slice(2)} />
+      <PolicyBullets items={acknowledgmentItems.slice(2)} checked={acked} />
 
       <View style={{ flexGrow: 1, minHeight: 120 }} />
 
