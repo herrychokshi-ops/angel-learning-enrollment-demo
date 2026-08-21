@@ -44,8 +44,27 @@ export async function downloadBlankIesPdf() {
  * which = "enrollment" → enrollment + financial only
  * which = "financial"  → financial page only
  */
-export function downloadPdfBundle({ state, location, which = "packet" }) {
-  const data = state?.data || {};
+function readLatestPacketData(state) {
+  const fromState = state?.data || {};
+  let fromStore = {};
+  if (typeof window !== "undefined") {
+    try {
+      const stored = JSON.parse(localStorage.getItem("alc-enrollment-v1-multi") || "null");
+      fromStore = stored?.data || {};
+    } catch {
+      // ignore
+    }
+  }
+  return {
+    ...fromStore,
+    ...fromState,
+    photo: { ...(fromStore.photo || {}), ...(fromState.photo || {}) },
+    transport: { ...(fromStore.transport || {}), ...(fromState.transport || {}) },
+  };
+}
+
+export async function downloadPdfBundle({ state, location, which = "packet" }) {
+  const data = readLatestPacketData(state);
   const loc = location || {};
   const en = data.enrollment || {};
   const dateStr = new Date().toISOString().slice(0, 10);
@@ -59,17 +78,11 @@ export function downloadPdfBundle({ state, location, which = "packet" }) {
 
   const filename = filenameMap[which] || filenameMap.packet;
 
-  setTimeout(async () => {
-    try {
-      await saveDocumentAsPdf(
-        <PacketPdf data={data} location={loc} which={which} />,
-        filename,
-        which === "packet" ? { appendIesData: data } : {}
-      );
-    } catch (e) {
-      console.error("Packet PDF download failed:", e);
-    }
-  }, 0);
+  await saveDocumentAsPdf(
+    <PacketPdf data={data} location={loc} which={which} />,
+    filename,
+    which === "packet" ? { appendIesData: data } : {}
+  );
 
   return { queued: 1 };
 }

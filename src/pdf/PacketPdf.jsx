@@ -3,6 +3,64 @@ import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/render
 import ALC_CONFIG from "../config";
 import { FONT, COLORS, PdfHeader, PdfFooter, getLogoUrl, getWatchMeGrowUrl } from "./PdfShared";
 
+const WATER_PERMISSION_FIELDS = [
+  { label: "Sprinkler", field: "permWaterSprinkler" },
+  { label: "Play Splashing", field: "permWaterSplashing" },
+  { label: "Swimming Pools", field: "permWaterPools" },
+  { label: "Water Table Play", field: "permWaterTable" },
+];
+
+const TRANSPORT_PERMISSION_FIELDS = [
+  { label: "Emergency Care", field: "trPermEmergency" },
+  { label: "Field Trips", field: "trPermFieldTrips" },
+  { label: "To and From Elementary School", field: "trPermSchool" },
+];
+
+const PREP_PERMISSION_FIELDS = [
+  { label: "baby wipes", field: "prepBabyWipes", key: "Baby Wipes" },
+  { label: "Band-Aids", field: "prepBandAids", key: "Band-Aids" },
+  { label: "Neosporin or similar ointment", field: "prepNeosporin", key: "Neosporin" },
+  { label: "Bactine or similar first aid spray", field: "prepBactine", key: "Bactine" },
+  { label: "Sunscreen", field: "prepSunscreen", key: "Sunscreen" },
+  { label: "insect repellent", field: "prepInsectRepellent", key: "Insect Repellent" },
+  { label: "non-prescription ointment (such as A&D, Desitin, Vaseline, etc....)", field: "prepNonRxOintment", key: "Non-prescription Ointment" },
+  { label: "Baby Powder", field: "prepBabyPowder", key: "Baby Powder" },
+];
+
+function asBool(value) {
+  if (value === false || value === "false" || value === 0 || value === "0") return false;
+  if (value === true || value === "true" || value === 1 || value === "1") return true;
+  if (typeof value === "string" && /^(yes|y|on)$/i.test(value.trim())) return true;
+  return false;
+}
+
+function permissionItemsFromFields(source = {}, defs = [], fallbackLabels = []) {
+  const selected = new Set((fallbackLabels || []).map(String));
+  return defs.map(({ label, field }) => ({
+    text: label,
+    checked: asBool(source[field]) || selected.has(label),
+  }));
+}
+
+function transportPermissionSource(tr = {}) {
+  const hasExplicitPerms =
+    "trPermEmergency" in tr || "trPermFieldTrips" in tr || "trPermSchool" in tr;
+
+  if (hasExplicitPerms) {
+    return {
+      trPermEmergency: asBool(tr.trPermEmergency),
+      trPermFieldTrips: asBool(tr.trPermFieldTrips),
+      trPermSchool: asBool(tr.trPermSchool),
+    };
+  }
+
+  return {
+    trPermEmergency: asBool(tr.trStaffAuth),
+    trPermFieldTrips: asBool(tr.trStaffAuth),
+    trPermSchool: asBool(tr.trStaffAuth) && !!tr.trSchoolChoice,
+  };
+}
+
 const s = StyleSheet.create({
   pageTitle: {
     fontFamily: FONT,
@@ -184,8 +242,6 @@ function oldFull(en = {}, prefix) {
 }
 
 function normalize(data = {}, location = {}) {
-  if (data.child || data.mother || data.financial?.responsibleParty) return data;
-
   const en = data.enrollment || {};
   const fin = data.financial || {};
   const tr = data.transport || {};
@@ -193,6 +249,7 @@ function normalize(data = {}, location = {}) {
   const ies = data.ies || {};
   const hb = data.handbook || {};
   const ph = data.photo || {};
+  const transportPerms = transportPermissionSource(tr);
   const loc = location || {};
   const motherName = oldFull(en, "mom");
   const fatherName = oldFull(en, "dad");
@@ -323,18 +380,15 @@ function normalize(data = {}, location = {}) {
       cardCvv: fin.finCardCvv,
     },
     permissions: {
-      water: [
-        ph.permWaterSprinkler && "Sprinkler",
-        ph.permWaterSplashing && "Play Splashing",
-        ph.permWaterPools && "Swimming Pools",
-        ph.permWaterTable && "Water Table Play",
-      ].filter(Boolean),
-      transportConsent: [
-        tr.trStaffAuth && "Emergency Care",
-        tr.trStaffAuth && "Field Trips",
-        tr.trSchoolChoice && tr.trStaffAuth && "To and From Elementary School",
-      ].filter(Boolean),
+      water: WATER_PERMISSION_FIELDS.filter(({ field }) => asBool(ph[field])).map(({ label }) => label),
+      transportConsent: TRANSPORT_PERMISSION_FIELDS.filter(({ field }) =>
+        asBool(transportPerms[field])
+      ).map(({ label }) => label),
       photoRelease: ph.photoNone ? "no" : ph.photoAgree ? "yes" : null,
+    },
+    _source: {
+      photo: ph,
+      transport: transportPerms,
     },
     photo: {
       classroom: !!ph.photoClassroom,
@@ -768,6 +822,45 @@ const enroll = StyleSheet.create({
     lineHeight: 1.35,
     flex: 1,
   },
+  permissionCheckRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  permissionCheckBox: {
+    width: 11,
+    height: 11,
+    borderWidth: 0.85,
+    borderColor: COLORS.ink,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8,
+    flexShrink: 0,
+  },
+  permissionCheckBoxYes: {
+    backgroundColor: COLORS.ink,
+    borderColor: COLORS.ink,
+  },
+  permissionCheckMark: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 9,
+    fontWeight: "bold",
+    color: COLORS.ink,
+    lineHeight: 1,
+  },
+  permissionCheckYes: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 7,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    lineHeight: 1,
+  },
+  permissionCheckLabel: {
+    fontFamily: FONT,
+    fontSize: 10,
+    lineHeight: 1.35,
+    flex: 1,
+  },
   prepItem: {
     fontFamily: FONT,
     fontSize: 10,
@@ -1191,38 +1284,36 @@ function PermSignature({ signature, date }) {
   );
 }
 
-function Page4({ d }) {
+function Page4({ d, raw = {} }) {
   const sig = d.signatures?.mother;
   const date = d.signatures?.date;
-  const perm = d.permissions || {};
-  const photo = d.photo || {};
+  const photo = raw.photo || d._source?.photo || {};
+  const transport = transportPermissionSource(raw.transport || {});
+  const photoFlags = d.photo || {};
 
-  const waterItems = ["Sprinkler", "Play Splashing", "Swimming Pools", "Water Table Play"].map((text) => ({
-    text,
-    checked: isBulletChecked(perm.water, text),
-  }));
-
-  const transportItems = ["Emergency Care", "Field Trips", "To and From Elementary School"].map((text) => ({
-    text,
-    checked: isBulletChecked(perm.transportConsent, text),
-  }));
+  const waterItems = permissionItemsFromFields(photo, WATER_PERMISSION_FIELDS, d.permissions?.water);
+  const transportItems = permissionItemsFromFields(
+    transport,
+    TRANSPORT_PERMISSION_FIELDS,
+    d.permissions?.transportConsent
+  );
 
   const photoItems = [
     {
       text: "I understand Angel Learning Center takes photographs of center events and classroom activities throughout the year.",
-      checked: !!(photo.agree || photo.classroom || photo.family || photo.web || photo.marketing || photo.none),
+      checked: !!(photoFlags.agree || photoFlags.classroom || photoFlags.family || photoFlags.web || photoFlags.marketing || photoFlags.none),
     },
     {
       text: "I give permission to the Angel Learning Center to use these pictures for decorations, projects and to post to the center’s website and Facebook.",
-      checked: !!(photo.classroom || photo.family || photo.web || photo.marketing) && !photo.none,
+      checked: !!(photoFlags.classroom || photoFlags.family || photoFlags.web || photoFlags.marketing) && !photoFlags.none,
     },
     {
       text: "Yes, I give permission for photographs to be taken and utilized by ALC.",
-      checked: !!(photo.agree && !photo.none),
+      checked: !!(photoFlags.agree && !photoFlags.none),
     },
     {
       text: "No, I do not give permission for photographs of any kind to be taken.",
-      checked: !!photo.none,
+      checked: !!photoFlags.none,
     },
   ];
 
@@ -1235,14 +1326,14 @@ function Page4({ d }) {
       <Text style={enroll.permBody}>
         I give consent for my child to participate in the following water activities:
       </Text>
-      <PolicyBullets items={waterItems} />
+      <PermissionCheckList items={waterItems} />
       <PermSignature signature={sig} date={date} />
 
       <Text style={enroll.permSection}>Transportation:</Text>
       <Text style={enroll.permBody}>
         I give consent for my child to be transported and supervised by Angel Learning Center Staff for:
       </Text>
-      <PolicyBullets items={transportItems} />
+      <PermissionCheckList items={transportItems} />
       <Text style={[enroll.permBody, { marginTop: 8 }]}>
         Field trips will be announced at least 48 hours in advance. Parents will sign an individual permission slip for
         each trip indicating the address of the trip, length of the trip, and information on each passenger and driver.
@@ -1302,6 +1393,29 @@ function PolicyBullets({ items, checked = false }) {
           <BulletMark checked={row.checked} />
           <Text style={enroll.policyBulletText}>{row.text}</Text>
         </View>
+      ))}
+    </View>
+  );
+}
+
+function PermissionCheckItem({ label, checked }) {
+  const yes = !!checked;
+  return (
+    <View style={enroll.permissionCheckRow}>
+      <View style={[enroll.permissionCheckBox, yes ? enroll.permissionCheckBoxYes : null]}>
+        <Text style={[enroll.permissionCheckMark, yes ? enroll.permissionCheckYes : null]}>{yes ? "Y" : " "}</Text>
+      </View>
+      <Text style={enroll.permissionCheckLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function PermissionCheckList({ items }) {
+  const rows = resolveBulletItems(items, false);
+  return (
+    <View>
+      {rows.map((row, idx) => (
+        <PermissionCheckItem key={idx} label={row.text} checked={row.checked} />
       ))}
     </View>
   );
@@ -1456,22 +1570,13 @@ function Page8({ d }) {
   );
 }
 
-const externalPrepItems = [
-  { label: "baby wipes", key: "Baby Wipes" },
-  { label: "Band-Aids", key: "Band-Aids" },
-  { label: "Neosporin or similar ointment", key: "Neosporin" },
-  { label: "Bactine or similar first aid spray", key: "Bactine" },
-  { label: "Sunscreen", key: "Sunscreen" },
-  { label: "insect repellent", key: "Insect Repellent" },
-  { label: "non-prescription ointment (such as A&D, Desitin, Vaseline, etc....)", key: "Non-prescription Ointment" },
-  { label: "Baby Powder", key: "Baby Powder" },
-];
 
-function Page9({ d }) {
+function Page9({ d, raw = {} }) {
   const childName = d._derived?.childName || "";
   const sig = d.signatures?.mother;
   const date = d.signatures?.date;
-  const selected = d.externalPreparations?.selected || [];
+  const photo = raw.photo || d._source?.photo || {};
+  const prepSelected = d.externalPreparations?.selected || [];
 
   return (
     <Page size="LETTER" style={enroll.page}>
@@ -1493,14 +1598,16 @@ function Page9({ d }) {
         the directions on the label of the container.
       </Text>
 
-      {externalPrepItems.map(({ label, key }) => (
-        <PolicyBullet key={label} checked={selected.includes(key)}>
-          {label}
-        </PolicyBullet>
+      {PREP_PERMISSION_FIELDS.map(({ label, field, key }) => (
+        <PermissionCheckItem
+          key={field}
+          label={label}
+          checked={asBool(photo[field]) || prepSelected.includes(key)}
+        />
       ))}
 
       <View style={[enroll.lineRow, { marginTop: 8 }]}>
-        <InlineField label="Other (please specify)" value={d.externalPreparations?.other} flex={1} />
+        <InlineField label="Other (please specify)" value={photo.prepOther || d.externalPreparations?.other} flex={1} />
       </View>
 
       <View style={[enroll.permSigRow, { marginTop: 12 }]}>
@@ -1757,7 +1864,7 @@ export function PacketPdf({ data = {}, location = {}, which = "packet" }) {
   if (which === "financial") {
     return (
       <Document>
-        <Page12 d={d} />
+        <Page12 d={d} raw={data} />
       </Document>
     );
   }
@@ -1765,26 +1872,26 @@ export function PacketPdf({ data = {}, location = {}, which = "packet" }) {
   if (which === "enrollment") {
     return (
       <Document>
-        <Page1 d={d} />
+        <Page1 d={d} raw={data} />
       </Document>
     );
   }
 
   return (
     <Document>
-      <Page1 d={d} />
-      <Page2 d={d} />
-      <Page3 d={d} />
-      <Page4 d={d} />
-      <Page5 d={d} />
-      <Page6 d={d} />
-      <Page7 d={d} />
-      <Page8 d={d} />
-      <Page9 d={d} />
-      <Page10 d={d} />
-      <Page11 d={d} />
-      <Page12 d={d} />
-      <Page13 d={d} />
+      <Page1 d={d} raw={data} />
+      <Page2 d={d} raw={data} />
+      <Page3 d={d} raw={data} />
+      <Page4 d={d} raw={data} />
+      <Page5 d={d} raw={data} />
+      <Page6 d={d} raw={data} />
+      <Page7 d={d} raw={data} />
+      <Page8 d={d} raw={data} />
+      <Page9 d={d} raw={data} />
+      <Page10 d={d} raw={data} />
+      <Page11 d={d} raw={data} />
+      <Page12 d={d} raw={data} />
+      <Page13 d={d} raw={data} />
     </Document>
   );
 }

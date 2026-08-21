@@ -65,11 +65,16 @@ export function PhotoView() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (type === "checkbox") {
-      setFormData((prev) => ({ ...prev, [name]: checked }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    setFormData((prev) => {
+      const next =
+        type === "checkbox" ? { ...prev, [name]: checked } : { ...prev, [name]: value };
+      const isPermissionField =
+        name.startsWith("perm") || name.startsWith("prep");
+      if (type === "checkbox" && isPermissionField) {
+        saveForm("photo", next, !!state.completed?.photo);
+      }
+      return next;
+    });
   };
 
   const handleSubmit = (e) => {

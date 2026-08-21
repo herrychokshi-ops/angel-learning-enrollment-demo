@@ -7,9 +7,9 @@ import { useEnrollment } from "../context/EnrollmentContext";
 export function DoneView() {
   const { state, activeLocation, addSibling, showToast, t, navigateTo } = useEnrollment();
 
-  const handleDownloadPdfs = (which) => {
+  const handleDownloadPdfs = async (which) => {
     try {
-      downloadPdfBundle({ state, location: activeLocation, which });
+      await downloadPdfBundle({ state, location: activeLocation, which });
       showToast(
         which === "financial"
           ? "Financial PDF downloading…"

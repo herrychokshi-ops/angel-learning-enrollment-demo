@@ -22,6 +22,14 @@ export function TransportView() {
     trThu: !!savedData.trThu,
     trFri: !!savedData.trFri,
     trStaffAuth: !!savedData.trStaffAuth,
+    trPermEmergency:
+      "trPermEmergency" in savedData ? !!savedData.trPermEmergency : !!savedData.trStaffAuth,
+    trPermFieldTrips:
+      "trPermFieldTrips" in savedData ? !!savedData.trPermFieldTrips : !!savedData.trStaffAuth,
+    trPermSchool:
+      "trPermSchool" in savedData
+        ? !!savedData.trPermSchool
+        : !!(savedData.trStaffAuth && savedData.trSchoolChoice),
     trMiles: savedData.trMiles || "",
     trSignature: savedData.trSignature || "",
     trDate: savedData.trDate || "",
@@ -43,16 +51,26 @@ export function TransportView() {
       trThu: !!tr.trThu,
       trFri: !!tr.trFri,
       trStaffAuth: !!tr.trStaffAuth,
+      trPermEmergency:
+        "trPermEmergency" in tr ? !!tr.trPermEmergency : !!tr.trStaffAuth,
+      trPermFieldTrips:
+        "trPermFieldTrips" in tr ? !!tr.trPermFieldTrips : !!tr.trStaffAuth,
+      trPermSchool:
+        "trPermSchool" in tr ? !!tr.trPermSchool : !!(tr.trStaffAuth && tr.trSchoolChoice),
     }));
   }, [state.data?.transport, selectedLocationId]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (type === "checkbox") {
-      setFormData((prev) => ({ ...prev, [name]: checked }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    setFormData((prev) => {
+      const next =
+        type === "checkbox" ? { ...prev, [name]: checked } : { ...prev, [name]: value };
+      const isPermissionField = name.startsWith("trPerm");
+      if (type === "checkbox" && isPermissionField) {
+        saveForm("transport", next, !!state.completed?.transport);
+      }
+      return next;
+    });
   };
 
   const handleLocationChange = (e) => {
@@ -241,6 +259,35 @@ export function TransportView() {
               <input type="checkbox" name="trFri" checked={formData.trFri} onChange={handleChange} /> Friday
             </label>
           </div>
+
+          <p className="subhead">Transportation permissions (check all that apply)</p>
+          <label className="check">
+            <input
+              type="checkbox"
+              name="trPermEmergency"
+              checked={formData.trPermEmergency}
+              onChange={handleChange}
+            />
+            Emergency Care
+          </label>
+          <label className="check">
+            <input
+              type="checkbox"
+              name="trPermFieldTrips"
+              checked={formData.trPermFieldTrips}
+              onChange={handleChange}
+            />
+            Field Trips
+          </label>
+          <label className="check">
+            <input
+              type="checkbox"
+              name="trPermSchool"
+              checked={formData.trPermSchool}
+              onChange={handleChange}
+            />
+            To and From Elementary School
+          </label>
 
           <label className="check">
             <input
