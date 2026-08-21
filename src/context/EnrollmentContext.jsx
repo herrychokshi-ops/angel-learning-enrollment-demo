@@ -1,0 +1,519 @@
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
+import ALC_CONFIG from "../config";
+import { ALL_FORMS, I18N, SAMPLE } from "../constants";
+import { needsEmergencyMedicalForm as checkEmergencyMedical } from "../utils/programSelection";
+
+const STORAGE_KEY = "alc-enrollment-v1-multi";
+const LANG_KEY = "alc-enrollment-lang";
+
+const EnrollmentContext = createContext(null);
+
+function loadInitialState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return {
+        completed: parsed.completed || {},
+        data: parsed.data || {},
+        locationId: parsed.locationId || parsed.data?.enrollment?.enLocation || "savannah",
+        siblings: parsed.siblings || [],
+      };
+    }
+  } catch (e) {
+    console.error("Failed to load initial enrollment state:", e);
+  }
+  return {
+    completed: {},
+    data: {},
+    locationId: "savannah",
+    siblings: [],
+  };
+}
+
+export function EnrollmentProvider({ children }) {
+  const [state, setState] = useState(loadInitialState);
+  const [lang, setLang] = useState(() => {
+    return localStorage.getItem(LANG_KEY) || "en";
+  });
+  const [currentView, setCurrentView] = useState(() => {
+    let h = (window.location.hash || "#home").slice(1) || "home";
+    if (h === "auth") h = "home";
+    return h;
+  });
+  const [toast, setToast] = useState({ message: "", visible: false });
+
+  // Sync state to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.error("Failed to save state to localStorage:", e);
+    }
+  }, [state]);
+
+  // Sync lang to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem(LANG_KEY, lang);
+      document.documentElement.lang = lang;
+    } catch (e) {
+      console.error("Failed to save lang:", e);
+    }
+  }, [lang]);
+
+  // Hash change navigation listener
+  useEffect(() => {
+    const handleHashChange = () => {
+      let h = (window.location.hash || "#home").slice(1) || "home";
+      if (h === "auth") h = "home";
+      setCurrentView(h);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  const navigateTo = useCallback((viewId) => {
+    window.location.hash = `#${viewId}`;
+    setCurrentView(viewId);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  const showToast = useCallback((message) => {
+    setToast({ message, visible: true });
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => {
+      setToast((prev) => ({ ...prev, visible: false }));
+    }, 2400);
+  }, []);
+
+  const t = useCallback(
+    (key) => {
+      return (I18N[lang] && I18N[lang][key]) || I18N.en[key] || key;
+    },
+    [lang]
+  );
+
+  const selectedLocationId = useMemo(() => {
+    return (
+      state.locationId ||
+      state.data?.enrollment?.enLocation ||
+      state.data?.transport?.trLocation ||
+      "savannah"
+    );
+  }, [state.locationId, state.data?.enrollment?.enLocation, state.data?.transport?.trLocation]);
+
+  const activeLocation = useMemo(() => {
+    return (
+      ALC_CONFIG.locations?.[selectedLocationId] ||
+      ALC_CONFIG.locations?.savannah ||
+      {}
+    );
+  }, [selectedLocationId]);
+
+  const selectedPrograms = useCallback(() => {
+    const en = state.data?.enrollment || {};
+    const raw = en.programs || "";
+    if (Array.isArray(raw)) return raw;
+    return String(raw)
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }, [state.data?.enrollment]);
+
+  const needsTransportForm = useCallback(() => {
+    const programs = ALC_CONFIG.programs || [];
+    const selected = new Set(selectedPrograms());
+    return programs.some((p) => p.transport && selected.has(p.id));
+  }, [selectedPrograms]);
+
+  const needsEmergencyMedicalForm = useCallback(() => {
+    return checkEmergencyMedical(selectedPrograms());
+  }, [selectedPrograms]);
+
+  const needsLittleAngels = useCallback(() => {
+    return selectedPrograms().includes("little_angels");
+  }, [selectedPrograms]);
+
+  const activeForms = useMemo(() => {
+    const transportNeeded = needsTransportForm();
+    const emergencyNeeded = needsEmergencyMedicalForm();
+    return ALL_FORMS.filter((f) => {
+      if (f.always) return true;
+      if (f.requiresTransport && transportNeeded) return true;
+      if (f.requiresEmergencyMedical && emergencyNeeded) return true;
+      return false;
+    });
+  }, [needsTransportForm, needsEmergencyMedicalForm]);
+
+  const completedCount = useMemo(() => {
+    return activeForms.filter((f) => !!state.completed[f.id]).length;
+  }, [activeForms, state.completed]);
+
+  const formTitle = useCallback(
+    (form) => {
+      return lang === "es" ? form.titleEs : form.title;
+    },
+    [lang]
+  );
+
+  const formBlurb = useCallback(
+    (form) => {
+      return lang === "es" ? form.blurbEs : form.blurb;
+    },
+    [lang]
+  );
+
+  const applyLocation = useCallback(
+    (locationId, { scroll = false } = {}) => {
+      const loc = ALC_CONFIG.locations?.[locationId];
+      if (!loc) return;
+
+      setState((prev) => {
+        const next = { ...prev, locationId: loc.id };
+        if (!next.data) next.data = {};
+        if (!next.data.enrollment) next.data.enrollment = {};
+        if (!next.data.transport) next.data.transport = {};
+        next.data.enrollment.enLocation = loc.id;
+        next.data.transport.trLocation = loc.id;
+
+        // Default emergency facility from handbook by location if not explicitly customized
+        if (loc.hospital) {
+          const prior = next.data.emergency?.emFacility;
+          const hospitals = Object.values(ALC_CONFIG.locations || {})
+            .map((l) => l.hospital)
+            .filter(Boolean);
+          if (!prior || hospitals.includes(prior)) {
+            if (!next.data.emergency) next.data.emergency = {};
+            next.data.emergency.emFacility = loc.hospital;
+          }
+        }
+        return next;
+      });
+
+      if (scroll) {
+        const card = document.getElementById("selectedCenterCard");
+        card?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    },
+    []
+  );
+
+  // Carry forward logic helper
+  const computeCarryForward = useCallback((currentState) => {
+    const en = currentState.data?.enrollment || {};
+    const fin = currentState.data?.financial || {};
+
+    const fullName = (first, mi, last) =>
+      [first, mi, last].map((p) => (p || "").trim()).filter(Boolean).join(" ").replace(/\s+/g, " ");
+
+    const child = fullName(en.childFirst, en.childMI, en.childLast) || fin.finChildName || "";
+    const mom = fullName(en.momFirst, en.momMI, en.momLast);
+    const dad = fullName(en.dadFirst, en.dadMI, en.dadLast);
+    const signer = fin.rpName || mom || dad || "";
+
+    const city = (en.childCity || "").trim();
+    const zip = (en.childZip || "").trim();
+    const cityStateZip = city && zip ? `${city}, GA ${zip}` : city ? `${city}, GA` : zip;
+
+    const line1 = (en.childAddress || "").trim();
+    const homeLine = line1 && cityStateZip ? `${line1}, ${cityStateZip}` : line1 || cityStateZip || "";
+
+    const phone = en.momCell || en.dadCell || fin.rpPhone || "";
+    const email = en.momEmail || en.dadEmail || fin.rpEmail || "";
+    const dob = en.childDob || "";
+    const today = new Date().toISOString().slice(0, 10);
+    const locId = currentState.locationId || en.enLocation || "savannah";
+
+    return {
+      financial: {
+        finChildName: child,
+        rpName: signer,
+        rpAddress: en.childAddress || "",
+        rpCityStateZip: cityStateZip,
+        rpPhone: phone,
+        rpEmail: email,
+        rpEmployer: en.momEmployer || en.dadEmployer || "",
+        finPrintName: signer,
+        finSignature: signer,
+        finSignDate: today,
+        finEnrollDate: en.startDate || "",
+      },
+      transport: {
+        trChild: child,
+        trSignature: signer,
+        trDate: today,
+        trArriveTime: en.careTo || "",
+        trLocation: en.enLocation || locId,
+      },
+      handbook: {
+        hbPrint: signer,
+        hbSignature: signer,
+        hbDate: today,
+        hbChild: child,
+      },
+      emergency: {
+        emChild: child,
+        emAuthChild: child,
+        emDob: dob,
+        emAddress: homeLine || en.childAddress || "",
+        emFather: dad,
+        emMother: mom,
+        emFatherCell: en.dadCell || "",
+        emMotherCell: en.momCell || "",
+        emSignature: signer,
+        emDate: today,
+        emFacility: ALC_CONFIG.locations?.[locId]?.hospital || "",
+      },
+      ies: {
+        iesAckPrint: signer,
+        iesAckDate: today,
+      },
+      photo: {
+        photoChild: child,
+        photoPrint: signer,
+        photoSignature: signer,
+        photoDate: today,
+      },
+    };
+  }, []);
+
+  const applyCarryForward = useCallback(
+    ({ force = false, onlyForm = null } = {}) => {
+      setState((prev) => {
+        const carryMap = computeCarryForward(prev);
+        const nextData = { ...prev.data };
+        let changed = false;
+
+        const isBlank = (v) => v === undefined || v === null || v === "" || v === false;
+
+        Object.entries(carryMap).forEach(([formId, source]) => {
+          if (onlyForm && onlyForm !== formId) return;
+          const formForce = force && !prev.completed[formId];
+          const target = { ...(nextData[formId] || {}) };
+          let formChanged = false;
+
+          Object.entries(source).forEach(([key, val]) => {
+            if (isBlank(val)) return;
+            if (formForce || isBlank(target[key])) {
+              if (target[key] !== val) {
+                target[key] = val;
+                formChanged = true;
+              }
+            }
+          });
+
+          if (formChanged) {
+            nextData[formId] = target;
+            changed = true;
+          }
+        });
+
+        return changed ? { ...prev, data: nextData } : prev;
+      });
+    },
+    [computeCarryForward]
+  );
+
+  const saveForm = useCallback(
+    (formId, formData, markComplete = true) => {
+      setState((prev) => {
+        const next = {
+          ...prev,
+          data: {
+            ...prev.data,
+            [formId]: {
+              ...(prev.data[formId] || {}),
+              ...formData,
+            },
+          },
+          completed: {
+            ...prev.completed,
+            [formId]: markComplete ? true : prev.completed[formId],
+          },
+        };
+        return next;
+      });
+
+      if (formId === "enrollment" || formId === "financial") {
+        setTimeout(() => {
+          applyCarryForward({ force: true });
+        }, 10);
+      }
+
+      showToast(
+        formId === "enrollment"
+          ? lang === "es"
+            ? "Guardado — datos copiados a los demás formularios"
+            : "Saved — shared details carried to the other forms"
+          : t("toastSaved")
+      );
+    },
+    [applyCarryForward, lang, showToast, t]
+  );
+
+  const loadSample = useCallback(() => {
+    setState({
+      data: JSON.parse(JSON.stringify(SAMPLE)),
+      completed: {
+        enrollment: true,
+        financial: true,
+        transport: true,
+        emergency: true,
+        ies: true,
+        handbook: true,
+        photo: true,
+        uploads: true,
+      },
+      locationId: "savannah",
+      siblings: [],
+    });
+    showToast(t("toastSample"));
+    navigateTo("packet");
+  }, [navigateTo, showToast, t]);
+
+  const resetDemo = useCallback(() => {
+    if (!window.confirm(t("confirmReset"))) return;
+    setState({ completed: {}, data: {}, locationId: "savannah", siblings: [] });
+    showToast(t("toastReset"));
+    navigateTo("home");
+  }, [navigateTo, showToast, t]);
+
+  const addSibling = useCallback(() => {
+    setState((prev) => {
+      const en = prev.data?.enrollment || {};
+      const newSiblings = [
+        ...(prev.siblings || []),
+        {
+          first: en.childFirst || "",
+          last: en.childLast || "",
+          dob: en.childDob || "",
+          note: "Primary child on forms",
+        },
+      ];
+
+      const nextData = {
+        ...prev.data,
+        enrollment: {
+          ...(prev.data.enrollment || {}),
+          childFirst: "",
+          childMI: "",
+          childLast: "",
+          childPreferred: "",
+          childGrade: "",
+          childDob: "",
+          childGender: "",
+          medicalNotes: "",
+        },
+      };
+
+      return {
+        ...prev,
+        siblings: newSiblings,
+        data: nextData,
+        completed: {
+          ...prev.completed,
+          enrollment: false,
+          transport: false,
+          emergency: false,
+        },
+      };
+    });
+
+    showToast("Sibling slot started — enter the next child’s details on Enrollment");
+    navigateTo("enrollment");
+  }, [navigateTo, showToast]);
+
+  const uploadFile = useCallback(
+    (uploadDefId, fileMetaList, uploadedBy = "parent", note = "") => {
+      setState((prev) => {
+        const uploads = prev.data?.uploads || {};
+        const files = { ...(uploads.files || {}) };
+        const staffLog = [...(uploads.staffLog || [])];
+
+        const def = (ALC_CONFIG.uploads || []).find((u) => u.id === uploadDefId);
+        const prevFiles = files[uploadDefId] || [];
+
+        const newItems = fileMetaList.map((f) => ({
+          ...f,
+          uploadedBy,
+          note: note.trim(),
+        }));
+
+        files[uploadDefId] = def?.multiple ? [...prevFiles, ...newItems] : newItems;
+
+        if (uploadedBy === "staff") {
+          newItems.forEach((m) => {
+            staffLog.push({
+              id: uploadDefId,
+              label: def?.label || uploadDefId,
+              name: m.name,
+              uploadedAt: m.uploadedAt,
+              note: m.note,
+            });
+          });
+        }
+
+        const reqList = (ALC_CONFIG.uploads || []).filter((u) => u.required);
+        const allReqPresent = reqList.every((u) => (files[u.id] || []).length > 0);
+
+        return {
+          ...prev,
+          data: {
+            ...prev.data,
+            uploads: {
+              ...uploads,
+              files,
+              staffLog,
+            },
+          },
+          completed: {
+            ...prev.completed,
+            uploads: allReqPresent ? true : prev.completed.uploads,
+          },
+        };
+      });
+    },
+    []
+  );
+
+  const value = {
+    state,
+    setState,
+    lang,
+    setLang,
+    currentView,
+    navigateTo,
+    toast,
+    showToast,
+    t,
+    selectedLocationId,
+    activeLocation,
+    applyLocation,
+    selectedPrograms,
+    needsTransportForm,
+    needsEmergencyMedicalForm,
+    needsLittleAngels,
+    activeForms,
+    completedCount,
+    formTitle,
+    formBlurb,
+    applyCarryForward,
+    saveForm,
+    loadSample,
+    resetDemo,
+    addSibling,
+    uploadFile,
+  };
+
+  return <EnrollmentContext.Provider value={value}>{children}</EnrollmentContext.Provider>;
+}
+
+export function useEnrollment() {
+  const context = useContext(EnrollmentContext);
+  if (!context) {
+    throw new Error("useEnrollment must be used within an EnrollmentProvider");
+  }
+  return context;
+}
