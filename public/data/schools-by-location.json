@@ -1,0 +1,93 @@
+{
+  "source": "Sash K email FYI — School names Location Wise ALC",
+  "received": "2026-08-05",
+  "notes": "These are schools where ALC buses pick up (per location). Times and miles still to be provided.",
+  "locations": [
+    {
+      "id": "savannah",
+      "name": "Savannah Highlands",
+      "city": "Savannah, GA",
+      "center_address": "178 Basswood Drive, Savannah, GA 31407",
+      "center_phone": "(912) 600-3899",
+      "schools": [
+        {
+          "name": "Godley Station School",
+          "address": "2135 Benton Blvd, Savannah, GA 31407"
+        },
+        {
+          "name": "Rice Creek School",
+          "address": "100 Mulberry Ave, Port Wentworth, GA 31407",
+          "notes": "Port Wentworth, GA"
+        }
+      ]
+    },
+    {
+      "id": "dawsonville",
+      "name": "Dawsonville",
+      "city": "Dawsonville, GA",
+      "schools": [
+        {
+          "name": "Robinson Elementary School",
+          "address": "1150 Dawson Forest Rd East, Dawsonville, GA 30534"
+        },
+        {
+          "name": "Kilough Elementary School",
+          "address": "1063 Kilough Church Road, Dawsonville, GA 30534"
+        },
+        {
+          "name": "Riverview Elementary School",
+          "address": "370 Dawson Forest Rd W, Dawsonville, GA 30534"
+        },
+        {
+          "name": "Black's Mill Elementary School",
+          "address": "1860 Dawson Forest Road East, Dawsonville, GA 30534"
+        }
+      ]
+    },
+    {
+      "id": "smarr",
+      "name": "Smarr / Forsyth",
+      "city": "Forsyth, GA",
+      "schools": [
+        {
+          "name": "K. B. Sutton Elementary School",
+          "address": "1315 Highway 83 North, Forsyth, GA 31029"
+        },
+        {
+          "name": "T.G. Scott Elementary School",
+          "address": "70 Thornton Rd, Forsyth, GA 31029"
+        },
+        {
+          "name": "Samuel E. Hubbard Elementary School",
+          "address": "558 Highway 83 South, Forsyth, GA 31029"
+        }
+      ]
+    },
+    {
+      "id": "valdosta",
+      "name": "Valdosta",
+      "city": "Valdosta, GA",
+      "schools": [
+        {
+          "name": "Sallas Mahone Elementary School",
+          "address": "3686 Lake Laurie Drive, Valdosta, GA 31605"
+        },
+        {
+          "name": "W.G. Nunn Elementary School",
+          "address": "1610 Lakeland Avenue, Valdosta, GA 31602"
+        },
+        {
+          "name": "Dewar Elementary School",
+          "address": "3539 Mt. Zion Church Road, Valdosta, GA 31605"
+        }
+      ]
+    }
+  ],
+  "still_needed_per_school": [
+    "AM pickup time (if offered)",
+    "PM pickup time (if offered)",
+    "Approximate miles to ALC center",
+    "Days of service (M–F default?)",
+    "Before school vs after school vs both"
+  ]
+}
