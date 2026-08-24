@@ -1,8 +1,9 @@
 import React from "react";
 import { pdf } from "@react-pdf/renderer";
 import PacketPdf from "./PacketPdf";
-import BlankIesPdf from "./BlankIesPdf";
 import { appendIesToPacketPdf, getCompletedIesUpload } from "./mergePacketPdf";
+
+const BLANK_IES_FILENAME = "IES2026-2027_ENGLISH.pdf";
 
 function safeName(s) {
   return String(s || "child")
@@ -32,10 +33,27 @@ export async function saveDocumentAsPdf(documentComponent, filename, { appendIes
   }
 }
 
+function getBlankIesAssetUrl() {
+  if (typeof window !== "undefined" && window.location?.origin && window.location.protocol !== "file:") {
+    return `${window.location.origin}/assets/${BLANK_IES_FILENAME}`;
+  }
+  return `/assets/${BLANK_IES_FILENAME}`;
+}
+
 export async function downloadBlankIesPdf() {
-  const dateStr = new Date().toISOString().slice(0, 10);
-  const filename = `ALC_Blank_IES_${dateStr}.pdf`;
-  await saveDocumentAsPdf(<BlankIesPdf />, filename);
+  const response = await fetch(getBlankIesAssetUrl());
+  if (!response.ok) {
+    throw new Error(`Could not load ${BLANK_IES_FILENAME}`);
+  }
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = BLANK_IES_FILENAME;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 2000);
 }
 
 /**

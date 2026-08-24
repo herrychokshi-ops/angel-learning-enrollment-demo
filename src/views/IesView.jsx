@@ -48,7 +48,7 @@ export function IesView() {
   const handleDownloadBlank = async () => {
     try {
       await downloadBlankIesPdf();
-      showToast("Blank IES PDF downloaded — complete offline, then upload in Documents if applicable");
+      showToast("IES2026-2027_ENGLISH.pdf downloaded");
     } catch (err) {
       console.error(err);
       showToast("Blank IES download failed");
