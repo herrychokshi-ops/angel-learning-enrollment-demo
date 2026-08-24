@@ -177,6 +177,13 @@ export function getWatchMeGrowUrl() {
   return "public/assets/WatchMeGrow.png";
 }
 
+export function getProCareLogoUrl() {
+  if (typeof window !== "undefined" && window.location?.origin && window.location.protocol !== "file:") {
+    return `${window.location.origin}/assets/ProCareLogo.png`;
+  }
+  return "public/assets/ProCareLogo.png";
+}
+
 export function PdfHeader() {
   return (
     <View style={pdfStyles.headerBlock} fixed>

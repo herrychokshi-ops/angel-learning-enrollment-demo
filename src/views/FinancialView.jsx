@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useEnrollment } from "../context/EnrollmentContext";
+import { useFormDraft } from "../hooks/useFormDraft";
+import { completeFormAndGo } from "../utils/formNext";
 
 export function FinancialView() {
   const { state, saveForm, needsTransportForm, needsEmergencyMedicalForm, applyCarryForward, t, navigateTo } = useEnrollment();
@@ -50,6 +52,8 @@ export function FinancialView() {
     }));
   }, [state.data?.financial]);
 
+  useFormDraft("financial", formData);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (type === "checkbox") {
@@ -59,14 +63,15 @@ export function FinancialView() {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const form = e.target;
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-    saveForm("financial", formData, true);
+  const handleNext = (e) => {
+    completeFormAndGo({
+      event: e,
+      saveForm,
+      formId: "financial",
+      getPayload: () => formData,
+      navigateTo,
+      target: nextTarget,
+    });
   };
 
   const hasTransport = needsTransportForm();
@@ -86,7 +91,7 @@ export function FinancialView() {
 
   return (
     <section id="view-financial" className="view is-active">
-      <form className="form-shell" data-form="financial" onSubmit={handleSubmit} noValidate>
+      <form className="form-shell" data-form="financial" onSubmit={(e) => e.preventDefault()} noValidate>
         <div className="page-head">
           <a
             href="#packet"
@@ -334,21 +339,9 @@ export function FinancialView() {
         </fieldset>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" data-i18n="saveComplete">
-            {t("saveComplete") || "Save & mark complete"}
-          </button>
-          <a
-            href={`#${nextTarget}`}
-            className="btn btn-secondary"
-            id="financialNextBtn"
-            data-nav={nextTarget}
-            onClick={(e) => {
-              e.preventDefault();
-              navigateTo(nextTarget);
-            }}
-          >
+          <button type="button" className="btn btn-primary" onClick={handleNext}>
             {nextText}
-          </a>
+          </button>
         </div>
       </form>
     </section>

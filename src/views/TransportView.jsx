@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import ALC_CONFIG from "../config";
 import { useEnrollment } from "../context/EnrollmentContext";
+import { useFormDraft } from "../hooks/useFormDraft";
+import { completeFormAndGo } from "../utils/formNext";
 
 export function TransportView() {
   const { state, saveForm, applyCarryForward, selectedLocationId, needsEmergencyMedicalForm, t, navigateTo } = useEnrollment();
@@ -22,6 +24,14 @@ export function TransportView() {
     trThu: !!savedData.trThu,
     trFri: !!savedData.trFri,
     trStaffAuth: !!savedData.trStaffAuth,
+    trPermEmergency:
+      "trPermEmergency" in savedData ? !!savedData.trPermEmergency : !!savedData.trStaffAuth,
+    trPermFieldTrips:
+      "trPermFieldTrips" in savedData ? !!savedData.trPermFieldTrips : !!savedData.trStaffAuth,
+    trPermSchool:
+      "trPermSchool" in savedData
+        ? !!savedData.trPermSchool
+        : !!(savedData.trStaffAuth && savedData.trSchoolChoice),
     trMiles: savedData.trMiles || "",
     trSignature: savedData.trSignature || "",
     trDate: savedData.trDate || "",
@@ -43,8 +53,16 @@ export function TransportView() {
       trThu: !!tr.trThu,
       trFri: !!tr.trFri,
       trStaffAuth: !!tr.trStaffAuth,
+      trPermEmergency:
+        "trPermEmergency" in tr ? !!tr.trPermEmergency : !!tr.trStaffAuth,
+      trPermFieldTrips:
+        "trPermFieldTrips" in tr ? !!tr.trPermFieldTrips : !!tr.trStaffAuth,
+      trPermSchool:
+        "trPermSchool" in tr ? !!tr.trPermSchool : !!(tr.trStaffAuth && tr.trSchoolChoice),
     }));
   }, [state.data?.transport, selectedLocationId]);
+
+  useFormDraft("transport", formData);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -73,14 +91,15 @@ export function TransportView() {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const form = e.target;
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-    saveForm("transport", formData, true);
+  const handleNext = (e) => {
+    completeFormAndGo({
+      event: e,
+      saveForm,
+      formId: "transport",
+      getPayload: () => formData,
+      navigateTo,
+      target: nextTarget,
+    });
   };
 
   const schools = ALC_CONFIG.transport?.schools?.[formData.trLocation] || [];
@@ -97,7 +116,7 @@ export function TransportView() {
 
   return (
     <section id="view-transport" className="view is-active">
-      <form className="form-shell" data-form="transport" onSubmit={handleSubmit} noValidate>
+      <form className="form-shell" data-form="transport" onSubmit={(e) => e.preventDefault()} noValidate>
         <div className="page-head">
           <a
             href="#packet"
@@ -242,6 +261,35 @@ export function TransportView() {
             </label>
           </div>
 
+          <p className="subhead">Transportation permissions (check all that apply)</p>
+          <label className="check">
+            <input
+              type="checkbox"
+              name="trPermEmergency"
+              checked={formData.trPermEmergency}
+              onChange={handleChange}
+            />
+            Emergency Care
+          </label>
+          <label className="check">
+            <input
+              type="checkbox"
+              name="trPermFieldTrips"
+              checked={formData.trPermFieldTrips}
+              onChange={handleChange}
+            />
+            Field Trips
+          </label>
+          <label className="check">
+            <input
+              type="checkbox"
+              name="trPermSchool"
+              checked={formData.trPermSchool}
+              onChange={handleChange}
+            />
+            To and From Elementary School
+          </label>
+
           <label className="check">
             <input
               type="checkbox"
@@ -294,21 +342,9 @@ export function TransportView() {
         </fieldset>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" data-i18n="saveComplete">
-            {t("saveComplete") || "Save & mark complete"}
-          </button>
-          <a
-            href={`#${nextTarget}`}
-            className="btn btn-secondary"
-            data-nav={nextTarget}
-            data-i18n={hasEmergency ? "nextEmergency" : "nextIes"}
-            onClick={(e) => {
-              e.preventDefault();
-              navigateTo(nextTarget);
-            }}
-          >
+          <button type="button" className="btn btn-primary" onClick={handleNext}>
             {nextText}
-          </a>
+          </button>
         </div>
       </form>
     </section>

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useEnrollment } from "../context/EnrollmentContext";
+import { useFormDraft } from "../hooks/useFormDraft";
+import { completeFormAndGo } from "../utils/formNext";
 
 export function EmergencyView() {
   const { state, saveForm, applyCarryForward, activeLocation, t, navigateTo } = useEnrollment();
@@ -40,6 +42,8 @@ export function EmergencyView() {
     }));
   }, [state.data?.emergency, activeLocation?.hospital]);
 
+  useFormDraft("emergency", formData);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (type === "checkbox") {
@@ -49,14 +53,15 @@ export function EmergencyView() {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const form = e.target;
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-    saveForm("emergency", formData, true);
+  const handleNext = (e) => {
+    completeFormAndGo({
+      event: e,
+      saveForm,
+      formId: "emergency",
+      getPayload: () => formData,
+      navigateTo,
+      target: "ies",
+    });
   };
 
   const showPrefillNotice = !!(
@@ -67,7 +72,7 @@ export function EmergencyView() {
 
   return (
     <section id="view-emergency" className="view is-active">
-      <form className="form-shell" data-form="emergency" onSubmit={handleSubmit} noValidate>
+      <form className="form-shell" data-form="emergency" onSubmit={(e) => e.preventDefault()} noValidate>
         <div className="page-head">
           <a
             href="#packet"
@@ -233,21 +238,9 @@ export function EmergencyView() {
         </fieldset>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" data-i18n="saveComplete">
-            {t("saveComplete") || "Save & mark complete"}
-          </button>
-          <a
-            href="#ies"
-            className="btn btn-secondary"
-            data-nav="ies"
-            data-i18n="nextIes"
-            onClick={(e) => {
-              e.preventDefault();
-              navigateTo("ies");
-            }}
-          >
+          <button type="button" className="btn btn-primary" onClick={handleNext}>
             {t("nextIes") || "Next: Meal benefit form →"}
-          </a>
+          </button>
         </div>
       </form>
     </section>

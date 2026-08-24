@@ -25,8 +25,40 @@ function unique(list) {
   return [...new Set(list)];
 }
 
+function hasCareProgram(programs) {
+  return (programs || []).some((id) => CARE_PROGRAMS.includes(id));
+}
+
+function getSelectedCoreClassroom(programs) {
+  return (programs || []).find((id) => CORE_CLASSROOM_PROGRAMS.includes(id));
+}
+
+function hasCoreClassroomProgram(programs) {
+  return !!getSelectedCoreClassroom(programs);
+}
+
 export function normalizePrograms(selected) {
   let programs = unique((selected || []).filter(Boolean));
+
+  const selectedCare = programs.filter((id) => CARE_PROGRAMS.includes(id));
+  if (selectedCare.length) {
+    return [selectedCare[selectedCare.length - 1]];
+  }
+
+  let selectedCore = getSelectedCoreClassroom(programs);
+  if (selectedCore) {
+    programs = programs.filter((id) => id === selectedCore || id === PART_TIME_PROGRAM);
+    if (programs.length === 1 && programs[0] === PART_TIME_PROGRAM) {
+      return [];
+    }
+    return programs.slice(0, MAX_PROGRAM_SELECTIONS);
+  }
+
+  const selectedCoreList = programs.filter((id) => CORE_CLASSROOM_PROGRAMS.includes(id));
+  if (selectedCoreList.length > 1) {
+    const keep = selectedCoreList[selectedCoreList.length - 1];
+    programs = programs.filter((id) => !CORE_CLASSROOM_PROGRAMS.includes(id) || id === keep);
+  }
 
   if (programs.includes(SUMMER_CAMP_PROGRAM) || programs.includes(HOLIDAY_WEEKS_PROGRAM)) {
     programs = programs.filter(
@@ -39,15 +71,7 @@ export function normalizePrograms(selected) {
   }
 
   if (programs.includes(PREK_PROGRAM)) {
-    programs = programs.filter(
-      (id) => id === PREK_PROGRAM || CARE_PROGRAMS.includes(id)
-    );
-  }
-
-  const selectedCare = programs.filter((id) => CARE_PROGRAMS.includes(id));
-  if (selectedCare.length > 1) {
-    programs = programs.filter((id) => !CARE_PROGRAMS.includes(id));
-    programs.push(selectedCare[selectedCare.length - 1]);
+    programs = programs.filter((id) => id === PREK_PROGRAM);
   }
 
   if (programs.length > MAX_PROGRAM_SELECTIONS) {
@@ -64,6 +88,15 @@ export function normalizePrograms(selected) {
 export function isProgramVisible(programId, selected) {
   const programs = normalizePrograms(selected);
   const set = new Set(programs);
+
+  if (hasCareProgram(programs)) {
+    return CARE_PROGRAMS.includes(programId);
+  }
+
+  if (hasCoreClassroomProgram(programs)) {
+    return CORE_CLASSROOM_PROGRAMS.includes(programId) || programId === PART_TIME_PROGRAM;
+  }
+
   const inSeasonalMode =
     set.has(SUMMER_CAMP_PROGRAM) || set.has(HOLIDAY_WEEKS_PROGRAM);
 
@@ -72,7 +105,7 @@ export function isProgramVisible(programId, selected) {
   }
 
   if (set.has(PREK_PROGRAM)) {
-    return programId === PREK_PROGRAM || CARE_PROGRAMS.includes(programId);
+    return programId === PREK_PROGRAM;
   }
 
   if (programId === HOLIDAY_WEEKS_PROGRAM) {
@@ -88,6 +121,25 @@ export function isProgramDisabled(programId, selected) {
 
   if (set.has(programId)) return false;
 
+  if (hasCareProgram(programs)) {
+    return !CARE_PROGRAMS.includes(programId);
+  }
+
+  if (CARE_PROGRAMS.includes(programId)) {
+    return false;
+  }
+
+  const selectedCore = getSelectedCoreClassroom(programs);
+  if (selectedCore) {
+    if (CORE_CLASSROOM_PROGRAMS.includes(programId)) {
+      return programId !== selectedCore;
+    }
+    if (programId === PART_TIME_PROGRAM) {
+      return set.has(PART_TIME_PROGRAM);
+    }
+    return true;
+  }
+
   if (set.size >= MAX_PROGRAM_SELECTIONS) return true;
 
   if (programId === PART_TIME_PROGRAM) {
@@ -95,7 +147,7 @@ export function isProgramDisabled(programId, selected) {
   }
 
   if (set.has(PREK_PROGRAM)) {
-    return programId !== PREK_PROGRAM && !CARE_PROGRAMS.includes(programId);
+    return programId !== PREK_PROGRAM;
   }
 
   if (programId === PREK_PROGRAM) {
@@ -151,18 +203,16 @@ export function toggleProgram(selected, programId) {
   }
 
   if (programId === PREK_PROGRAM) {
-    const care = CARE_PROGRAMS.find((id) => set.has(id));
-    return normalizePrograms(care ? [PREK_PROGRAM, care] : [PREK_PROGRAM]);
-  }
-
-  if (set.has(PREK_PROGRAM) && CARE_PROGRAMS.includes(programId)) {
-    return normalizePrograms([PREK_PROGRAM, programId]);
+    return normalizePrograms([PREK_PROGRAM]);
   }
 
   if (CARE_PROGRAMS.includes(programId)) {
-    CARE_PROGRAMS.forEach((id) => set.delete(id));
-    set.add(programId);
-    return normalizePrograms(Array.from(set));
+    return normalizePrograms([programId]);
+  }
+
+  if (CORE_CLASSROOM_PROGRAMS.includes(programId)) {
+    const keepPartTime = set.has(PART_TIME_PROGRAM);
+    return normalizePrograms(keepPartTime ? [programId, PART_TIME_PROGRAM] : [programId]);
   }
 
   set.add(programId);

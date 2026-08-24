@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useEnrollment } from "../context/EnrollmentContext";
+import { useFormDraft } from "../hooks/useFormDraft";
+import { completeFormAndGo } from "../utils/formNext";
 
 export function HandbookView() {
   const { state, saveForm, applyCarryForward, t, navigateTo } = useEnrollment();
@@ -27,6 +29,8 @@ export function HandbookView() {
     }));
   }, [state.data?.handbook]);
 
+  useFormDraft("handbook", formData);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (type === "checkbox") {
@@ -36,14 +40,15 @@ export function HandbookView() {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const form = e.target;
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-    saveForm("handbook", formData, true);
+  const handleNext = (e) => {
+    completeFormAndGo({
+      event: e,
+      saveForm,
+      formId: "handbook",
+      getPayload: () => formData,
+      navigateTo,
+      target: "photo",
+    });
   };
 
   const showPrefillNotice = !!(
@@ -54,7 +59,7 @@ export function HandbookView() {
 
   return (
     <section id="view-handbook" className="view is-active">
-      <form className="form-shell" data-form="handbook" onSubmit={handleSubmit} noValidate>
+      <form className="form-shell" data-form="handbook" onSubmit={(e) => e.preventDefault()} noValidate>
         <div className="page-head">
           <a
             href="#packet"
@@ -75,7 +80,7 @@ export function HandbookView() {
           </p>
           <p className="hero-cta" style={{ marginBottom: "1rem" }}>
             <a
-              className="btn btn-secondary"
+              className="btn  btn btn-primary"
               href="assets/Parent-Handbook-2026.pdf"
               target="_blank"
               rel="noopener noreferrer"
@@ -149,20 +154,9 @@ export function HandbookView() {
         </fieldset>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" data-i18n="saveComplete">
-            {t("saveComplete") || "Save & mark complete"}
-          </button>
-          <a
-            href="#photo"
-            className="btn btn-secondary"
-            data-nav="photo"
-            onClick={(e) => {
-              e.preventDefault();
-              navigateTo("photo");
-            }}
-          >
+          <button type="button" className="btn btn-primary" onClick={handleNext}>
             Next: Photo / Video →
-          </a>
+          </button>
         </div>
       </form>
     </section>

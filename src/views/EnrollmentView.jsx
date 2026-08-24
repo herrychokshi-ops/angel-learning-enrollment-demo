@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import ALC_CONFIG from "../config";
 import { useEnrollment } from "../context/EnrollmentContext";
+import { useFormDraft } from "../hooks/useFormDraft";
+import { completeFormAndGo } from "../utils/formNext";
 import {
   isProgramDisabled,
   isProgramVisible,
@@ -88,6 +90,24 @@ export function EnrollmentView() {
     }));
   }, [state.data?.enrollment, selectedLocationId]);
 
+  const enrollmentPayload = useCallback(
+    () => ({
+      ...formData,
+      programs: normalizePrograms(formData.programs || []),
+    }),
+    [formData]
+  );
+
+  const mapEnrollmentData = useCallback(
+    (data) => ({
+      ...data,
+      programs: normalizePrograms(data.programs || []),
+    }),
+    []
+  );
+
+  useFormDraft("enrollment", formData, { mapData: mapEnrollmentData });
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (type === "checkbox") {
@@ -111,23 +131,24 @@ export function EnrollmentView() {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const programValidation = validatePrograms(formData.programs || []);
-    if (programValidation) {
-      setProgramError(programValidation);
-      return;
-    }
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-    saveForm(
-      "enrollment",
-      { ...formData, programs: normalizePrograms(formData.programs || []) },
-      true
-    );
+  const handleNext = (e) => {
+    completeFormAndGo({
+      event: e,
+      saveForm,
+      formId: "enrollment",
+      getPayload: enrollmentPayload,
+      navigateTo,
+      target: "financial",
+      validate: () => {
+        const programValidation = validatePrograms(formData.programs || []);
+        if (programValidation) {
+          setProgramError(programValidation);
+          return programValidation;
+        }
+        setProgramError("");
+        return null;
+      },
+    });
   };
 
   const currentLoc = ALC_CONFIG.locations?.[formData.enLocation] || activeLocation;
@@ -136,7 +157,7 @@ export function EnrollmentView() {
 
   return (
     <section id="view-enrollment" className="view is-active">
-      <form className="form-shell" data-form="enrollment" onSubmit={handleSubmit} noValidate>
+      <form className="form-shell" data-form="enrollment" onSubmit={(e) => e.preventDefault()} noValidate>
         <div className="page-head">
           <a
             href="#packet"
@@ -190,9 +211,10 @@ export function EnrollmentView() {
 
           <p className="subhead">Program(s) for this child</p>
           <p className="hint">
-            Choose up to two programs. Part-time Stars can only be added after another program is selected.
-            Before care, after care, and before &amp; after care cannot be combined. GA Pre-K pairs with one care
-            option only. Summer Camp and Holiday Weeks are selected together.
+            Choose up to two programs. Little Angels, Tiny Explorers, Busy Bee, and Little Learners are age groups —
+            only one can be selected, and when one is chosen only Part-time Stars can be added (all other programs are
+            hidden). Before care, after care, and before &amp; after care are standalone — selecting one hides all other
+            programs (you can switch between those three only). Summer Camp and Holiday Weeks are selected together.
           </p>
           <p className="hint">
             Transportation and Vehicle Emergency Medical forms appear when Pre-K, care programs, or summer/holiday
@@ -233,7 +255,7 @@ export function EnrollmentView() {
           <legend data-i18n="childInfo">{t("childInfo") || "Child information"}</legend>
           <div id="multiChildBar" className="multi-child-bar">
             <p className="hint" style={{ margin: 0 }}>
-              Enrolling more than one child? Complete this form for the first child, then use <strong>Add sibling</strong> on the checklist. Legal &amp; document forms cover the household.
+              Enrolling more than one child? Complete a separate packet for each child. Legal &amp; document forms cover the household.
             </p>
           </div>
           <div className="grid-3">
@@ -511,21 +533,14 @@ export function EnrollmentView() {
         </fieldset>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" data-i18n="saveComplete">
-            {t("saveComplete") || "Save & mark complete"}
-          </button>
-          <a
-            href="#financial"
-            className="btn btn-secondary"
-            data-nav="financial"
+          <button
+            type="button"
+            className="btn btn-primary"
             data-i18n="nextFinancial"
-            onClick={(e) => {
-              e.preventDefault();
-              navigateTo("financial");
-            }}
+            onClick={handleNext}
           >
             {t("nextFinancial") || "Next: Tuition agreement →"}
-          </a>
+          </button>
         </div>
       </form>
     </section>
