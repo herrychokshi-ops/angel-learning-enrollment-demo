@@ -1,7 +1,7 @@
 import React from "react";
 import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import ALC_CONFIG from "../config";
-import { FONT, COLORS, PdfHeader, PdfFooter, getLogoUrl, getWatchMeGrowUrl } from "./PdfShared";
+import { FONT, COLORS, PdfHeader, PdfFooter, getLogoUrl, getWatchMeGrowUrl, getProCareLogoUrl } from "./PdfShared";
 
 const WATER_PERMISSION_FIELDS = [
   { label: "Sprinkler", field: "permWaterSprinkler" },
@@ -913,27 +913,189 @@ const enroll = StyleSheet.create({
     fontSize: 10,
     marginBottom: 6,
   },
-  procarePlaceholder: {
-    borderWidth: 1,
-    borderColor: "#777",
-    height: 52,
+  wmgFamilyRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    width: "100%",
+    marginBottom: 7,
+  },
+  wmgFamilyNum: {
+    width: 14,
+    fontFamily: FONT,
+    fontSize: 10,
+    textAlign: "right",
+    marginRight: 6,
+    paddingBottom: 1,
+    flexShrink: 0,
+  },
+  wmgFamilyField: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    minWidth: 0,
+  },
+  wmgFamilyLabel: {
+    fontFamily: FONT,
+    fontSize: 10,
+    marginRight: 4,
+    flexShrink: 0,
+  },
+  procareHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    justifyContent: "center",
-    marginTop: 8,
+    marginBottom: 10,
+  },
+  procareAlcLogo: {
+    width: 118,
+    height: 32,
+    objectFit: "contain",
+  },
+  procareLogo: {
+    width: 118,
+    height: 40,
+    objectFit: "contain",
+  },
+  procareMainTitle: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 22,
+    color: "#6BAFD6",
+    textAlign: "center",
+    marginBottom: 2,
+  },
+  procareTagline: {
+    fontFamily: "Helvetica",
+    fontSize: 11,
+    marginTop:20,
+    color: "#666666",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  procareIntro: {
+    fontFamily: FONT,
+    fontSize: 9.5,
+    lineHeight: 1.35,
+    marginBottom: 8,
+    textAlign: "justify",
+  },
+  procareAuthHeading: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 9.5,
+    fontWeight: "bold",
+    marginBottom: 6,
+    lineHeight: 1.3,
+  },
+  procareAuthHeadingBlue: {
+    color: "#1792cc",
+  },
+  procareAuthBody: {
+    fontFamily: FONT,
+    fontSize: 9.5,
+    lineHeight: 1.35,
+    marginBottom: 6,
+    textAlign: "justify",
+  },
+  procareCompleteOne: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 9.5,
+    color: "#1792cc",
     marginBottom: 8,
   },
+  procareSectionA: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 10,
+    color: "#1792cc",
+    marginBottom: 8,
+  },
+  procareStackField: {
+    marginRight: 10,
+    minWidth: 0,
+  },
+  procareStackLabel: {
+    fontFamily: FONT,
+    fontSize: 9,
+    marginBottom: 2,
+  },
+  procareStackValue: {
+    borderBottomWidth: 0.8,
+    borderBottomColor: "#000",
+    minHeight: 13,
+    paddingHorizontal: 2,
+    justifyContent: "flex-end",
+  },
+  procareTuitionNote: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 10,
+    color: "#7B68C8",
+    marginTop: 6,
+    marginBottom: 10,
+  },
+  procareBottomRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginTop: 4, 
+  },
+  procareCheckArea: {
+    flex: 1.15,
+    marginRight: 12,
+  },
+  procareCheckImage: {
+    borderWidth: 1,
+    borderColor: "#999",
+    backgroundColor: "#f5f5f5",
+    height: 88,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 8,
+  },
+  procareCheckOverlay: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 11,
+    color: "#E07020",
+    textAlign: "center",
+    lineHeight: 1.3,
+  },
+  procareCheckLabels: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 4,
+  },
+  procareCheckLabel: {
+    fontFamily: FONT,
+    fontSize: 7.5,
+    color: COLORS.muted,
+    textAlign: "center",
+    flex: 1,
+  },
   procareOfficial: {
+    flex: 1, 
     borderWidth: 1,
     borderColor: "#333",
     padding: 8,
-    marginTop: 4,
+    height:120,
   },
-  procareFooter: {
-    fontFamily: FONT,
-    fontSize: 8.5,
+  procareOfficialTitle: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 9,
     textAlign: "center",
-    marginTop: 10,
+    marginBottom: 10,
+  },
+  procareFooterRow: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    marginTop: 8,
+  },
+  procareFooterText: {
+    fontFamily: FONT,
+    fontSize: 8,
     color: COLORS.muted,
+  },
+  procareFooterDot: {
+    fontFamily: FONT,
+    fontSize: 8,
+    color: "#1792cc",
+    marginHorizontal: 4,
   },
   footerContainer: {
     position: "absolute",
@@ -968,6 +1130,49 @@ function InlineField({ label, value, width, flex, grow = false }) {
       <Text style={enroll.inlineLabel}>{labelText}</Text>
       <View style={[enroll.inlineValue, { flex: 1, minWidth: 0 }]}>
         <Text style={enroll.valueText}>{val(value) || " "}</Text>
+      </View>
+    </View>
+  );
+}
+
+function StackField({ label, value, flex = 1, width }) {
+  return (
+    <View style={[enroll.procareStackField, flex ? { flex, minWidth: 0 } : null, width ? { width } : null]}>
+      <Text style={enroll.procareStackLabel}>{label}</Text>
+      <View style={enroll.procareStackValue}>
+        <Text style={enroll.valueText}>{val(value) || " "}</Text>
+      </View>
+    </View>
+  );
+}
+
+function splitCityStateZip(value = "") {
+  const text = String(value || "").trim();
+  if (!text) return { city: "", state: "", zip: "" };
+  const parts = text.split(",").map((part) => part.trim());
+  if (parts.length >= 3) {
+    return { city: parts[0], state: parts[1], zip: parts.slice(2).join(", ") };
+  }
+  if (parts.length === 2) {
+    const stateZip = parts[1].split(/\s+/);
+    if (stateZip.length >= 2) {
+      return { city: parts[0], state: stateZip[0], zip: stateZip.slice(1).join(" ") };
+    }
+    return { city: parts[0], state: parts[1], zip: "" };
+  }
+  return { city: text, state: "", zip: "" };
+}
+
+function WmgNumberedField({ number, label, value }) {
+  const labelText = /[:)]$/.test(String(label).trim()) ? label : `${label}:`;
+  return (
+    <View style={enroll.wmgFamilyRow}>
+      <Text style={enroll.wmgFamilyNum}>{number}.</Text>
+      <View style={enroll.wmgFamilyField}>
+        <Text style={enroll.wmgFamilyLabel}>{labelText}</Text>
+        <View style={[enroll.inlineValue, { flex: 1, minWidth: 0 }]}>
+          <Text style={enroll.valueText}>{val(value) || " "}</Text>
+        </View>
       </View>
     </View>
   );
@@ -1636,7 +1841,7 @@ function AgreementSigColumn({ label, value }) {
   return (
     <View style={{ flex: 1, marginRight: 10, alignItems: "center" }}>
       <View style={{ flexDirection: "row", alignItems: "flex-end", width: "100%" }}>
-        <Text style={[enroll.inlineLabel, { marginRight: 2 }]}>X</Text>
+        {/* <Text style={[enroll.inlineLabel, { marginRight: 2 }]}>X</Text> */}
         <View style={[enroll.inlineValue, { flex: 1 }]}>
           <Text style={enroll.valueText}>{val(value) || " "}</Text>
         </View>
@@ -1732,55 +1937,98 @@ function Page12({ d }) {
   const sig = fin.signature || d.signatures?.mother;
   const date = fin.date || d.signatures?.date;
   const hasCardInfo = !!(fin.cardNumber || fin.cardExp || fin.cardCvv || fin.cardholderName);
+  const { city, state, zip } = splitCityStateZip(fin.cityStateZip);
 
   return (
     <Page size="LETTER" style={enroll.page}>
-      <PdfHeader />
-      <Text style={enroll.title}>Automated Payment Processing</Text>
-      <Text style={[enroll.permBody, { fontWeight: "bold", marginBottom: 6 }]}>Procare</Text>
-      <Text style={[enroll.permBody, { marginBottom: 6 }]}>
-        Automated payment processing allows tuition and fees to be charged securely according to the family&apos;s
-        selected payment method and the center&apos;s tuition schedule.
-      </Text>
-      <Text style={[enroll.permBody, { marginBottom: 10 }]}>
-        I (we) hereby authorize Angel Learning Center to initiate recurring charges for childcare tuition and approved
-        fees. This authorization will remain in effect until cancelled in writing. I understand that cancellation
-        requires at least 10 days advance notice to allow reasonable time for processing.
-      </Text>
-
-      <Text style={enroll.permSection}>Section A: Credit Card</Text>
-      <View style={enroll.lineRow}>
-        <InlineField label="Cardholder Name" value={hasCardInfo ? fin.cardholderName || fin.responsibleParty : ""} flex={1.2} />
-        <InlineField label="Phone" value={fin.phone} flex={1} />
-      </View>
-      <View style={enroll.lineRow}>
-        <InlineField label="Address" value={fin.address} flex={1.2} />
-        <InlineField label="City/State/Zip" value={fin.cityStateZip} flex={1} />
-      </View>
-      <View style={enroll.lineRow}>
-        <InlineField label="Card Number" value={hasCardInfo ? fin.cardNumber : ""} flex={1.6} />
-        <InlineField label="Expiration Date" value={hasCardInfo ? fin.cardExp : ""} flex={1} />
-        <InlineField label="CVV" value={hasCardInfo ? fin.cardCvv : ""} flex={0.7} />
-      </View>
-      <View style={[enroll.permSigRow, { marginTop: 4 }]}>
-        <InlineField label="Cardholder Signature" value={sig} flex={2.2} />
-        <InlineField label="Date" value={date} flex={1} />
+      <View style={enroll.procareHeaderRow}>
+        <Image style={enroll.procareAlcLogo} src={getLogoUrl()} />
+        <Image style={enroll.procareLogo} src={getProCareLogoUrl()} />
       </View>
 
-      <Text style={[enroll.permBody, { fontWeight: "bold", marginTop: 8 }]}>
-        Tuition is charged every Monday morning by 9:00am.
+      <Text style={enroll.procareMainTitle}>Automated Payment Processing</Text>
+      <Text style={enroll.procareTagline}>Safe. Convenient. Easy.</Text>
+
+      <Text style={enroll.procareIntro}>
+        Tuition Express is a service that allows you to make secure, on-time payments to your child care provider
+        through an automatic deduction from your bank account or credit card. It&apos;s a convenient way to pay your
+        tuition and fees.
       </Text>
-      <View style={enroll.procarePlaceholder}>
-        <Text style={enroll.permBody}>VOIDED CHECK PLACEHOLDER</Text>
+
+      <Text style={enroll.procareAuthHeading}>
+        ELECTRONIC FUNDS TRANSFER AUTHORIZATION FOR BANK ACCOUNT AND{" "}
+        <Text style={enroll.procareAuthHeadingBlue}>CREDIT CARD</Text>
+      </Text>
+      <Text style={enroll.procareAuthBody}>
+        I (we) hereby authorize{" "}
+        <Text style={enroll.valueText}>Angel Learning Center</Text> to initiate charges to my (our) account at the
+        financial institution or credit card indicated below and to credit the same to my (our) account. This
+        authorization is to remain in full force and effect until Angel Learning Center has received written
+        notification from me (us) of its termination in such time and in such manner as to afford Angel Learning Center
+        and the financial institution or credit card company a reasonable opportunity to act on it. I understand that
+        cancellation requires at least 10 days advance notice.
+      </Text>
+      <Text style={enroll.procareCompleteOne}>COMPLETE ONE SECTION ONLY</Text>
+
+      <Text style={enroll.procareSectionA}>SECTION A (Credit Card)</Text>
+
+      <View style={enroll.lineRow}>
+        <StackField
+          label="Cardholder Name"
+          value={hasCardInfo ? fin.cardholderName || fin.responsibleParty : ""}
+          flex={1.5}
+        />
+        <StackField label="Phone #" value={fin.phone} flex={1} />
       </View>
-      <View style={enroll.procareOfficial}>
-        <Text style={[enroll.permBody, { fontWeight: "bold", marginBottom: 6 }]}>FOR OFFICIAL USE ONLY</Text>
-        <View style={enroll.lineRow}>
-          <InlineField label="Date Received" value="" flex={1} />
-          <InlineField label="Employee Signature" value="" flex={1} />
+      <View style={enroll.lineRow}>
+        <StackField label="Cardholder Address" value={fin.address} flex={1.6} />
+        <StackField label="City" value={city} flex={0.8} />
+        <StackField label="State" value={state} flex={0.45} />
+        <StackField label="Zip" value={zip} flex={0.65} />
+      </View>
+      <View style={enroll.lineRow}>
+        <StackField label="Card Number" value={hasCardInfo ? fin.cardNumber : ""} flex={1.6} />
+        <StackField label="Expiration Date" value={hasCardInfo ? fin.cardExp : ""} flex={0.9} />
+        <StackField label="CVV" value={hasCardInfo ? fin.cardCvv : ""} flex={0.5} />
+      </View>
+      <View style={enroll.lineRow}>
+        <StackField label="Cardholder Signature" value={sig} flex={1.5} />
+        <StackField label="Date" value={date} flex={1} />
+      </View>
+
+      <Text style={enroll.procareTuitionNote}>Tuition is charged every Monday morning by 9:00am.</Text>
+
+      <View style={enroll.procareBottomRow}>
+        <View style={enroll.procareCheckArea}>
+          <View style={enroll.procareCheckImage}>
+            <Text style={enroll.procareCheckOverlay}>ATTACH VOIDED CHECK HERE</Text>
+            <Text style={enroll.procareCheckOverlay}>DEPOSIT SLIPS NOT ACCEPTED</Text>
+          </View>
+          <View style={enroll.procareCheckLabels}>
+            <Text style={enroll.procareCheckLabel}>ROUTING NUMBER</Text>
+            <Text style={enroll.procareCheckLabel}>ACCOUNT NUMBER</Text>
+            <Text style={enroll.procareCheckLabel}>CHECK NUMBER</Text>
+          </View>
+        </View>
+
+        <View style={enroll.procareOfficial}>
+          <Text style={enroll.procareOfficialTitle}>FOR OFFICIAL USE ONLY</Text>
+          <StackField label="Date Received" value="" />
+
+          <View style={{ marginTop: 8 }}> 
+          </View>
+             <StackField label="Employee Signature" value="" />
         </View>
       </View>
-      <Text style={enroll.procareFooter}>procaresoftware.com | Copyright Procare Software</Text>
+
+      <View style={enroll.procareFooterRow}>
+        <Text style={enroll.procareFooterText}>800.338.3884</Text>
+        <Text style={enroll.procareFooterDot}>•</Text>
+        <Text style={[enroll.procareFooterText, { color: "#1792cc" }]}>procaresoftware.com</Text>
+        <Text style={enroll.procareFooterDot}>•</Text>
+        <Text style={enroll.procareFooterText}>© Copyright 2020 Procare Software®, LLC</Text>
+      </View>
+
       <PdfFooter />
     </Page>
   );
@@ -1829,18 +2077,9 @@ function Page13({ d }) {
       />
 
       <Text style={[enroll.wmgStep, { color: COLORS.ink, marginTop: 12 }]}>Family Information</Text>
-      <View style={enroll.lineRow}>
-        <Text style={enroll.wmgNumbered}>1.</Text>
-        <InlineField label="Child’s Name" value={d._derived?.childName} flex={1} />
-      </View>
-      <View style={enroll.lineRow}>
-        <Text style={enroll.wmgNumbered}>2.</Text>
-        <InlineField label="Classroom" value={d.child?.gradeClass} flex={1} />
-      </View>
-      <View style={enroll.lineRow}>
-        <Text style={enroll.wmgNumbered}>3.</Text>
-        <InlineField label="Parent Signature" value={sig} flex={1} />
-      </View>
+      <WmgNumberedField number={1} label="Child's Name" value={d._derived?.childName} />
+      <WmgNumberedField number={2} label="Classroom" value={d.child?.gradeClass} />
+      <WmgNumberedField number={3} label="Parent Signature" value={sig} />
 
       <View style={{ marginTop: 14 }}>
         <Text style={enroll.wmgRedNote}>
