@@ -317,7 +317,8 @@ export function EnrollmentProvider({ children }) {
   );
 
   const saveForm = useCallback(
-    (formId, formData, markComplete = true) => {
+    (formId, formData, markComplete = true, options = {}) => {
+      const { silent = false } = options;
       setState((prev) => {
         const next = {
           ...prev,
@@ -342,15 +343,39 @@ export function EnrollmentProvider({ children }) {
         }, 10);
       }
 
-      showToast(
-        formId === "enrollment"
-          ? lang === "es"
-            ? "Guardado — datos copiados a los demás formularios"
-            : "Saved — shared details carried to the other forms"
-          : t("toastSaved")
-      );
+      if (!silent) {
+        showToast(
+          formId === "enrollment"
+            ? lang === "es"
+              ? "Guardado — datos copiados a los demás formularios"
+              : "Saved — shared details carried to the other forms"
+            : t("toastSaved")
+        );
+      }
     },
     [applyCarryForward, lang, showToast, t]
+  );
+
+  const autoSaveForm = useCallback(
+    (formId, formData) => {
+      setState((prev) => ({
+        ...prev,
+        data: {
+          ...prev.data,
+          [formId]: {
+            ...(prev.data[formId] || {}),
+            ...formData,
+          },
+        },
+      }));
+
+      if (formId === "enrollment" || formId === "financial") {
+        setTimeout(() => {
+          applyCarryForward({ force: false });
+        }, 10);
+      }
+    },
+    [applyCarryForward]
   );
 
   const loadSample = useCallback(() => {
@@ -501,6 +526,7 @@ export function EnrollmentProvider({ children }) {
     formBlurb,
     applyCarryForward,
     saveForm,
+    autoSaveForm,
     loadSample,
     resetDemo,
     addSibling,

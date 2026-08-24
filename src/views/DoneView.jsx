@@ -1,11 +1,10 @@
 import React from "react";
-import ALC_CONFIG from "../config";
 import FormList from "../components/FormList";
 import { downloadPdfBundle } from "../pdf/pdfGenerator";
 import { useEnrollment } from "../context/EnrollmentContext";
 
 export function DoneView() {
-  const { state, activeLocation, addSibling, showToast, t, navigateTo } = useEnrollment();
+  const { state, activeLocation, showToast, t, navigateTo } = useEnrollment();
 
   const handleDownloadPdfs = async (which) => {
     try {
@@ -23,13 +22,13 @@ export function DoneView() {
     }
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   const inbox = activeLocation?.inbox || "savannah@angellearningcenter.com";
-  const cc = (ALC_CONFIG.email?.cc || []).join(", ");
-  const subject = ALC_CONFIG.email?.subject || "Enrollment Packet for Angel Learning Center";
+  const en = state.data?.enrollment || {};
+  const childName =
+    [en.childFirst, en.childMI, en.childLast].filter(Boolean).join(" ").trim() ||
+    en.childPreferred ||
+    "Child";
+  const subject = `Enrollment Packet for ${childName}`;
 
   return (
     <section id="view-done" className="view is-active">
@@ -57,10 +56,6 @@ export function DoneView() {
           <div className="mail-row">
             <small data-i18n="emailToCenter">{t("emailToCenter") || "SENT TO CENTER"}</small>
             <strong id="doneInbox">{inbox}</strong>
-          </div>
-          <div className="mail-row">
-            <small>CC (owner — confirm address)</small>
-            <strong id="doneCc">{cc}</strong>
           </div>
           <div className="mail-row">
             <small>SUBJECT</small>
@@ -120,23 +115,6 @@ export function DoneView() {
           >
             {t("reviewChecklist") || "Review checklist"}
           </a>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            id="printDemo"
-            data-i18n="printPreview"
-            onClick={handlePrint}
-          >
-            {t("printPreview") || "Print webpage"}
-          </button>
-          <button
-            type="button"
-            className="btn btn-green"
-            id="addSibling"
-            onClick={addSibling}
-          >
-            Add sibling to packet
-          </button>
         </div>
       </div>
     </section>

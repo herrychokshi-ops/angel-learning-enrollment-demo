@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useEnrollment } from "../context/EnrollmentContext";
+import { useFormDraft } from "../hooks/useFormDraft";
+import { completeFormAndGo } from "../utils/formNext";
 
 export function PhotoView() {
   const { state, saveForm, applyCarryForward, t, navigateTo } = useEnrollment();
@@ -63,28 +65,26 @@ export function PhotoView() {
     }));
   }, [state.data?.photo]);
 
+  useFormDraft("photo", formData);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => {
-      const next =
-        type === "checkbox" ? { ...prev, [name]: checked } : { ...prev, [name]: value };
-      const isPermissionField =
-        name.startsWith("perm") || name.startsWith("prep");
-      if (type === "checkbox" && isPermissionField) {
-        saveForm("photo", next, !!state.completed?.photo);
-      }
-      return next;
-    });
+    if (type === "checkbox") {
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const form = e.target;
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-    saveForm("photo", formData, true);
+  const handleNext = (e) => {
+    completeFormAndGo({
+      event: e,
+      saveForm,
+      formId: "photo",
+      getPayload: () => formData,
+      navigateTo,
+      target: "uploads",
+    });
   };
 
   const showPrefillNotice = !!(
@@ -95,7 +95,7 @@ export function PhotoView() {
 
   return (
     <section id="view-photo" className="view is-active">
-      <form className="form-shell" data-form="photo" onSubmit={handleSubmit} noValidate>
+      <form className="form-shell" data-form="photo" onSubmit={(e) => e.preventDefault()} noValidate>
         <div className="page-head">
           <a
             href="#packet"
@@ -291,20 +291,9 @@ export function PhotoView() {
         </fieldset>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" data-i18n="saveComplete">
-            {t("saveComplete") || "Save & mark complete"}
-          </button>
-          <a
-            href="#uploads"
-            className="btn btn-secondary"
-            data-nav="uploads"
-            onClick={(e) => {
-              e.preventDefault();
-              navigateTo("uploads");
-            }}
-          >
+          <button type="button" className="btn btn-primary" onClick={handleNext}>
             Next: Documents →
-          </a>
+          </button>
         </div>
       </form>
     </section>

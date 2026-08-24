@@ -2,12 +2,16 @@ import React, { useState } from "react";
 import ALC_CONFIG from "../config";
 import { useEnrollment } from "../context/EnrollmentContext";
 import { filesToUploadMeta, shouldRetainUploadData } from "../utils/uploadFileData";
+import { useFormDraft } from "../hooks/useFormDraft";
+import { completeFormAndGo } from "../utils/formNext";
 
 export function UploadsView() {
   const { state, saveForm, uploadFile, t, navigateTo } = useEnrollment();
 
   const savedData = state.data?.uploads || {};
   const [upConfirm, setUpConfirm] = useState(!!savedData.upConfirm);
+
+  useFormDraft("uploads", { upConfirm });
 
   const files = state.data?.uploads?.files || {};
   const uploadDefs = ALC_CONFIG.uploads || [];
@@ -31,17 +35,23 @@ export function UploadsView() {
     e.target.value = "";
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleNext = (e) => {
     const missing = requiredList.filter((u) => !(files[u.id] || []).length);
     if (missing.length > 0) {
       const ok = window.confirm(
-        `Missing required documents:\n• ${missing.map((m) => m.label).join("\n• ")}\n\nSave anyway? Staff can upload missing files later.`
+        `Missing required documents:\n• ${missing.map((m) => m.label).join("\n• ")}\n\nContinue anyway? Staff can upload missing files later.`
       );
       if (!ok) return;
     }
 
-    saveForm("uploads", { upConfirm }, true);
+    completeFormAndGo({
+      event: e,
+      saveForm,
+      formId: "uploads",
+      getPayload: () => ({ upConfirm }),
+      navigateTo,
+      target: "done",
+    });
   };
 
   const renderSlot = (def) => {
@@ -88,7 +98,7 @@ export function UploadsView() {
 
   return (
     <section id="view-uploads" className="view is-active">
-      <form className="form-shell" data-form="uploads" onSubmit={handleSubmit} noValidate>
+      <form className="form-shell" data-form="uploads" onSubmit={(e) => e.preventDefault()} noValidate>
         <div className="page-head">
           <a
             href="#packet"
@@ -134,21 +144,9 @@ export function UploadsView() {
         </fieldset>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" data-i18n="saveComplete">
-            {t("saveComplete") || "Save & mark complete"}
-          </button>
-          <a
-            href="#done"
-            className="btn btn-secondary"
-            data-nav="done"
-            data-i18n="finishPacket"
-            onClick={(e) => {
-              e.preventDefault();
-              navigateTo("done");
-            }}
-          >
+          <button type="button" className="btn btn-primary" data-i18n="finishPacket" onClick={handleNext}>
             {t("finishPacket") || "Finish packet →"}
-          </a>
+          </button>
         </div>
       </form>
     </section>

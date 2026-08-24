@@ -92,7 +92,7 @@ export const I18N = {
     packetEyebrow: "Your Packet",
     packetTitle: "Enrollment Checklist",
     packetLead:
-      "Progress saves in this browser. Shared fields autofill after Enrollment. Add a sibling anytime — one packet can cover multiple children.",
+      "Progress saves in this browser. Shared fields autofill after Enrollment.",
     progress: "{n} of {total} complete",
     statusTodo: "Pending",
     backPacket: "← Back to Packet",

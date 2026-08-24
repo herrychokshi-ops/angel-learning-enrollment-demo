@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import ALC_CONFIG from "../config";
 import { useEnrollment } from "../context/EnrollmentContext";
+import { useFormDraft } from "../hooks/useFormDraft";
+import { completeFormAndGo } from "../utils/formNext";
 
 export function TransportView() {
   const { state, saveForm, applyCarryForward, selectedLocationId, needsEmergencyMedicalForm, t, navigateTo } = useEnrollment();
@@ -60,17 +62,15 @@ export function TransportView() {
     }));
   }, [state.data?.transport, selectedLocationId]);
 
+  useFormDraft("transport", formData);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => {
-      const next =
-        type === "checkbox" ? { ...prev, [name]: checked } : { ...prev, [name]: value };
-      const isPermissionField = name.startsWith("trPerm");
-      if (type === "checkbox" && isPermissionField) {
-        saveForm("transport", next, !!state.completed?.transport);
-      }
-      return next;
-    });
+    if (type === "checkbox") {
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleLocationChange = (e) => {
@@ -91,14 +91,15 @@ export function TransportView() {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const form = e.target;
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-    saveForm("transport", formData, true);
+  const handleNext = (e) => {
+    completeFormAndGo({
+      event: e,
+      saveForm,
+      formId: "transport",
+      getPayload: () => formData,
+      navigateTo,
+      target: nextTarget,
+    });
   };
 
   const schools = ALC_CONFIG.transport?.schools?.[formData.trLocation] || [];
@@ -115,7 +116,7 @@ export function TransportView() {
 
   return (
     <section id="view-transport" className="view is-active">
-      <form className="form-shell" data-form="transport" onSubmit={handleSubmit} noValidate>
+      <form className="form-shell" data-form="transport" onSubmit={(e) => e.preventDefault()} noValidate>
         <div className="page-head">
           <a
             href="#packet"
@@ -341,21 +342,9 @@ export function TransportView() {
         </fieldset>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" data-i18n="saveComplete">
-            {t("saveComplete") || "Save & mark complete"}
-          </button>
-          <a
-            href={`#${nextTarget}`}
-            className="btn btn-secondary"
-            data-nav={nextTarget}
-            data-i18n={hasEmergency ? "nextEmergency" : "nextIes"}
-            onClick={(e) => {
-              e.preventDefault();
-              navigateTo(nextTarget);
-            }}
-          >
+          <button type="button" className="btn btn-primary" onClick={handleNext}>
             {nextText}
-          </a>
+          </button>
         </div>
       </form>
     </section>

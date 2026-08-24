@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { downloadBlankIesPdf } from "../pdf/pdfGenerator";
 import { useEnrollment } from "../context/EnrollmentContext";
+import { useFormDraft } from "../hooks/useFormDraft";
+import { completeFormAndGo } from "../utils/formNext";
 
 export function IesView() {
   const { state, saveForm, applyCarryForward, showToast, t, navigateTo } = useEnrollment();
@@ -26,6 +28,8 @@ export function IesView() {
     }));
   }, [state.data?.ies]);
 
+  useFormDraft("ies", formData);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (type === "checkbox") {
@@ -35,14 +39,15 @@ export function IesView() {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const form = e.target;
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-    saveForm("ies", formData, true);
+  const handleNext = (e) => {
+    completeFormAndGo({
+      event: e,
+      saveForm,
+      formId: "ies",
+      getPayload: () => formData,
+      navigateTo,
+      target: "handbook",
+    });
   };
 
   const handleDownloadBlank = async () => {
@@ -57,7 +62,7 @@ export function IesView() {
 
   return (
     <section id="view-ies" className="view is-active">
-      <form className="form-shell" data-form="ies" onSubmit={handleSubmit} noValidate>
+      <form className="form-shell" data-form="ies" onSubmit={(e) => e.preventDefault()} noValidate>
         <div className="page-head">
           <a
             href="#packet"
@@ -139,20 +144,9 @@ export function IesView() {
         </fieldset>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary" data-i18n="saveComplete">
-            {t("saveComplete") || "Save & mark complete"}
-          </button>
-          <a
-            href="#handbook"
-            className="btn btn-secondary"
-            data-nav="handbook"
-            onClick={(e) => {
-              e.preventDefault();
-              navigateTo("handbook");
-            }}
-          >
+          <button type="button" className="btn btn-primary" onClick={handleNext}>
             Next: Handbook →
-          </a>
+          </button>
         </div>
       </form>
     </section>
