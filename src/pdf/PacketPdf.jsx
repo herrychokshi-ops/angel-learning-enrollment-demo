@@ -799,6 +799,46 @@ const enroll = StyleSheet.create({
     marginTop: 8,
     marginBottom: 4,
   },
+  policyAckTitle: {
+    fontFamily: FONT,
+    fontWeight: "bold",
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 2,
+  },
+  policyAckSubtitle: {
+    fontFamily: FONT,
+    fontWeight: "bold",
+    fontSize: 11,
+    textAlign: "center",
+    marginBottom: 14,
+  },
+  policyAckFieldRow: {
+    marginBottom: 8,
+  },
+  policyAckQuote: {
+    fontFamily: FONT,
+    fontSize: 10,
+    lineHeight: 1.35,
+    marginBottom: 6,
+    textAlign: "justify",
+  },
+  policyAckNumberedRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 4,
+    paddingLeft: 10,
+  },
+  policyAckNumber: {
+    fontFamily: FONT,
+    fontSize: 10,
+    width: 14,
+    flexShrink: 0,
+  },
+  policyAckSigBlock: {
+    marginTop: 10,
+    marginBottom: 6,
+  },
   policyBullet: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -1173,6 +1213,53 @@ function WmgNumberedField({ number, label, value }) {
         <View style={[enroll.inlineValue, { flex: 1, minWidth: 0 }]}>
           <Text style={enroll.valueText}>{val(value) || " "}</Text>
         </View>
+      </View>
+    </View>
+  );
+}
+
+function getPolicyAckFields(d) {
+  const childName = d._derived?.childName || "";
+  const parentName =
+    d.financial?.responsibleParty ||
+    d.signatures?.mother ||
+    [d.mother?.firstName, d.mother?.mi, d.mother?.lastName].filter(Boolean).join(" ").trim();
+  return {
+    childName,
+    parentName,
+    signature: d.signatures?.mother || "",
+    date: d.signatures?.date || "",
+  };
+}
+
+function PolicyAckField({ label, value }) {
+  return (
+    <View style={enroll.policyAckFieldRow}>
+      <View style={enroll.inlineField}>
+        <Text style={enroll.inlineLabel}>{label}</Text>
+        <View style={[enroll.inlineValue, { flex: 1, minWidth: 0 }]}>
+          <Text style={enroll.valueText}>{val(value) || " "}</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function PolicyAckNumberedItem({ number, text }) {
+  return (
+    <View style={enroll.policyAckNumberedRow}>
+      <Text style={enroll.policyAckNumber}>{number}.</Text>
+      <Text style={[enroll.permBody, { flex: 1, marginBottom: 0 }]}>{text}</Text>
+    </View>
+  );
+}
+
+function PolicyAckSigLine({ label, signature, date }) {
+  return (
+    <View style={enroll.policyAckSigBlock}>
+      <View style={enroll.permSigRow}>
+        <InlineField label={label} value={signature} flex={2.4} />
+        <InlineField label="Date" value={date} flex={1} />
       </View>
     </View>
   );
@@ -1907,7 +1994,7 @@ function Page11({ d }) {
   const acked = !!(d.parentHandbook?.acknowledged || d.mealBenefit?.acknowledged || sig);
 
   return (
-    <Page size="LETTER" style={enroll.page}>
+    <Page size="A4" style={enroll.page}>
       <PdfHeader />
       <Text style={enroll.title}>Acknowledgments</Text>
 
@@ -2097,6 +2184,96 @@ function Page13({ d }) {
   );
 }
 
+const expulsionPolicyItems = [
+  "Challenging behaviors jeopardize the physical safety of the child and/or classmates as assessed by a qualified early childhood mental health consultant and all possible interventions and support recommended by a qualified early childhood mental health consultant aimed at providing a physically safe environment have been exhausted.",
+  "The child's parent(s) is unwilling to participate in mental health consultations that have been provided through the childcare program or independently obtain and participate in child mental health assistance available in the community.",
+  "Continued placement in this class or program clearly fails to meet the mental health and/or social-emotional needs of the child as agreed by both the staff and the family and a different program that is better able to meet these needs has been identified and can provide services to the child.",
+];
+
+const shakenBabyTrainingItems = [
+  "How the brain grows and what can hurt the brain in infancy and early childhood.",
+  "How to safely hold an infant to prevent shaken baby syndrome and abusive head trauma.",
+  "Ways to cope with a crying, fussing, or upset infant.",
+  "Ways for staff to cope with a crying baby.",
+  "Recognizing the signs and symptoms of abusive head trauma and shaken baby syndrome.",
+];
+
+function Page14({ d }) {
+  const { childName, parentName, date } = getPolicyAckFields(d);
+
+  return (
+    <Page size="LETTER" style={enroll.page}>
+      <Text style={enroll.policyAckTitle}>ANGEL LEARNING CENTER</Text>
+      <Text style={enroll.policyAckSubtitle}>POLICY ACKNOWLEDGMENT FORM for Parents and Staff</Text>
+
+      <PolicyAckField label="Child's Name" value={childName} />
+      <PolicyAckField label="Parent/Guardian Name" value={parentName} />
+      <PolicyAckField label="Staff Member Name (if applicable)" value="" />
+      <PolicyAckField label="Date" value={date} />
+
+      <Text style={enroll.permSection}>Discipline</Text>
+      <Text style={enroll.permBody}>I acknowledge that I have been informed of the following discipline policy:</Text>
+      <Text style={enroll.policyAckQuote}>
+        At no time will a child be subjected to physical punishment or shaming, frightening or humiliating
+        methods be used, or any type of verbal abuse, threats, derogatory remarks, or deprivation of a meal or any part
+        of a meal be used. No person, including, but not limited to, parents, guardians, or other family members may
+        use such methods or discipline while on the premises of the childcare program.&quot;
+      </Text>
+
+      <Text style={enroll.permSection}>Expulsion or Suspension</Text>
+      <Text style={enroll.permBody}>
+        I acknowledge that I have been informed of the following expulsion and suspension policy:
+      </Text>
+      <Text style={[enroll.policyAckQuote, { marginBottom: 4 }]}>
+        Expulsion or suspension of a child from care may happen when:
+      </Text>
+      {expulsionPolicyItems.map((item, idx) => (
+        <PolicyAckNumberedItem key={idx} number={idx + 1} text={item} />
+      ))} 
+
+      <Text style={enroll.permSection}>Prevention of Shaken Baby Syndrome and Abusive Head Trauma</Text>
+      <Text style={enroll.permBody}>
+        I acknowledge that I have been informed of the following policy regarding the prevention of shaken baby syndrome
+        and abusive head trauma:
+      </Text>
+      <Text style={[enroll.permBody, { marginBottom: 4, textAlign: "justify" }]}>
+        Program staff who have direct contact with children, including substitutes and volunteers, will have training in
+        preventing and identifying abusive head trauma and shaken baby syndrome. The training will teach the following
+        prevention and recognition topics:
+      </Text>
+      {shakenBabyTrainingItems.map((item, idx) => (
+        <PolicyAckNumberedItem key={idx} number={idx + 1} text={item} />
+      ))}
+      <Text style={[enroll.permBody, { marginTop: 4, marginBottom: 10, textAlign: "justify" }]}>
+        If any children show signs or symptoms of abusive head trauma or shaken baby syndrome, program staff will notify
+        administration to take the next steps to report the issue as staff are mandated reporters.
+      </Text>
+
+      
+      <PdfFooter />
+    </Page>
+  );
+}
+
+function Page15({ d }) {
+  const { signature, date } = getPolicyAckFields(d);
+
+  return (
+    <Page size="LETTER" style={enroll.page}>
+      <Text style={[enroll.permSection, { marginTop: 14 }]}>Acknowledgment</Text>
+      <Text style={[enroll.permBody, { marginBottom: 8, textAlign: "justify" }]}>
+        I acknowledge that I have received, read, and understand the above policies regarding Discipline,
+        Expulsion/Suspension, and Prevention of Shaken Baby Syndrome and Abusive Head Trauma. I understand these policies
+        and agree to comply with them while participating in or utilizing services provided by Angel Learning Center.
+      </Text>
+      <PolicyAckSigLine label="Parent/Guardian Signature" signature={signature} date={date} />
+      <PolicyAckSigLine label="Staff Signature" signature="" date="" />
+      <PolicyAckSigLine label="Director Signature" signature="" date="" />
+      <PdfFooter />
+    </Page>
+  );
+}
+
 export function PacketPdf({ data = {}, location = {}, which = "packet" }) {
   const d = normalize(data, location);
 
@@ -2131,6 +2308,8 @@ export function PacketPdf({ data = {}, location = {}, which = "packet" }) {
       <Page11 d={d} raw={data} />
       <Page12 d={d} raw={data} />
       <Page13 d={d} raw={data} />
+      <Page14 d={d} raw={data} />
+      <Page15 d={d} raw={data} />
     </Document>
   );
 }

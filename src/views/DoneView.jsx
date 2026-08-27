@@ -97,7 +97,7 @@ export function DoneView() {
         </div>
 
         <p className="hint" id="pdfHint">
-          PDFs are generated in your browser from the filled answers. The full packet includes your uploaded Meal Benefit (IES) form at the end when that file was uploaded in Documents. Re-upload the IES if you added it before this update.
+          PDFs are generated in your browser from the filled answers. The full packet appends uploaded documents after the forms: completed Meal Benefit (IES) first, then your other uploaded files (PDF or image). Re-upload in Documents if a file was added before this update.
         </p>
 
         <FormList asLink={false} compact={true} id="doneList" />

@@ -1,7 +1,7 @@
 const IES_UPLOAD_ID = "completed_ies";
 
-export function shouldRetainUploadData(uploadDefId) {
-  return uploadDefId === IES_UPLOAD_ID;
+export function shouldRetainUploadData() {
+  return true;
 }
 
 function readDataUrl(file) {

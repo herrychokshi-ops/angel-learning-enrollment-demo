@@ -1,7 +1,7 @@
 import React from "react";
 import { pdf } from "@react-pdf/renderer";
 import PacketPdf from "./PacketPdf";
-import { appendIesToPacketPdf, getCompletedIesUpload } from "./mergePacketPdf";
+import { appendUploadsToPacketPdf, getUploadsForMerge } from "./mergePacketPdf";
 
 const BLANK_IES_FILENAME = "IES2026-2027_ENGLISH.pdf";
 
@@ -12,11 +12,11 @@ function safeName(s) {
     .slice(0, 40);
 }
 
-export async function saveDocumentAsPdf(documentComponent, filename, { appendIesData } = {}) {
+export async function saveDocumentAsPdf(documentComponent, filename, { appendUploadsData } = {}) {
   try {
     let blob = await pdf(documentComponent).toBlob();
-    if (appendIesData) {
-      blob = await appendIesToPacketPdf(blob, appendIesData);
+    if (appendUploadsData) {
+      blob = await appendUploadsToPacketPdf(blob, appendUploadsData);
     }
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -26,7 +26,9 @@ export async function saveDocumentAsPdf(documentComponent, filename, { appendIes
     link.click();
     document.body.removeChild(link);
     setTimeout(() => URL.revokeObjectURL(url), 2000);
-    return { appendedIes: appendIesData ? !!getCompletedIesUpload(appendIesData) : false };
+    return {
+      appendedUploads: appendUploadsData ? getUploadsForMerge(appendUploadsData).length : 0,
+    };
   } catch (err) {
     console.error("PDF generation failed:", filename, err);
     throw err;
@@ -78,6 +80,14 @@ function readLatestPacketData(state) {
     ...fromState,
     photo: { ...(fromStore.photo || {}), ...(fromState.photo || {}) },
     transport: { ...(fromStore.transport || {}), ...(fromState.transport || {}) },
+    uploads: {
+      ...(fromStore.uploads || {}),
+      ...(fromState.uploads || {}),
+      files: {
+        ...(fromStore.uploads?.files || {}),
+        ...(fromState.uploads?.files || {}),
+      },
+    },
   };
 }
 
@@ -99,7 +109,7 @@ export async function downloadPdfBundle({ state, location, which = "packet" }) {
   await saveDocumentAsPdf(
     <PacketPdf data={data} location={loc} which={which} />,
     filename,
-    which === "packet" ? { appendIesData: data } : {}
+    which === "packet" ? { appendUploadsData: data } : {}
   );
 
   return { queued: 1 };
