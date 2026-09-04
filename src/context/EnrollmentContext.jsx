@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import ALC_CONFIG from "../config";
 import { ALL_FORMS, I18N, SAMPLE } from "../constants";
 import { needsEmergencyMedicalForm as checkEmergencyMedical } from "../utils/programSelection";
+import { uppercaseFormPayload } from "../utils/formValues";
 
 const STORAGE_KEY = "alc-enrollment-v1-multi";
 const LANG_KEY = "alc-enrollment-lang";
@@ -18,6 +19,7 @@ function loadInitialState() {
         data: parsed.data || {},
         locationId: parsed.locationId || parsed.data?.enrollment?.enLocation || "savannah",
         siblings: parsed.siblings || [],
+        flowMode: parsed.flowMode === "waitlist" ? "waitlist" : "full",
       };
     }
   } catch (e) {
@@ -28,6 +30,7 @@ function loadInitialState() {
     data: {},
     locationId: "savannah",
     siblings: [],
+    flowMode: "full",
   };
 }
 
@@ -164,6 +167,22 @@ export function EnrollmentProvider({ children }) {
     },
     [lang]
   );
+
+  const isWaitlistFlow = state.flowMode === "waitlist";
+
+  const startWaitlistFlow = useCallback(() => {
+    setState((prev) => ({ ...prev, flowMode: "waitlist" }));
+    navigateTo("enrollment");
+  }, [navigateTo]);
+
+  const startFullEnrollment = useCallback(() => {
+    setState((prev) => ({ ...prev, flowMode: "full" }));
+    navigateTo("enrollment");
+  }, [navigateTo]);
+
+  const setFullFlowMode = useCallback(() => {
+    setState((prev) => ({ ...prev, flowMode: "full" }));
+  }, []);
 
   const applyLocation = useCallback(
     (locationId, { scroll = false } = {}) => {
@@ -319,6 +338,7 @@ export function EnrollmentProvider({ children }) {
   const saveForm = useCallback(
     (formId, formData, markComplete = true, options = {}) => {
       const { silent = false } = options;
+      const payload = formId === "uploads" ? formData : uppercaseFormPayload(formData);
       setState((prev) => {
         const next = {
           ...prev,
@@ -326,7 +346,7 @@ export function EnrollmentProvider({ children }) {
             ...prev.data,
             [formId]: {
               ...(prev.data[formId] || {}),
-              ...formData,
+              ...payload,
             },
           },
           completed: {
@@ -358,13 +378,14 @@ export function EnrollmentProvider({ children }) {
 
   const autoSaveForm = useCallback(
     (formId, formData) => {
+      const payload = formId === "uploads" ? formData : uppercaseFormPayload(formData);
       setState((prev) => ({
         ...prev,
         data: {
           ...prev.data,
           [formId]: {
             ...(prev.data[formId] || {}),
-            ...formData,
+            ...payload,
           },
         },
       }));
@@ -400,7 +421,7 @@ export function EnrollmentProvider({ children }) {
 
   const resetDemo = useCallback(() => {
     if (!window.confirm(t("confirmReset"))) return;
-    setState({ completed: {}, data: {}, locationId: "savannah", siblings: [] });
+    setState({ completed: {}, data: {}, locationId: "savannah", siblings: [], flowMode: "full" });
     showToast(t("toastReset"));
     navigateTo("home");
   }, [navigateTo, showToast, t]);
@@ -531,6 +552,11 @@ export function EnrollmentProvider({ children }) {
     resetDemo,
     addSibling,
     uploadFile,
+    flowMode: state.flowMode,
+    isWaitlistFlow,
+    startWaitlistFlow,
+    startFullEnrollment,
+    setFullFlowMode,
   };
 
   return <EnrollmentContext.Provider value={value}>{children}</EnrollmentContext.Provider>;

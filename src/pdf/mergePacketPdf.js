@@ -139,6 +139,19 @@ export async function appendUploadsToPacketPdf(packetBlob, data) {
   }
 }
 
+/** Merge multiple PDF blobs into one document, preserving page order. */
+export async function mergePdfBlobs(blobs = []) {
+  const out = await PDFDocument.create();
+  for (const blob of blobs) {
+    if (!blob) continue;
+    const doc = await PDFDocument.load(await blob.arrayBuffer());
+    const pages = await out.copyPages(doc, doc.getPageIndices());
+    pages.forEach((page) => out.addPage(page));
+  }
+  const merged = await out.save();
+  return new Blob([merged], { type: "application/pdf" });
+}
+
 /** @deprecated use appendUploadsToPacketPdf */
 export async function appendIesToPacketPdf(packetBlob, data) {
   return appendUploadsToPacketPdf(packetBlob, data);

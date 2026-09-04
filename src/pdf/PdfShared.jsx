@@ -1,11 +1,17 @@
 import React from "react";
-import { StyleSheet, Text, View, Image } from "@react-pdf/renderer";
+import { Font, StyleSheet, Text, View, Image } from "@react-pdf/renderer";
 
 /**
  * Official packet look: Times (standard PDF serif) for body/labels,
  * filled values sit on underline rules without overflowing adjacent fields.
  */
 export const FONT = "Times-Roman";
+export const SIGNATURE_FONT = "Pacifico";
+
+Font.register({
+  family: SIGNATURE_FONT,
+  src: "/fonts/Pacifico.ttf",
+});
 
 export const COLORS = {
   ink: "#000000",
@@ -209,8 +215,15 @@ export function PdfSectionTitle({ title }) {
   return <Text style={pdfStyles.sectionTitle}>{title}</Text>;
 }
 
+export function formatPdfValue(v) {
+  if (v == null || v === "") return "";
+  const s = String(v).trim();
+  if (!s) return "";
+  return s.toUpperCase();
+}
+
 export function FormField({ label, value, flex = 1, minWidth = 28, style = {}, grow = true }) {
-  const displayVal = value == null || value === "" ? " " : String(value);
+  const displayVal = value == null || value === "" ? " " : formatPdfValue(value);
   return (
     <View style={[pdfStyles.fieldContainer, { flex, minWidth }, style]}>
       <Text style={pdfStyles.fieldLabel}>{label}:</Text>

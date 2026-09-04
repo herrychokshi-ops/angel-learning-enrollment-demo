@@ -7,6 +7,10 @@ export const ALC_CONFIG = {
   goLive: "2026-08-10",
   mode: "prod", // was pitch mockup; now production soft-launch
 
+  waitlist: {
+    registrationFee: 150,
+  },
+
   product: {
     parentLogin: false,
     parentEmailCopy: false,

@@ -3,7 +3,7 @@ import ALC_CONFIG from "../config";
 import { useEnrollment } from "../context/EnrollmentContext";
 
 export function SelectedCenterCard() {
-  const { activeLocation, navigateTo } = useEnrollment();
+  const { activeLocation, navigateTo, startWaitlistFlow, startFullEnrollment, setFullFlowMode } = useEnrollment();
 
   if (!activeLocation || !activeLocation.id) return null;
 
@@ -22,28 +22,36 @@ export function SelectedCenterCard() {
         Forms email To: {activeLocation.inbox} · CC: {ccList} · {routeCount} bus schools
       </p>
       <div className="hero-cta">
-        <a
+        {/* <a
           href="#packet"
           className="btn btn-primary"
           data-nav="packet"
           onClick={(e) => {
             e.preventDefault();
+            setFullFlowMode();
             navigateTo("packet");
           }}
         >
           Continue to checklist →
-        </a>
+        </a> */}
         <a
           href="#enrollment"
-          className="btn btn-secondary"
+          className="btn btn-primary"
           data-nav="enrollment"
           onClick={(e) => {
             e.preventDefault();
-            navigateTo("enrollment");
+            startFullEnrollment();
           }}
         >
-          Start enrollment form →
+          Start Enrollment Form →
         </a>
+        <button
+          type="button"
+          className="btn btn-waitlist"
+          onClick={startWaitlistFlow}
+        >
+          Waitlist Form →
+        </button>
       </div>
     </div>
   );

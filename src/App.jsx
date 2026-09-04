@@ -16,15 +16,25 @@ import PhotoView from "./views/PhotoView";
 import UploadsView from "./views/UploadsView";
 import StaffView from "./views/StaffView";
 import DoneView from "./views/DoneView";
+import WaitlistDoneView from "./views/WaitlistDoneView";
 
 import { useEnrollment } from "./context/EnrollmentContext";
 
 export function App() {
-  const { currentView } = useEnrollment();
+  const { currentView, isWaitlistFlow, navigateTo } = useEnrollment();
+
+  React.useEffect(() => {
+    if (!isWaitlistFlow) return;
+    const allowed = new Set(["enrollment", "waitlist-done", "home"]);
+    if (!allowed.has(currentView)) {
+      navigateTo("enrollment");
+    }
+  }, [currentView, isWaitlistFlow, navigateTo]);
 
   const renderActiveView = () => {
     switch (currentView) {
       case "packet":
+        if (isWaitlistFlow) return <EnrollmentView />;
         return <PacketView />;
       case "enrollment":
         return <EnrollmentView />;
@@ -46,6 +56,8 @@ export function App() {
         return <StaffView />;
       case "done":
         return <DoneView />;
+      case "waitlist-done":
+        return <WaitlistDoneView />;
       case "locations":
       case "home":
       default:

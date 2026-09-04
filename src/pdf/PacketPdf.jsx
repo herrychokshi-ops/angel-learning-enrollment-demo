@@ -1,7 +1,10 @@
 import React from "react";
 import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import ALC_CONFIG from "../config";
-import { FONT, COLORS, PdfHeader, PdfFooter, getLogoUrl, getWatchMeGrowUrl, getProCareLogoUrl } from "./PdfShared";
+import { FONT, COLORS, SIGNATURE_FONT, PdfHeader, PdfFooter, getLogoUrl, getWatchMeGrowUrl, getProCareLogoUrl, formatPdfValue } from "./PdfShared";
+import { collectBlankFields, groupBlankFields } from "./pdfBlankFields";
+
+const TODAY = new Date().toISOString().slice(0, 10);
 
 const WATER_PERMISSION_FIELDS = [
   { label: "Sprinkler", field: "permWaterSprinkler" },
@@ -226,7 +229,7 @@ const s = StyleSheet.create({
 });
 
 function val(v) {
-  return v == null ? "" : String(v);
+  return formatPdfValue(v);
 }
 
 function fullName(p = {}) {
@@ -324,7 +327,7 @@ function normalize(data = {}, location = {}) {
       date: fin.finSignDate || hb.hbDate || ph.photoDate,
     },
     tuition: {
-      amount: "",
+      amount: en.tuitionAmount,
       programs: Array.isArray(en.programs) ? en.programs.join(", ") : en.programs,
       center: loc.name || loc.legalName || en.enLocation,
     },
@@ -333,7 +336,8 @@ function normalize(data = {}, location = {}) {
       from: en.careFrom,
       to: en.careTo,
       meals,
-      previousSchool: "",
+      previousSchool: en.previousDaycareName,
+      homeCareName: en.previousHomeCareName,
     },
     emergencyContacts: [
       { name: en.ec1Name, homePhone: en.ec1Home, workPhone: en.ec1Work, cellPhone: en.ec1Cell, address: "", relationship: en.ec1Rel },
@@ -648,6 +652,9 @@ const enroll = StyleSheet.create({
     color: "#0645AD",
     lineHeight: 1.05,
   },
+  signatureValue: {
+    fontFamily: SIGNATURE_FONT,
+  },
   checkboxText: {
     fontFamily: FONT,
     fontSize: 10,
@@ -861,6 +868,146 @@ const enroll = StyleSheet.create({
     fontSize: 10,
     lineHeight: 1.35,
     flex: 1,
+  },
+  blankSummaryTitle: {
+    fontFamily: FONT,
+    fontWeight: "bold",
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 4,
+    letterSpacing: 0.3,
+  },
+  blankSummarySubtitle: {
+    fontFamily: FONT,
+    fontSize: 10,
+    textAlign: "center",
+    color: COLORS.muted,
+    marginBottom: 12,
+  },
+  blankSummaryMetaRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#333",
+    backgroundColor: "#f7f7f7",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 14,
+  },
+  blankSummaryMetaLabel: {
+    fontFamily: FONT,
+    fontSize: 8.5,
+    color: COLORS.muted,
+    marginBottom: 2,
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
+  },
+  blankSummaryMetaValue: {
+    fontFamily: "Helvetica",
+    fontSize: 11,
+    color: COLORS.value,
+    fontWeight: "bold",
+  },
+  blankSummaryCountBadge: {
+    borderWidth: 1,
+    borderColor: "#8B0000",
+    backgroundColor: "#fff5f5",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    alignItems: "center",
+    minWidth: 90,
+  },
+  blankSummaryCountNum: {
+    fontFamily: FONT,
+    fontWeight: "bold",
+    fontSize: 18,
+    color: "#8B0000",
+    lineHeight: 1.1,
+  },
+  blankSummaryCountLabel: {
+    fontFamily: FONT,
+    fontSize: 8,
+    color: "#8B0000",
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
+  },
+  blankSummarySection: {
+    marginBottom: 12,
+  },
+  blankSummarySectionHead: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#e8e8e8",
+    borderWidth: 0.8,
+    borderColor: "#555",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+  },
+  blankSummarySectionTitle: {
+    fontFamily: FONT,
+    fontWeight: "bold",
+    fontSize: 11,
+    letterSpacing: 0.2,
+  },
+  blankSummarySectionCount: {
+    fontFamily: FONT,
+    fontSize: 9,
+    color: COLORS.muted,
+  },
+  blankSummarySectionBody: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderWidth: 0.8,
+    borderTopWidth: 0,
+    borderColor: "#555",
+  },
+  blankSummaryItem: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 3,
+    paddingBottom: 3,
+    borderBottomWidth: 0.4,
+    borderBottomColor: "#ddd",
+  },
+  blankSummaryItemNum: {
+    fontFamily: FONT,
+    fontSize: 9,
+    width: 16,
+    flexShrink: 0,
+    color: COLORS.muted,
+    paddingTop: 1,
+  },
+  blankSummaryItemLabel: {
+    fontFamily: FONT,
+    fontSize: 9.5,
+    lineHeight: 1.35,
+    flex: 1,
+    minWidth: 0,
+  },
+  blankSummaryCompleteBox: {
+    borderWidth: 1,
+    borderColor: "#2d6a2d",
+    backgroundColor: "#f4fff4",
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    marginTop: 20,
+    alignItems: "center",
+  },
+  blankSummaryCompleteText: {
+    fontFamily: FONT,
+    fontSize: 12,
+    fontWeight: "bold",
+    color: "#2d6a2d",
+    textAlign: "center",
+    marginBottom: 4,
+  },
+  blankSummaryCompleteSub: {
+    fontFamily: FONT,
+    fontSize: 10,
+    color: COLORS.muted,
+    textAlign: "center",
   },
   permissionCheckRow: {
     flexDirection: "row",
@@ -1156,7 +1303,9 @@ const enroll = StyleSheet.create({
 });
 
 function InlineField({ label, value, width, flex, grow = false }) {
-  const labelText = /[:)]$/.test(String(label).trim()) ? label : `${label}:`;
+  const normalizedLabel = String(label || "").trim();
+  const labelText = /[:)]$/.test(normalizedLabel) ? normalizedLabel : `${normalizedLabel}:`;
+  const isSignature = /signature/i.test(normalizedLabel);
 
   return (
     <View
@@ -1167,9 +1316,9 @@ function InlineField({ label, value, width, flex, grow = false }) {
         grow ? { flexGrow: 1, minWidth: 0 } : null,
       ]}
     >
-      <Text style={enroll.inlineLabel}>{labelText}</Text>
+      {normalizedLabel ? <Text style={enroll.inlineLabel}>{labelText}</Text> : null}
       <View style={[enroll.inlineValue, { flex: 1, minWidth: 0 }]}>
-        <Text style={enroll.valueText}>{val(value) || " "}</Text>
+        <Text style={[enroll.valueText, isSignature ? enroll.signatureValue : null]}>{val(value) || " "}</Text>
       </View>
     </View>
   );
@@ -1335,18 +1484,25 @@ function CompactGuardian({ title, person = {} }) {
   );
 }
 
-function Page1({ d }) {
+function Page1({ d, raw = {}, waitlistMode = false }) {
   const child = d.child || {};
+  const en = raw.enrollment || {};
+  const motherName = fullName(d.mother);
+  const fatherName = fullName(d.father);
+  const registrationFee = `$${Number(ALC_CONFIG.waitlist?.registrationFee ?? 150).toFixed(2)}`;
+
   return (
     <Page size="LETTER" style={enroll.page}>
       <PdfHeader />
       <Text style={enroll.title}>Angel Learning Center Enrollment Form</Text>
-      <View style={{  flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "flex-end",
-    marginBottom: 6,}}>
-        <InlineField label="Start Date" value={d.startDate} width={150} />
-      </View>
+      {!waitlistMode && (
+        <View style={{  flexDirection: "row",
+      justifyContent: "flex-end",
+      alignItems: "flex-end",
+      marginBottom: 6,}}>
+          <InlineField label="Start Date" value={d.startDate} width={150} />
+        </View>
+      )}
 
       <CompactSection>Child’s Information</CompactSection>
       <View style={enroll.lineRow}>
@@ -1383,10 +1539,51 @@ function Page1({ d }) {
       <CompactGuardian title="Mother/Guardian" person={d.mother} />
       <CompactGuardian title="Father/Guardian" person={d.father} />
 
-      <CompactSection>Tuition/Payment Information</CompactSection>
-      <View style={enroll.lineRow}>
-        <InlineField label="Current Tuition Amount" value={d.tuition?.amount} width={220} />
-      </View>
+      {waitlistMode && (
+        <>
+          <CompactSection>PARENT/GUARDIAN SIGNATURES</CompactSection>
+          <View style={enroll.lineRow}>
+            <InlineField
+              label="Printed Name"
+              value={en.wlParent1PrintName || motherName}
+              flex={1.2}
+            />
+            <InlineField
+              label="Signature"
+              value={en.wlParent1Signature || motherName}
+              flex={1.2}
+            />
+            <InlineField label="Date" value={en.wlParent1SignDate || TODAY} flex={0.7} />
+          </View>
+          <View style={enroll.lineRow}>
+            <InlineField
+              label="Printed Name"
+              value={en.wlParent2PrintName || fatherName}
+              flex={1.2}
+            />
+            <InlineField
+              label="Signature"
+              value={en.wlParent2Signature || fatherName}
+              flex={1.2}
+            />
+            <InlineField label="Date" value={en.wlParent2SignDate || TODAY} flex={0.7} />
+          </View>
+        </>
+      )}
+
+    {!waitlistMode && (
+  <>
+    <CompactSection>Tuition/Payment Information</CompactSection>
+
+    <View style={enroll.lineRow}>
+      <InlineField
+        label="Current Tuition Amount"
+        value={d.tuition?.amount}
+        width={220}
+      />
+    </View>
+  </>
+)}
       <PdfFooter />
     </Page>
   );
@@ -1450,15 +1647,15 @@ function Page2({ d }) {
       <Text style={enroll.subLabel}>Previous School Information:</Text>
       <View style={enroll.lineRow}>
         <InlineField label="Daycare Name" value={d.care?.previousSchool} flex={1} />
-        <InlineField label="Home Care Name" value="" flex={1} />
+        <InlineField label="Home Care Name" value={d.care?.homeCareName} flex={1} />
       </View>
 
       <Text style={enroll.page2Section}>Emergency Medical Authorization</Text>
       <Text style={enroll.authText}>
         In the event my child{" "}
-        <Text style={enroll.inlineBlank}>{childName || "                        "}</Text>
+        <Text style={enroll.inlineBlank}>{val(childName) || "                        "}</Text>
         , date of birth{" "}
-        <Text style={enroll.inlineBlank}>{childDob || "              "}</Text>
+        <Text style={enroll.inlineBlank}>{val(childDob) || "              "}</Text>
         , suffers an injury or illness while in care at Angel Learning Center and the facility is unable to contact me
         (us) immediately, it shall be authorized to secure such medical attention and care for the child as may be
         necessary. I (we) will assume responsibility for payment of services.
@@ -1886,7 +2083,7 @@ function Page9({ d, raw = {} }) {
       <Text style={[enroll.permBody, { marginBottom: 10 }]}>
         I give Angel Learning Center permission to apply one or more of the following topical ointments/preparations to
         my child{" "}
-        <Text style={enroll.inlineBlank}>{childName || "                                    "}</Text> in accordance with
+        <Text style={enroll.inlineBlank}>{val(childName) || "                                    "}</Text> in accordance with
         the directions on the label of the container.
       </Text>
 
@@ -2274,6 +2471,76 @@ function Page15({ d }) {
   );
 }
 
+function Page16BlankSummary({ data, d }) {
+  const blanks = collectBlankFields(data, d);
+  const groups = groupBlankFields(blanks);
+  const childName = val(d._derived?.childName || "");
+  const generatedDate = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const totalCount = blanks.length;
+
+  return (
+    <Page size="LETTER" style={enroll.page} wrap>
+      <View wrap={false}>
+        <Text style={enroll.blankSummaryTitle}>BLANK FIELDS SUMMARY</Text>
+        <Text style={enroll.blankSummarySubtitle}>
+          Review of incomplete enrollment fields at time of PDF generation
+        </Text>
+
+        <View style={enroll.blankSummaryMetaRow}>
+          <View>
+            <Text style={enroll.blankSummaryMetaLabel}>Child</Text>
+            <Text style={enroll.blankSummaryMetaValue}>{childName || "—"}</Text>
+          </View>
+          <View>
+            <Text style={enroll.blankSummaryMetaLabel}>Generated</Text>
+            <Text style={enroll.blankSummaryMetaValue}>{generatedDate.toUpperCase()}</Text>
+          </View>
+          <View style={enroll.blankSummaryCountBadge}>
+            <Text style={enroll.blankSummaryCountNum}>{totalCount}</Text>
+            <Text style={enroll.blankSummaryCountLabel}>
+              {totalCount === 1 ? "Blank field" : "Blank fields"}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      {groups.length === 0 ? (
+        <View style={enroll.blankSummaryCompleteBox}>
+          <Text style={enroll.blankSummaryCompleteText}>All fields complete</Text>
+          <Text style={enroll.blankSummaryCompleteSub}>
+            No blank fields were found across the tracked enrollment forms and document uploads.
+          </Text>
+        </View>
+      ) : (
+        groups.map((group) => (
+          <View key={group.section} style={enroll.blankSummarySection}>
+            <View style={enroll.blankSummarySectionHead} minPresenceAhead={24}>
+              <Text style={enroll.blankSummarySectionTitle}>{group.section.toUpperCase()}</Text>
+              <Text style={enroll.blankSummarySectionCount}>
+                {group.labels.length} {group.labels.length === 1 ? "item" : "items"}
+              </Text>
+            </View>
+            <View style={enroll.blankSummarySectionBody}>
+              {group.labels.map((label, idx) => (
+                <View key={`${group.section}-${idx}-${label}`} style={enroll.blankSummaryItem}>
+                  <Text style={enroll.blankSummaryItemNum}>{idx + 1}.</Text>
+                  <Text style={enroll.blankSummaryItemLabel}>{label}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        ))
+      )}
+
+      <PdfFooter />
+    </Page>
+  );
+}
+
 export function PacketPdf({ data = {}, location = {}, which = "packet" }) {
   const d = normalize(data, location);
 
@@ -2285,10 +2552,19 @@ export function PacketPdf({ data = {}, location = {}, which = "packet" }) {
     );
   }
 
+  if (which === "waitlist") {
+    return (
+      <Document>
+        <Page1 d={d} raw={data} waitlistMode />
+      </Document>
+    );
+  }
+
   if (which === "enrollment") {
     return (
       <Document>
         <Page1 d={d} raw={data} />
+        <Page2 d={d} raw={data} />
       </Document>
     );
   }
@@ -2310,6 +2586,7 @@ export function PacketPdf({ data = {}, location = {}, which = "packet" }) {
       <Page13 d={d} raw={data} />
       <Page14 d={d} raw={data} />
       <Page15 d={d} raw={data} />
+      <Page16BlankSummary data={data} d={d} />
     </Document>
   );
 }
@@ -2317,5 +2594,7 @@ export function PacketPdf({ data = {}, location = {}, which = "packet" }) {
 export function generateEnrollmentPDF(data, location = {}) {
   return <PacketPdf data={data} location={location} which="packet" />;
 }
+
+export { normalize, Page1 as EnrollmentPdfPage1, Page2 as EnrollmentPdfPage2 };
 
 export default PacketPdf;

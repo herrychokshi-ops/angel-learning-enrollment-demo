@@ -558,6 +558,85 @@ main { padding: 0.5rem 1.25rem 3.5rem; }
   color: #fff;
 }
 
+.btn-waitlist {
+  background: var(--navy);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(26, 61, 143, 0.22);
+}
+
+.btn-waitlist:hover {
+  background: #15306f;
+}
+
+.waitlist-intro {
+  background: #f7f9fc;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1.25rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.waitlist-terms-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+
+.waitlist-terms-list li {
+  margin-bottom: 0.65rem;
+}
+
+.waitlist-notice {
+  border: 2px solid var(--orange);
+  border-radius: 0.5rem;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1.25rem;
+  background: #fffaf5;
+}
+
+.waitlist-notice strong {
+  display: block;
+  color: var(--orange);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.waitlist-notice p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #b45309;
+  font-weight: 600;
+}
+
+.waitlist-section-divider {
+  margin: 2rem 0 1rem;
+  padding-top: 1.5rem;
+  border-top: 3px solid var(--navy);
+}
+
+.waitlist-section-divider h3 {
+  margin: 0 0 0.35rem;
+  color: var(--navy);
+  font-size: 1.35rem;
+}
+
+.waitlist-section-divider p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.selected-center .hero-cta {
+  flex-wrap: wrap;
+}
+
 .section { padding: 0.5rem 0 1.5rem; }
 
 .section h2,
@@ -719,7 +798,7 @@ label {
   margin-bottom: 0.8rem;
 }
 
-input,
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
 select,
 textarea {
   font: inherit;
@@ -730,6 +809,7 @@ textarea {
   padding: 0.7rem 0.85rem;
   background: var(--paper);
   width: 100%;
+  text-transform: uppercase;
 }
 
 input:focus,

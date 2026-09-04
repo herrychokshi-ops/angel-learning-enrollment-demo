@@ -1,7 +1,8 @@
 import React from "react";
 import { pdf } from "@react-pdf/renderer";
 import PacketPdf from "./PacketPdf";
-import { appendUploadsToPacketPdf, getUploadsForMerge } from "./mergePacketPdf";
+import WaitlistAgreementPdf from "./WaitlistPdf";
+import { appendUploadsToPacketPdf, getUploadsForMerge, mergePdfBlobs } from "./mergePacketPdf";
 
 const BLANK_IES_FILENAME = "IES2026-2027_ENGLISH.pdf";
 
@@ -78,6 +79,7 @@ function readLatestPacketData(state) {
   return {
     ...fromStore,
     ...fromState,
+    enrollment: { ...(fromStore.enrollment || {}), ...(fromState.enrollment || {}) },
     photo: { ...(fromStore.photo || {}), ...(fromState.photo || {}) },
     transport: { ...(fromStore.transport || {}), ...(fromState.transport || {}) },
     uploads: {
@@ -111,6 +113,30 @@ export async function downloadPdfBundle({ state, location, which = "packet" }) {
     filename,
     which === "packet" ? { appendUploadsData: data } : {}
   );
+
+  return { queued: 1 };
+}
+
+export async function downloadWaitlistPdf({ state, location }) {
+  const data = readLatestPacketData(state);
+  const loc = location || {};
+  const en = data.enrollment || {};
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const base = `ALC_${safeName(en.childLast || loc.id)}_${safeName(en.childFirst)}_${dateStr}`;
+  const filename = `${base}_Waitlist_Packet.pdf`;
+
+  const enrollmentBlob = await pdf(<PacketPdf data={data} location={loc} which="waitlist" />).toBlob();
+  const agreementBlob = await pdf(<WaitlistAgreementPdf data={data} location={loc} />).toBlob();
+  const mergedBlob = await mergePdfBlobs([agreementBlob, enrollmentBlob]);
+
+  const url = URL.createObjectURL(mergedBlob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
 
   return { queued: 1 };
 }
